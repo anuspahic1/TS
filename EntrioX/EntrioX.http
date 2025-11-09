@@ -1,0 +1,6 @@
+@EntrioX_HostAddress = http://localhost:5149
+
+GET {{EntrioX_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

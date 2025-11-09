@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntrioX", "EntrioX\EntrioX.csproj", "{5035FF53-7E0A-4F51-8E43-F691F6949B0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5035FF53-7E0A-4F51-8E43-F691F6949B0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5035FF53-7E0A-4F51-8E43-F691F6949B0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5035FF53-7E0A-4F51-8E43-F691F6949B0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5035FF53-7E0A-4F51-8E43-F691F6949B0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6E9380F-D544-4A0F-A52B-392430144D23}
+	EndGlobalSection
+EndGlobal
