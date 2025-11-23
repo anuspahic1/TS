@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntrioX", "EntrioX\EntrioX.csproj", "{5035FF53-7E0A-4F51-8E43-F691F6949B0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntrioX", "EntrioX\EntrioX.csproj", "{5035FF53-7E0A-4F51-8E43-F691F6949B0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{3526AC59-C80A-4E15-87FA-A90A209154CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contracts", "Contracts\Contracts.csproj", "{3526AC59-C80A-4E15-87FA-A90A209154CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoggerService", "LoggerService\LoggerService.csproj", "{C88FC2F4-4658-4D4B-AB86-A932F0893061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoggerService", "LoggerService\LoggerService.csproj", "{C88FC2F4-4658-4D4B-AB86-A932F0893061}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{B69DD891-85BB-423C-9C82-A857EB29E3C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{5EFE7E80-D466-411D-8845-1C6F340F7464}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +31,14 @@ Global
 		{C88FC2F4-4658-4D4B-AB86-A932F0893061}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C88FC2F4-4658-4D4B-AB86-A932F0893061}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C88FC2F4-4658-4D4B-AB86-A932F0893061}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B69DD891-85BB-423C-9C82-A857EB29E3C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B69DD891-85BB-423C-9C82-A857EB29E3C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B69DD891-85BB-423C-9C82-A857EB29E3C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B69DD891-85BB-423C-9C82-A857EB29E3C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EFE7E80-D466-411D-8845-1C6F340F7464}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EFE7E80-D466-411D-8845-1C6F340F7464}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EFE7E80-D466-411D-8845-1C6F340F7464}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EFE7E80-D466-411D-8845-1C6F340F7464}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
