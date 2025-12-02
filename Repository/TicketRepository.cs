@@ -9,5 +9,12 @@ namespace Repository
         : base(repositoryContext)
         {
         }
+
+        public IEnumerable<Ticket> GetAllTickets(bool trackChanges)
+        {
+            return FindAll(trackChanges)
+                .OrderBy(e => e.Price)
+                .ToList();
+        }
     }
 }

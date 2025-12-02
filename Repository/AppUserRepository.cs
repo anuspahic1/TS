@@ -8,5 +8,12 @@ namespace Repository
         public AppUserRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         { 
         }
+
+        public IEnumerable<AppUser> GetAllUsers(bool trackChanges)
+        {
+            return FindAll(trackChanges)
+                .OrderBy(e => e.Email)
+                .ToList();
+        }
     }
 }

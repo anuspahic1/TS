@@ -9,5 +9,12 @@ namespace Repository
         : base(repositoryContext)
         {
         }
+
+        public IEnumerable<Location> GetAllLocations(bool trackChanges)
+        {
+            return FindAll(trackChanges)
+                .OrderBy(e => e.Name)
+                .ToList();
+        }
     }
 }

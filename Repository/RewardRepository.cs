@@ -9,5 +9,12 @@ namespace Repository
         : base(repositoryContext)
         {
         }
+
+        public IEnumerable<Reward> GetAllRewards(bool trackChanges)
+        {
+            return FindAll(trackChanges)
+                .OrderBy(e => e.Description)
+                .ToList();
+        }
     }
 }

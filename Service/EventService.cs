@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace Service
 {
@@ -12,6 +13,31 @@ namespace Service
         {
             _repository = repository;
             _logger = logger;
+        }
+
+        public IEnumerable<EventDto> GetAllEvents(bool trackChanges)
+        {
+            try
+            {
+                var events = _repository.Event.GetAllEvents(trackChanges);
+
+                var eventsDto = events.Select(e =>
+                    new EventDto(
+                        e.Id,
+                        e.Name ?? string.Empty,
+                        e.Description,
+                        e.Created,
+                        e.Location?.Name ?? string.Empty
+                    ))
+                    .ToList();
+
+                return eventsDto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong in the{ nameof(GetAllEvents)} service method { ex }");
+                throw;
+            }
         }
     }
 }

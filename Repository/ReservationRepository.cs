@@ -9,5 +9,12 @@ namespace Repository
         : base(repositoryContext)
         {
         }
+
+        public IEnumerable<Reservation> GetAllReservations(bool trackChanges)
+        {
+            return FindAll(trackChanges)
+                .OrderBy(e => e.TotalPrice)
+                .ToList();
+        }
     }
 }
