@@ -15,23 +15,22 @@ namespace EntrioX
                      opt => opt.MapFrom(src => $"{src.Name}, {src.Address}"));
 
             CreateMap<Event, EventDto>()
-                //.ForCtorParam("LocationName",
-                .ForMember(dest => dest.LocationName,
-                    opt => opt.MapFrom(src => src.Location.Name));
+                .ForCtorParam("LocationName",
+                    opt => opt.MapFrom(src => src.Location != null ? src.Location.Name : ""));
 
             CreateMap<Ticket, TicketDto>()
                 .ForMember(dest => dest.EventName,
-                    opt => opt.MapFrom(src => src.Event.Name));
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : "")) ;
 
             CreateMap<Reservation, ReservationDto>()
                 .ForMember(dest => dest.UserFullName,
-                    opt => opt.MapFrom(src => src.User.FullName))
+                    opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
                 .ForMember(dest => dest.EventName,
-                    opt => opt.MapFrom(src => src.Event.Name));
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""));
 
             CreateMap<Reward, RewardDto>()
                 .ForMember(dest => dest.UserFullName,
-                    opt => opt.MapFrom(src => src.User.FullName));
+                    opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""));
         }
     }
 }
