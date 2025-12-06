@@ -20,19 +20,11 @@ namespace Service
 
         public IEnumerable<AppUserDto> GetAllUsers(bool trackChanges)
         {
-            try
-            {
-                var users = _repository.AppUser.GetAllUsers(trackChanges);
+            var users = _repository.AppUser.GetAllUsers(trackChanges);
 
-                var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
+            var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
 
-                return usersDto;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong in the{nameof(GetAllUsers)} service method {ex}");
-                throw;
-            }
+            return usersDto;
         }
     }
 }

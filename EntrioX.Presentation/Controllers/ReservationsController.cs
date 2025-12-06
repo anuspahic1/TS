@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetReservations()
         {
-            try
-            {
-                var reservations = _service.ReservationService.GetAllReservations(trackChanges: false);
-                return Ok(reservations);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var reservations = _service.ReservationService.GetAllReservations(trackChanges: false);
+            return Ok(reservations);
         }
     }
 }

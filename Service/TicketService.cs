@@ -20,29 +20,11 @@ namespace Service
 
         public IEnumerable<TicketDto> GetAllTickets(bool trackChanges)
         {
-            try
-            {
-                var tickets = _repository.Ticket.GetAllTickets(trackChanges);
+            var tickets = _repository.Ticket.GetAllTickets(trackChanges);
 
-                var ticketsDto = tickets.Select(t =>
-                    new TicketDto(
-                        t.Id,
-                        t.Price,
-                        t.SeatNumber,
-                        t.IsReserved,
-                        t.QRCode,
-                        t.EventId,
-                        t.Event?.Name ?? string.Empty
-                    ))
-                    .ToList();
+            var ticketsDto = _mapper.Map<IEnumerable<TicketDto>>(tickets);
 
-                return ticketsDto;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong in the{nameof(GetAllTickets)} service method {ex}");
-                throw;
-            }
+            return ticketsDto;
         }
     }
 }

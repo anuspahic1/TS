@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetEvents() 
         {
-            try
-            {
-                var events = _service.EventService.GetAllEvents(trackChanges: false);
-                return Ok(events);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var events = _service.EventService.GetAllEvents(trackChanges: false);
+            return Ok(events);
         }
     }
 }

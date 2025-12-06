@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetUsers()
         {
-            try
-            {
-                var users = _service.AppUserService.GetAllUsers(trackChanges: false);
-                return Ok(users);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var users = _service.AppUserService.GetAllUsers(trackChanges: false);
+            return Ok(users);
         }
     }
 }

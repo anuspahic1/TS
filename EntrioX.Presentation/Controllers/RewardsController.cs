@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetRewards()
         {
-            try
-            {
-                var rewards = _service.RewardService.GetAllRewards(trackChanges: false);
-                return Ok(rewards);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var rewards = _service.RewardService.GetAllRewards(trackChanges: false);
+            return Ok(rewards);
         }
     }
 }

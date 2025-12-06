@@ -20,28 +20,11 @@ namespace Service
 
         public IEnumerable<LocationDto> GetAllLocations(bool trackChanges)
         {
-            try
-            {
-                var locations = _repository.Location.GetAllLocations(trackChanges);
+            var locations = _repository.Location.GetAllLocations(trackChanges);
 
-                var locationsDto = locations.Select(l =>
-                    new LocationDto(
-                        l.Id,
-                        l.Name,
-                        l.Address,
-                        l.GeoLongitude,
-                        l.GeoLatitude,
-                        $"{l.Name}, {l.Address}"
-                    ))
-                    .ToList();
+            var locationsDto = _mapper.Map<IEnumerable<LocationDto>>(locations);
 
-                return locationsDto;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong in the{nameof(GetAllLocations)} service method {ex}");
-                throw;
-            }
+            return locationsDto;
         }
     }
 }

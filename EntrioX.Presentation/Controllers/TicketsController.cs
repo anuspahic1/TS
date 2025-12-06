@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetTickets()
         {
-            try
-            {
-                var tickets = _service.TicketService.GetAllTickets(trackChanges: false);
-                return Ok(tickets);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var tickets = _service.TicketService.GetAllTickets(trackChanges: false);
+            return Ok(tickets);
         }
     }
 }

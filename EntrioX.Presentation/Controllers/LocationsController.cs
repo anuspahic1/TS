@@ -17,15 +17,8 @@ namespace EntrioX.Presentation.Controllers
         [HttpGet]
         public IActionResult GetLocations()
         {
-            try
-            {
-                var locations = _service.LocationService.GetAllLocations(trackChanges: false);
-                return Ok(locations);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
+            var locations = _service.LocationService.GetAllLocations(trackChanges: false);
+            return Ok(locations);
         }
     }
 }
