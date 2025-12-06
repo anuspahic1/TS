@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
-using Entities.Models;
+using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -26,6 +26,16 @@ namespace Service
             var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewards);
 
             return rewardsDto;
+        }
+
+        public RewardDto GetReward(Guid rewardId, bool trackChanges)
+        {
+            var reward = _repository.Reward.GetReward(rewardId, trackChanges);
+            if (reward is null)
+                throw new RewardNotFoundException(rewardId);
+
+            var rewardDto = _mapper.Map<RewardDto>(reward);
+            return rewardDto;
         }
     }
 }

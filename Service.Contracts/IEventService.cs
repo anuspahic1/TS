@@ -5,5 +5,6 @@ namespace Service.Contracts
     public interface IEventService
     {
         IEnumerable<EventDto> GetAllEvents(bool trackChanges);
+        EventDto GetEvent(Guid eventId, bool trackChanges);
     }
 }

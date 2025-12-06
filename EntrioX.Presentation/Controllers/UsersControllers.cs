@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var users = _service.AppUserService.GetAllUsers(trackChanges: false);
             return Ok(users);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetUser(Guid id)
+        {
+            var user = _service.AppUserService.GetUser(id, trackChanges: false);
+            return Ok(user);
+        }
     }
 }

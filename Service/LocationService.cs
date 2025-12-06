@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -25,6 +26,16 @@ namespace Service
             var locationsDto = _mapper.Map<IEnumerable<LocationDto>>(locations);
 
             return locationsDto;
+        }
+
+        public LocationDto GetLocation(Guid locationId, bool trackChanges)
+        {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var locationDto = _mapper.Map<LocationDto>(location);
+            return locationDto;
         }
     }
 }

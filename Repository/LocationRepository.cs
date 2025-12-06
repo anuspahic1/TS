@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Repository
 {
@@ -15,6 +16,12 @@ namespace Repository
             return FindAll(trackChanges)
                 .OrderBy(e => e.Name)
                 .ToList();
+        }
+
+        public Location GetLocation(Guid locationId, bool trackChanges)
+        {
+            return FindByCondition(e => e.Id.Equals(locationId), trackChanges)
+                   .SingleOrDefault();
         }
     }
 }

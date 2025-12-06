@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var rewards = _service.RewardService.GetAllRewards(trackChanges: false);
             return Ok(rewards);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetReward(Guid id)
+        {
+            var reward = _service.RewardService.GetReward(id, trackChanges: false);
+            return Ok(reward);
+        }
     }
 }

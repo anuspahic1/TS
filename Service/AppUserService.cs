@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -25,6 +26,16 @@ namespace Service
             var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
 
             return usersDto;
+        }
+
+        public AppUserDto GetUser(Guid userId, bool trackChanges)
+        {
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            if (user == null)
+                throw new UserNotFoundException(userId);
+
+            var userDto = _mapper.Map<AppUserDto>(user);
+            return userDto;
         }
     }
 }

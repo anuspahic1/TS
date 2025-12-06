@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Repository
 {
@@ -14,6 +15,12 @@ namespace Repository
             return FindAll(trackChanges)
                 .OrderBy(e => e.Email)
                 .ToList();
+        }
+
+        public AppUser GetUser(Guid userId, bool trackChanges)
+        {
+            return FindByCondition(e => e.Id.Equals(userId), trackChanges)
+                   .SingleOrDefault();
         }
     }
 }

@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var tickets = _service.TicketService.GetAllTickets(trackChanges: false);
             return Ok(tickets);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetTicket(Guid id)
+        {
+            var ticket = _service.TicketService.GetTicket(id, trackChanges: false);
+            return Ok(ticket);
+        }
     }
 }

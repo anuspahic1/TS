@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var locations = _service.LocationService.GetAllLocations(trackChanges: false);
             return Ok(locations);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetLocation(Guid id)
+        {
+            var location = _service.LocationService.GetLocation(id, trackChanges: false);
+            return Ok(location);
+        }
     }
 }

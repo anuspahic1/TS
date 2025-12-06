@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var events = _service.EventService.GetAllEvents(trackChanges: false);
             return Ok(events);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetEvent(Guid id)
+        {
+            var ev = _service.EventService.GetEvent(id, trackChanges: false);
+            return Ok(ev);
+        }
     }
 }

@@ -16,5 +16,11 @@ namespace Repository
                 .OrderBy(e => e.Name)
                 .ToList();
         }
+
+        public Event GetEvent(Guid eventId, bool trackChanges)
+        {
+            return FindByCondition(e => e.Id.Equals(eventId), trackChanges)
+                   .SingleOrDefault();
+        }
     }
 }

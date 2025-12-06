@@ -16,5 +16,11 @@ namespace Repository
                 .OrderBy(e => e.TotalPrice)
                 .ToList();
         }
+
+        public Reservation GetReservation(Guid reservationId, bool trackChanges)
+        {
+            return FindByCondition(e => e.Id.Equals(reservationId), trackChanges)
+                   .SingleOrDefault();
+        }
     }
 }

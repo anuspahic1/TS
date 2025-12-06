@@ -26,6 +26,8 @@ var app = builder.Build();
 
 //app.ConfigureExceptionHandler(logger);
 
+app.UseExceptionHandler(opt => { });
+
 if (app.Environment.IsProduction())
     app.UseHsts();
 

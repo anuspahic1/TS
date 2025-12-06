@@ -20,5 +20,12 @@ namespace EntrioX.Presentation.Controllers
             var reservations = _service.ReservationService.GetAllReservations(trackChanges: false);
             return Ok(reservations);
         }
+
+        [HttpGet("{id:guid}")]
+        public IActionResult GetReservation(Guid id)
+        {
+            var reservation = _service.ReservationService.GetReservation(id, trackChanges: false);
+            return Ok(reservation);
+        }
     }
 }

@@ -16,5 +16,11 @@ namespace Repository
                 .OrderBy(e => e.Price)
                 .ToList();
         }
+
+        public Ticket GetTicket(Guid ticketId, bool trackChanges)
+        {
+            return FindByCondition(e => e.Id.Equals(ticketId), trackChanges)
+                   .SingleOrDefault();
+        }
     }
 }

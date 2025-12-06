@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -25,6 +26,16 @@ namespace Service
             var ticketsDto = _mapper.Map<IEnumerable<TicketDto>>(tickets);
 
             return ticketsDto;
+        }
+
+        public TicketDto GetTicket(Guid ticketId, bool trackChanges)
+        {
+            var ticket = _repository.Ticket.GetTicket(ticketId, trackChanges);
+            if (ticket is null)
+                throw new TicketNotFoundException(ticketId);
+
+            var ticketDto = _mapper.Map<TicketDto>(ticket);
+            return ticketDto;
         }
     }
 }
