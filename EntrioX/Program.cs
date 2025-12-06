@@ -1,4 +1,5 @@
 using Contracts;
+using EntrioX;
 using EntrioX.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
@@ -14,15 +15,16 @@ builder.Services.ConfigureRepositoryManager();
 builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(EntrioX.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
 
-var logger = app.Services.GetRequiredService<ILoggerManager>();
+//var logger = app.Services.GetRequiredService<ILoggerManager>();
 
-app.ConfigureExceptionHandler(logger);
+//app.ConfigureExceptionHandler(logger);
 
 if (app.Environment.IsProduction())
     app.UseHsts();
