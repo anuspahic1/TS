@@ -1,4 +1,5 @@
-﻿using Contracts;
+﻿using AutoMapper;
+using Contracts;
 using Service.Contracts;
 
 namespace Service
@@ -12,14 +13,14 @@ namespace Service
         private readonly Lazy<IRewardService> _rewardService;
         private readonly Lazy<ITicketService> _ticketService;
 
-        public ServiceManager(IRepositoryManager repository, ILoggerManager logger)
+        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
         {
-            _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger));
-            _eventService = new Lazy<IEventService>(() => new EventService(repository, logger));
-            _locationService = new Lazy<ILocationService>(() => new LocationService(repository, logger));
-            _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger));
-            _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger));
-            _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger));
+            _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper));
+            _eventService = new Lazy<IEventService>(() => new EventService(repository, logger, mapper));
+            _locationService = new Lazy<ILocationService>(() => new LocationService(repository, logger, mapper));
+            _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger, mapper));
+            _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger, mapper));
+            _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger, mapper));
         }
         public IAppUserService AppUserService
         {
