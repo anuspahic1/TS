@@ -47,5 +47,10 @@ namespace EntrioX.Extensions
         {
             services.AddDbContext<RepositoryContext>(opts => opts.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         }
+
+        public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder)
+        {
+            return builder.AddMvcOptions(config => config.OutputFormatters.Add(new CsvOutputFormatter()));
+        }
     }
 }
