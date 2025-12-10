@@ -17,6 +17,13 @@ namespace Repository
                 .ToList();
         }
 
+        public IEnumerable<Reward> GetRewardsForUser(Guid userId, bool trackChanges)
+        {
+            return FindByCondition(r => r.UserId.Equals(userId), trackChanges)
+                    .OrderBy(r => r.GrantedAt)
+                    .ToList();
+        }
+
         public Reward GetReward(Guid rewardId, bool trackChanges)
         {
             return FindByCondition(e => e.Id.Equals(rewardId), trackChanges)

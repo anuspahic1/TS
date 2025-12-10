@@ -28,6 +28,19 @@ namespace Service
             return ticketsDto;
         }
 
+
+        public IEnumerable<TicketDto> GetTicketsForEvent(Guid eventId, bool trackChanges)
+        {
+            var ev = _repository.Event.GetEvent(eventId, trackChanges);
+            if (ev is null)
+                throw new EventNotFoundException(eventId);
+
+            var tickets = _repository.Ticket.GetTicketsForEvent(eventId, trackChanges);
+            var ticketDto = _mapper.Map<IEnumerable<TicketDto>>(tickets);
+
+            return ticketDto;
+        }
+
         public TicketDto GetTicket(Guid ticketId, bool trackChanges)
         {
             var ticket = _repository.Ticket.GetTicket(ticketId, trackChanges);

@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Repository
 {
@@ -15,6 +16,20 @@ namespace Repository
             return FindAll(trackChanges)
                 .OrderBy(e => e.TotalPrice)
                 .ToList();
+        }
+
+        public IEnumerable<Reservation> GetReservationsForEvent(Guid eventId, bool trackChanges)
+        {
+            return FindByCondition(r => r.EventId.Equals(eventId), trackChanges)
+                    .OrderBy(r => r.CreatedAt)
+                    .ToList();
+        }
+
+        public IEnumerable<Reservation> GetReservationsForUser(Guid userId, bool trackChanges)
+        {
+            return FindByCondition(r => r.EventId.Equals(userId), trackChanges)
+                    .OrderBy(r => r.CreatedAt)
+                    .ToList();
         }
 
         public Reservation GetReservation(Guid reservationId, bool trackChanges)

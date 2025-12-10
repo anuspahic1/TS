@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -23,6 +24,18 @@ namespace Service
         {
             var rewards = _repository.Reward.GetAllRewards(trackChanges);
 
+            var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewards);
+
+            return rewardsDto;
+        }
+
+        public IEnumerable<RewardDto> GetRewardsForUser(Guid userId, bool trackChanges)
+        {
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            if (user is null)
+                throw new UserNotFoundException(userId);
+
+            var rewards = _repository.Reward.GetRewardsForUser(userId, trackChanges);
             var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewards);
 
             return rewardsDto;

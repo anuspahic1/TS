@@ -17,6 +17,13 @@ namespace Repository
                 .ToList();
         }
 
+        public IEnumerable<Event> GetEventsForLocation(Guid locationId, bool trackChanges)
+        {
+            return FindByCondition(l => l.LocationId.Equals(locationId), trackChanges)
+                .OrderBy(r => r.Created)
+                .ToList();
+        }
+
         public Event GetEvent(Guid eventId, bool trackChanges)
         {
             return FindByCondition(e => e.Id.Equals(eventId), trackChanges)

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -23,6 +24,18 @@ namespace Service
         {
             var events = _repository.Event.GetAllEvents(trackChanges);
 
+            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(events);
+
+            return eventsDto;
+        }
+
+        public IEnumerable<EventDto> GetEventsForLocation(Guid locationId, bool trackChanges)
+        {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var events = _repository.Event.GetEventsForLocation(locationId, trackChanges);
             var eventsDto = _mapper.Map<IEnumerable<EventDto>>(events);
 
             return eventsDto;
