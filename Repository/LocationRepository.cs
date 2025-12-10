@@ -23,5 +23,11 @@ namespace Repository
             return FindByCondition(e => e.Id.Equals(locationId), trackChanges)
                    .SingleOrDefault();
         }
+
+        public void CreateLocation(Location location)
+        {
+            Create(location);
+        }
+
     }
 }

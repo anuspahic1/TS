@@ -29,5 +29,10 @@ namespace Repository
             return FindByCondition(e => e.Id.Equals(ticketId), trackChanges)
                    .SingleOrDefault();
         }
+
+        public void CreateTicket(Ticket ticket)
+        {
+            Create(ticket);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -21,11 +22,21 @@ namespace EntrioX.Presentation.Controllers
             return Ok(rewards);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "RewardById")]
         public IActionResult GetReward(Guid id)
         {
             var reward = _service.RewardService.GetReward(id, trackChanges: false);
             return Ok(reward);
+        }
+
+        [HttpPost]
+        public IActionResult CreateReward([FromBody] RewardForCreationDto reward)
+        {
+            if (reward is null)
+                return BadRequest("RewardForCreationDto is null.");
+
+            var createdReward = _service.RewardService.CreateReward(reward);
+            return CreatedAtRoute("RewardById", new { id = createdReward.Id }, createdReward);
         }
     }
 }

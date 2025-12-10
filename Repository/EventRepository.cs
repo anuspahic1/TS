@@ -20,7 +20,7 @@ namespace Repository
         public IEnumerable<Event> GetEventsForLocation(Guid locationId, bool trackChanges)
         {
             return FindByCondition(l => l.LocationId.Equals(locationId), trackChanges)
-                .OrderBy(r => r.Created)
+                .OrderBy(r => r.CreatedAt)
                 .ToList();
         }
 
@@ -28,6 +28,11 @@ namespace Repository
         {
             return FindByCondition(e => e.Id.Equals(eventId), trackChanges)
                    .SingleOrDefault();
+        }
+
+        public void CreateEvent(Event ev)
+        {
+            Create(ev);
         }
     }
 }

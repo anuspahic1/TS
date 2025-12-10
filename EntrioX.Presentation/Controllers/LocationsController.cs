@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -21,11 +22,21 @@ namespace EntrioX.Presentation.Controllers
             return Ok(locations);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "LocationById")]
         public IActionResult GetLocation(Guid id)
         {
             var location = _service.LocationService.GetLocation(id, trackChanges: false);
             return Ok(location);
+        }
+
+        [HttpPost]
+        public IActionResult CreateLocation([FromBody] LocationForCreationDto location)
+        {
+            if (location is null)
+                return BadRequest("LocationForCreationDto is null.");
+
+            var createdLocation = _service.LocationService.CreateLocation(location);
+            return CreatedAtRoute("LocationById", new { id = createdLocation.Id }, createdLocation);
         }
     }
 }

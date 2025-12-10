@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -49,6 +50,18 @@ namespace Service
 
             var ticketDto = _mapper.Map<TicketDto>(ticket);
             return ticketDto;
+        }
+
+        public TicketDto CreateTicket(TicketForCreationDto ticket)
+        {
+            var ticketEntity = _mapper.Map<Ticket>(ticket);
+
+            _repository.Ticket.CreateTicket(ticketEntity);
+            _repository.Save();
+
+            var ticketToReturn = _mapper.Map<TicketDto>(ticketEntity);
+
+            return ticketToReturn;
         }
     }
 }

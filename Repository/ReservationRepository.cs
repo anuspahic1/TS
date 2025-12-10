@@ -37,5 +37,10 @@ namespace Repository
             return FindByCondition(e => e.Id.Equals(reservationId), trackChanges)
                    .SingleOrDefault();
         }
+
+        public void CreateReservation(Reservation reservation)
+        {
+            Create(reservation);
+        }
     }
 }

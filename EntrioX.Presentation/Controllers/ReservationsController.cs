@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -21,11 +22,21 @@ namespace EntrioX.Presentation.Controllers
             return Ok(reservations);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "ReservationById")]
         public IActionResult GetReservation(Guid id)
         {
             var reservation = _service.ReservationService.GetReservation(id, trackChanges: false);
             return Ok(reservation);
+        }
+
+        [HttpPost]
+        public IActionResult CreateReservation([FromBody] ReservationForCreationDto reservation)
+        {
+            if (reservation is null)
+                return BadRequest("ReservationForCreationDto is null.");
+
+            var createdReservation = _service.ReservationService.CreateReservation(reservation);
+            return CreatedAtRoute("ReservationById", new { id = createdReservation.Id }, createdReservation);
         }
     }
 }

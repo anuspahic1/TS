@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -21,11 +22,21 @@ namespace EntrioX.Presentation.Controllers
             return Ok(tickets);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "TicketById")]
         public IActionResult GetTicket(Guid id)
         {
             var ticket = _service.TicketService.GetTicket(id, trackChanges: false);
             return Ok(ticket);
+        }
+
+        [HttpPost]
+        public IActionResult CreateTicket([FromBody] TicketForCreationDto ticket)
+        {
+            if (ticket is null)
+                return BadRequest("TicketForCreationDto is null.");
+
+            var createdTicket = _service.TicketService.CreateTicket(ticket);
+            return CreatedAtRoute("TicketById", new { id = createdTicket.Id }, createdTicket);
         }
     }
 }

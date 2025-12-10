@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -61,6 +62,18 @@ namespace Service
 
             var reservationDto = _mapper.Map<ReservationDto>(reservation);
             return reservationDto;
+        }
+
+        public ReservationDto CreateReservation(ReservationForCreationDto reservation)
+        {
+            var reservationEntity = _mapper.Map<Reservation>(reservation);
+
+            _repository.Reservation.CreateReservation(reservationEntity);
+            _repository.Save();
+
+            var reservationToReturn = _mapper.Map<ReservationDto>(reservationEntity);
+
+            return reservationToReturn;
         }
     }
 }

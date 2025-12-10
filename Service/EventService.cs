@@ -50,5 +50,17 @@ namespace Service
             var eventDto = _mapper.Map<EventDto>(ev);
             return eventDto;
         }
+
+        public EventDto CreateEvent(EventForCreationDto ev)
+        {
+            var eventEntity = _mapper.Map<Event>(ev);
+
+            _repository.Event.CreateEvent(eventEntity);
+            _repository.Save();
+
+            var eventToReturn =_mapper.Map<EventDto>(eventEntity);
+
+            return eventToReturn;
+        }
     }
 }

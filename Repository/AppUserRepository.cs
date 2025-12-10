@@ -22,5 +22,10 @@ namespace Repository
             return FindByCondition(e => e.Id.Equals(userId), trackChanges)
                    .SingleOrDefault();
         }
+
+        public void CreateUser(AppUser user)
+        {
+            Create(user);
+        }
     }
 }

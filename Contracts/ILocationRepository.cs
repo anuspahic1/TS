@@ -6,5 +6,6 @@ namespace Contracts
     {
         IEnumerable<Location> GetAllLocations(bool trackChanges);
         Location GetLocation(Guid locationId,  bool trackChanges);
+        void CreateLocation(Location location);
     }
 }

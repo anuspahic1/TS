@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -36,6 +37,18 @@ namespace Service
 
             var locationDto = _mapper.Map<LocationDto>(location);
             return locationDto;
+        }
+
+        public LocationDto CreateLocation(LocationForCreationDto location)
+        {
+            var locationEntity = _mapper.Map<Location>(location);
+
+            _repository.Location.CreateLocation(locationEntity);
+            _repository.Save();
+
+            var locationToReturn = _mapper.Map<LocationDto>(locationEntity);
+
+            return locationToReturn;
         }
     }
 }

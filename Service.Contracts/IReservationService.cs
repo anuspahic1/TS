@@ -8,5 +8,6 @@ namespace Service.Contracts
         IEnumerable<ReservationDto> GetReservationsForEvent(Guid eventId, bool trackChanges);
         IEnumerable<ReservationDto> GetReservationsForUser(Guid userId, bool trackChanges);
         ReservationDto GetReservation(Guid reservationId, bool trackChanges);
+        ReservationDto CreateReservation(ReservationForCreationDto reservation);
     }
 }

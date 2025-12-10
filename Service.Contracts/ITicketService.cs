@@ -7,5 +7,6 @@ namespace Service.Contracts
         IEnumerable<TicketDto> GetAllTickets(bool trackChanges);
         IEnumerable<TicketDto> GetTicketsForEvent(Guid eventId, bool trackChanges);
         TicketDto GetTicket(Guid ticketId, bool trackChanges);
+        TicketDto CreateTicket(TicketForCreationDto ticket);
     }
 }

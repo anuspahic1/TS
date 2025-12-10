@@ -33,6 +33,16 @@ namespace EntrioX
                     opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""));
 
             CreateMap<EventForCreationDto, Event>();
+
+            CreateMap<LocationForCreationDto, Location>();
+
+            CreateMap<AppUserForCreationDto, AppUser>();
+
+            CreateMap<TicketForCreationDto, Ticket>();
+
+            CreateMap<ReservationForCreationDto, Reservation>();
+
+            CreateMap<RewardForCreationDto, Reward>();
         }
     }
 }

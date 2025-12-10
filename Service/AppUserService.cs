@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -36,6 +37,18 @@ namespace Service
 
             var userDto = _mapper.Map<AppUserDto>(user);
             return userDto;
+        }
+
+        public AppUserDto CreateUser(AppUserForCreationDto user)
+        {
+            var userEntity = _mapper.Map<AppUser>(user);
+
+            _repository.AppUser.CreateUser(userEntity);
+            _repository.Save();
+
+            var userToReturn = _mapper.Map<AppUserDto>(userEntity);
+
+            return userToReturn;
         }
     }
 }

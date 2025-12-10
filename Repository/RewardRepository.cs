@@ -29,5 +29,10 @@ namespace Repository
             return FindByCondition(e => e.Id.Equals(rewardId), trackChanges)
                    .SingleOrDefault();
         }
+
+        public void CreateReward(Reward reward)
+        {
+            Create(reward);
+        }
     }
 }

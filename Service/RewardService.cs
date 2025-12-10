@@ -50,5 +50,17 @@ namespace Service
             var rewardDto = _mapper.Map<RewardDto>(reward);
             return rewardDto;
         }
+
+        public RewardDto CreateReward(RewardForCreationDto reward)
+        {
+            var rewardEntity = _mapper.Map<Reward>(reward);
+
+            _repository.Reward.CreateReward(rewardEntity);
+            _repository.Save();
+
+            var rewardToReturn = _mapper.Map<RewardDto>(rewardEntity);
+
+            return rewardToReturn;
+        }
     }
 }
