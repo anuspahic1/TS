@@ -18,6 +18,6 @@ namespace Entities.Models
         [MaxLength(200)]
         public string? ImageUrl { get; set; }
 
-        public DateTime GrantedAt { get; set; }
+        public DateTime GrantedAt { get; set; } = DateTime.UtcNow;
     }
 }

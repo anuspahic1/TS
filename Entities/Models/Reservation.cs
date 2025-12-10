@@ -9,7 +9,7 @@ namespace Entities.Models
         public Guid Id { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public decimal TotalPrice { get; set; }
 
