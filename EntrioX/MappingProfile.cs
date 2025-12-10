@@ -11,11 +11,11 @@ namespace EntrioX
             CreateMap<AppUser, AppUserDto>();
 
             CreateMap<Location, LocationDto>()
-                .ForCtorParam("FullAddress",
+                 .ForMember(dest => dest.Address,
                      opt => opt.MapFrom(src => $"{src.Name}, {src.Address}"));
 
             CreateMap<Event, EventDto>()
-                .ForCtorParam("LocationName",
+                .ForMember(dest => dest.LocationName,
                     opt => opt.MapFrom(src => src.Location != null ? src.Location.Name : ""));
 
             CreateMap<Ticket, TicketDto>()
@@ -31,6 +31,8 @@ namespace EntrioX
             CreateMap<Reward, RewardDto>()
                 .ForMember(dest => dest.UserFullName,
                     opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""));
+
+            CreateMap<EventForCreationDto, Event>();
         }
     }
 }
