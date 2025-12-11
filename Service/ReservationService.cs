@@ -20,55 +20,57 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<ReservationDto> GetAllReservations(bool trackChanges)
+        public IEnumerable<ReservationDto> GetReservations(Guid locationId, Guid eventId, bool trackChanges)
         {
-            var reservations = _repository.Reservation.GetAllReservations(trackChanges);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
 
-            var reservationsDto = _mapper.Map<IEnumerable<ReservationDto>>(reservations);
+            if (location == null)
+                throw new LocationNotFoundException(locationId);
 
-            return reservationsDto;
-        }
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
 
-        public IEnumerable<ReservationDto> GetReservationsForEvent(Guid eventId, bool trackChanges)
-        {
-            var ev = _repository.Event.GetEvent(eventId, trackChanges);
-            if (ev is null)
+            if (ev == null)
                 throw new EventNotFoundException(eventId);
 
-            var reservations = _repository.Reservation.GetReservationsForEvent(eventId, trackChanges);
-            var reservationsDto = _mapper.Map<IEnumerable<ReservationDto>>(reservations);
+            var reservationsFromDb = _repository.Reservation.GetReservations(locationId, eventId, trackChanges);
+
+            var reservationsDto = _mapper.Map<IEnumerable<ReservationDto>>(reservationsFromDb);
 
             return reservationsDto;
         }
 
-        public IEnumerable<ReservationDto> GetReservationsForUser(Guid userId, bool trackChanges)
+        public ReservationDto GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
-            if (user is null)
-                throw new UserNotFoundException(userId);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
 
-            var reservations = _repository.Reservation.GetReservationsForUser(userId, trackChanges);
-            var reservationsDto = _mapper.Map<IEnumerable<ReservationDto>>(reservations);
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+                if (ev is null)
+                    throw new EventNotFoundException(locationId);
 
-            return reservationsDto;
-        }
-
-        public ReservationDto GetReservation(Guid reservationId, bool trackChanges)
-        {
-
-            var reservation = _repository.Reservation.GetReservation(reservationId, trackChanges);
+            var reservation = _repository.Reservation.GetReservation(locationId, eventId, id, trackChanges);
             if (reservation is null)
-                throw new ReservationNotFoundException(reservationId);
+                throw new ReservationNotFoundException(id);
 
             var reservationDto = _mapper.Map<ReservationDto>(reservation);
+
             return reservationDto;
         }
 
-        public ReservationDto CreateReservation(ReservationForCreationDto reservation)
+        public ReservationDto CreateReservationForEvent(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
         {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            if (ev is null)
+                throw new EventNotFoundException(eventId);
+
             var reservationEntity = _mapper.Map<Reservation>(reservation);
 
-            _repository.Reservation.CreateReservation(reservationEntity);
+            _repository.Reservation.CreateReservationForEvent(locationId, eventId, reservationEntity);
             _repository.Save();
 
             var reservationToReturn = _mapper.Map<ReservationDto>(reservationEntity);

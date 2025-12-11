@@ -4,7 +4,7 @@ using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
-    [Route("api/events")]
+    [Route("api/locations/{locationId}/events")]
     [ApiController]
     public class EventsController : ControllerBase
     {
@@ -16,27 +16,28 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEvents() 
+        public IActionResult GetEventsForLocation(Guid locationId) 
         {
-            var events = _service.EventService.GetAllEvents(trackChanges: false);
+            var events = _service.EventService.GetEvents(locationId, trackChanges: false);
             return Ok(events);
         }
 
-        [HttpGet("{id:guid}", Name = "EventById")]
-        public IActionResult GetEvent(Guid id)
+        [HttpGet("{id:guid}", Name = "GetEventForLocation")]
+        public IActionResult GetEventForLocation(Guid locationId, Guid id)
         {
-            var ev = _service.EventService.GetEvent(id, trackChanges: false);
+            var ev = _service.EventService.GetEvent(locationId, id, trackChanges: false);
             return Ok(ev);
         }
 
         [HttpPost]
-        public IActionResult CreateEvent([FromBody] EventForCreationDto ev)
+        public IActionResult CreateEventForLocation(Guid locationId, [FromBody] EventForCreationDto ev)
         {
             if (ev is null)
                 return BadRequest("EventForCreationDto is null.");
 
-            var createdEvent = _service.EventService.CreateEvent(ev);
-            return CreatedAtRoute("EventById", new { id = createdEvent.Id }, createdEvent);
+            var eventToReturn = _service.EventService.CreateEventForLocation(locationId, ev, trackChanges: false);
+
+            return CreatedAtRoute("GetEventForLocation", new { id = eventToReturn.Id }, eventToReturn);
         }
     }
 }

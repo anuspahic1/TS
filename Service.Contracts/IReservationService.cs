@@ -4,10 +4,8 @@ namespace Service.Contracts
 {
     public interface IReservationService
     {
-        IEnumerable<ReservationDto> GetAllReservations(bool trackChanges);
-        IEnumerable<ReservationDto> GetReservationsForEvent(Guid eventId, bool trackChanges);
-        IEnumerable<ReservationDto> GetReservationsForUser(Guid userId, bool trackChanges);
-        ReservationDto GetReservation(Guid reservationId, bool trackChanges);
-        ReservationDto CreateReservation(ReservationForCreationDto reservation);
+        IEnumerable<ReservationDto> GetReservations(Guid locationId, Guid eventId, bool trackChanges);
+        ReservationDto GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        ReservationDto CreateReservationForEvent(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges);       
     }
 }

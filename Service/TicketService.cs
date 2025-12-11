@@ -20,43 +20,57 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<TicketDto> GetAllTickets(bool trackChanges)
+        public IEnumerable<TicketDto> GetTickets(Guid locationId, Guid eventId, bool trackChanges)
         {
-            var tickets = _repository.Ticket.GetAllTickets(trackChanges);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
 
-            var ticketsDto = _mapper.Map<IEnumerable<TicketDto>>(tickets);
+            if (location == null)
+                throw new LocationNotFoundException(locationId);
+
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+
+            if (ev == null)
+                throw new EventNotFoundException(eventId);
+
+            var ticketsFromDb = _repository.Ticket.GetTickets(locationId, eventId, trackChanges);
+
+            var ticketsDto = _mapper.Map<IEnumerable<TicketDto>>(ticketsFromDb);
 
             return ticketsDto;
         }
 
-
-        public IEnumerable<TicketDto> GetTicketsForEvent(Guid eventId, bool trackChanges)
+        public TicketDto GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var ev = _repository.Event.GetEvent(eventId, trackChanges);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            if (ev is null)
+                throw new EventNotFoundException(locationId);
+
+            var ticket = _repository.Ticket.GetTicket(locationId, eventId, id, trackChanges);
+            if (ticket is null)
+                throw new TicketNotFoundException(id);
+
+            var ticketDto = _mapper.Map<TicketDto>(ticket);
+
+            return ticketDto;
+        }
+
+        public TicketDto CreateTicketForEvent(Guid locationId, Guid eventId, TicketForCreationDto ticketForCreation, bool trackChanges)
+        {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(eventId);
 
-            var tickets = _repository.Ticket.GetTicketsForEvent(eventId, trackChanges);
-            var ticketDto = _mapper.Map<IEnumerable<TicketDto>>(tickets);
+            var ticketEntity = _mapper.Map<Ticket>(ticketForCreation);
 
-            return ticketDto;
-        }
-
-        public TicketDto GetTicket(Guid ticketId, bool trackChanges)
-        {
-            var ticket = _repository.Ticket.GetTicket(ticketId, trackChanges);
-            if (ticket is null)
-                throw new TicketNotFoundException(ticketId);
-
-            var ticketDto = _mapper.Map<TicketDto>(ticket);
-            return ticketDto;
-        }
-
-        public TicketDto CreateTicket(TicketForCreationDto ticket)
-        {
-            var ticketEntity = _mapper.Map<Ticket>(ticket);
-
-            _repository.Ticket.CreateTicket(ticketEntity);
+            _repository.Ticket.CreateTicketForEvent(locationId, eventId, ticketEntity);
             _repository.Save();
 
             var ticketToReturn = _mapper.Map<TicketDto>(ticketEntity);

@@ -5,33 +5,32 @@ namespace Repository
 {
     public class TicketRepository : RepositoryBase<Ticket>, ITicketRepository
     {
-        public TicketRepository(RepositoryContext repositoryContext)
-        : base(repositoryContext)
+        public TicketRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         {
         }
 
-        public IEnumerable<Ticket> GetAllTickets(bool trackChanges)
+        public IEnumerable<Ticket> GetTickets(Guid locationId, Guid eventId, bool trackChanges)
         {
-            return FindAll(trackChanges)
-                .OrderBy(e => e.Price)
-                .ToList();
-        }
-
-        public IEnumerable<Ticket> GetTicketsForEvent(Guid eventId, bool trackChanges)
-        {
-            return FindByCondition(t => t.EventId.Equals(eventId), trackChanges)
-                    .OrderBy(t => t.SeatNumber)
+            return FindByCondition(t => t.EventId.Equals(eventId) && 
+                                   t.Event != null && 
+                                   t.Event.LocationId.Equals(locationId), trackChanges)
+                    .OrderBy(t => t.Price)
                     .ToList();
         }
 
-        public Ticket GetTicket(Guid ticketId, bool trackChanges)
+        public Ticket GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            return FindByCondition(e => e.Id.Equals(ticketId), trackChanges)
+            return FindByCondition(t => t.EventId.Equals(eventId) &&
+                                    t.Event != null &&
+                                    t.Event.LocationId.Equals(locationId) &&
+                                    t.Id.Equals(id), trackChanges)
                    .SingleOrDefault();
         }
 
-        public void CreateTicket(Ticket ticket)
+        public void CreateTicketForEvent(Guid locationId, Guid eventId, Ticket ticket)
         {
+            ticket.Event.LocationId = locationId;
+            ticket.EventId = eventId;
             Create(ticket);
         }
     }

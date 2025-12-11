@@ -20,42 +20,44 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<EventDto> GetAllEvents(bool trackChanges)
+        public IEnumerable<EventDto> GetEvents(Guid locationId, bool trackChanges)
         {
-            var events = _repository.Event.GetAllEvents(trackChanges);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
 
-            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(events);
+            if (location == null) 
+                throw new LocationNotFoundException(locationId);
+
+            var eventsFromDb = _repository.Event.GetEvents(locationId, trackChanges);
+
+            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsFromDb);
 
             return eventsDto;
         }
 
-        public IEnumerable<EventDto> GetEventsForLocation(Guid locationId, bool trackChanges)
+        public EventDto GetEvent(Guid locationId, Guid id, bool trackChanges)
         {
             var location = _repository.Location.GetLocation(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
-            var events = _repository.Event.GetEventsForLocation(locationId, trackChanges);
-            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(events);
+            var eventDb = _repository.Event.GetEvent(locationId, id, trackChanges);
+            if (eventDb is null)
+                throw new EventNotFoundException(locationId);
 
-            return eventsDto;
+            var ev = _mapper.Map<EventDto>(eventDb);
+
+            return ev;
         }
 
-        public EventDto GetEvent(Guid eventId, bool trackChanges)
+        public EventDto CreateEventForLocation(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges)
         {
-            var ev = _repository.Event.GetEvent(eventId, trackChanges);
-            if (ev is null)
-                throw new EventNotFoundException(eventId);
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+            
+            var eventEntity = _mapper.Map<Event>(eventForCreation);
 
-            var eventDto = _mapper.Map<EventDto>(ev);
-            return eventDto;
-        }
-
-        public EventDto CreateEvent(EventForCreationDto ev)
-        {
-            var eventEntity = _mapper.Map<Event>(ev);
-
-            _repository.Event.CreateEvent(eventEntity);
+            _repository.Event.CreateEventForLocation(locationId, eventEntity);
             _repository.Save();
 
             var eventToReturn =_mapper.Map<EventDto>(eventEntity);

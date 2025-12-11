@@ -5,16 +5,15 @@ namespace Repository
 {
     public class RewardRepository : RepositoryBase<Reward>, IRewardRepository
     {
-        public RewardRepository(RepositoryContext repositoryContext)
-        : base(repositoryContext)
+        public RewardRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         {
         }
 
-        public IEnumerable<Reward> GetAllRewards(bool trackChanges)
+        public IEnumerable<Reward> GetRewards(Guid userId, bool trackChanges)
         {
-            return FindAll(trackChanges)
-                .OrderBy(e => e.Description)
-                .ToList();
+            return FindByCondition(r => r.UserId.Equals(userId), trackChanges)
+                    .OrderBy(e => e.Description)
+                    .ToList();
         }
 
         public IEnumerable<Reward> GetRewardsForUser(Guid userId, bool trackChanges)
@@ -24,14 +23,15 @@ namespace Repository
                     .ToList();
         }
 
-        public Reward GetReward(Guid rewardId, bool trackChanges)
+        public Reward GetReward(Guid userId, Guid id, bool trackChanges)
         {
-            return FindByCondition(e => e.Id.Equals(rewardId), trackChanges)
+            return FindByCondition(r => r.UserId.Equals(userId) && r.Id.Equals(id), trackChanges)
                    .SingleOrDefault();
         }
 
-        public void CreateReward(Reward reward)
+        public void CreateRewardForUser(Guid userId, Reward reward)
         {
+            reward.UserId = userId;
             Create(reward);
         }
     }

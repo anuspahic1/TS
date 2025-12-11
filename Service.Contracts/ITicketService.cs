@@ -4,9 +4,8 @@ namespace Service.Contracts
 {
     public interface ITicketService
     {
-        IEnumerable<TicketDto> GetAllTickets(bool trackChanges);
-        IEnumerable<TicketDto> GetTicketsForEvent(Guid eventId, bool trackChanges);
-        TicketDto GetTicket(Guid ticketId, bool trackChanges);
-        TicketDto CreateTicket(TicketForCreationDto ticket);
+        IEnumerable<TicketDto> GetTickets(Guid locationId, Guid eventId, bool trackChanges);
+        TicketDto GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        TicketDto CreateTicketForEvent(Guid locationId, Guid eventId, TicketForCreationDto ticket, bool trackChanges);
     }
 }

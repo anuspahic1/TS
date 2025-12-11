@@ -4,9 +4,8 @@ namespace Contracts
 {
     public interface IEventRepository
     {
-        IEnumerable<Event> GetAllEvents(bool trackChanges);
-        IEnumerable<Event> GetEventsForLocation(Guid locationId, bool trackChanges);
-        Event GetEvent(Guid eventId, bool trackChanges);
-        void CreateEvent(Event ev);
+        IEnumerable<Event> GetEvents(Guid locationId, bool trackChanges);
+        Event GetEvent(Guid locationId, Guid id, bool trackChanges);
+        void CreateEventForLocation(Guid locationId, Event ev);
     }
 }

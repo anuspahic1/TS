@@ -4,10 +4,8 @@ namespace Contracts
 {
     public interface IReservationRepository
     {
-        IEnumerable<Reservation> GetAllReservations(bool trackChanges);
-        IEnumerable<Reservation> GetReservationsForEvent(Guid eventId, bool trackChanges);
-        IEnumerable<Reservation> GetReservationsForUser(Guid userId, bool trackChanges);
-        Reservation GetReservation(Guid reservationId, bool trackChanges);
-        void CreateReservation(Reservation reservation);
+        IEnumerable<Reservation> GetReservations(Guid locationId, Guid eventId, bool trackChanges);
+        Reservation GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        void CreateReservationForEvent(Guid locationId, Guid eventId, Reservation reservation);
     }
 }

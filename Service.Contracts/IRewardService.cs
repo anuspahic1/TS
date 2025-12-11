@@ -4,9 +4,8 @@ namespace Service.Contracts
 {
     public interface IRewardService
     {
-        IEnumerable<RewardDto> GetAllRewards(bool trackChanges);
-        IEnumerable<RewardDto> GetRewardsForUser(Guid userId, bool trackChanges);
-        RewardDto GetReward(Guid rewardId, bool trackChanges);
-        RewardDto CreateReward(RewardForCreationDto reward);
+        IEnumerable<RewardDto> GetRewards(Guid userId, bool trackChanges);
+        RewardDto GetReward(Guid userId, Guid id, bool trackChanges);
+        RewardDto CreateRewardForUser(Guid userId, RewardForCreationDto reward, bool trackChanges);
     }
 }

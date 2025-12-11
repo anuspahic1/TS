@@ -4,9 +4,8 @@ namespace Contracts
 {
     public interface IRewardRepository
     {
-        IEnumerable<Reward> GetAllRewards(bool trackChanges);
-        IEnumerable<Reward> GetRewardsForUser(Guid userId, bool trackChanges);
-        Reward GetReward(Guid rewardId, bool trackChanges);
-        void CreateReward(Reward reward);
+        IEnumerable<Reward> GetRewards(Guid userId, bool trackChanges);
+        Reward GetReward(Guid userId, Guid id, bool trackChanges);
+        void CreateRewardForUser(Guid userId, Reward reward);
     }
 }

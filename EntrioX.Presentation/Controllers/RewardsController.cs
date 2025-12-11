@@ -4,7 +4,7 @@ using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
-    [Route("api/rewards")]
+    [Route("api/users/{userId}/rewards")]
     [ApiController]
     public class RewardsController : ControllerBase
     {
@@ -16,27 +16,28 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetRewards()
+        public IActionResult GetRewards(Guid userId)
         {
-            var rewards = _service.RewardService.GetAllRewards(trackChanges: false);
+            var rewards = _service.RewardService.GetRewards(userId, trackChanges: false);
             return Ok(rewards);
         }
 
-        [HttpGet("{id:guid}", Name = "RewardById")]
-        public IActionResult GetReward(Guid id)
+        [HttpGet("{id:guid}", Name = "GetRewardForUser")]
+        public IActionResult GetReward(Guid userId, Guid id)
         {
-            var reward = _service.RewardService.GetReward(id, trackChanges: false);
+            var reward = _service.RewardService.GetReward(userId, id, trackChanges: false);
             return Ok(reward);
         }
 
         [HttpPost]
-        public IActionResult CreateReward([FromBody] RewardForCreationDto reward)
+        public IActionResult CreateRewardForUser(Guid userId, [FromBody] RewardForCreationDto reward)
         {
             if (reward is null)
                 return BadRequest("RewardForCreationDto is null.");
 
-            var createdReward = _service.RewardService.CreateReward(reward);
-            return CreatedAtRoute("RewardById", new { id = createdReward.Id }, createdReward);
+            var rewardToReturn = _service.RewardService.CreateRewardForUser(userId, reward, trackChanges: false);
+
+            return CreatedAtRoute("GetRewardForUser", new { id = rewardToReturn.Id }, rewardToReturn);
         }
     }
 }

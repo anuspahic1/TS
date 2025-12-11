@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
-    [Route("api/reservations")]
+    [Route("api/locations/{locationId}/events/{eventId}/reservations")]
     [ApiController]
     public class ReservationsController : ControllerBase
     {
@@ -16,27 +17,29 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetReservations()
+        public IActionResult GetReservations(Guid locationId, Guid eventId)
         {
-            var reservations = _service.ReservationService.GetAllReservations(trackChanges: false);
+            var reservations = _service.ReservationService.GetReservations(locationId, eventId, trackChanges: false);
             return Ok(reservations);
         }
 
-        [HttpGet("{id:guid}", Name = "ReservationById")]
-        public IActionResult GetReservation(Guid id)
+        [HttpGet("{id:guid}", Name = "GetReservationForEvent")]
+        public IActionResult GetReservation(Guid locationId, Guid eventId, Guid id)
         {
-            var reservation = _service.ReservationService.GetReservation(id, trackChanges: false);
+            var reservation = _service.ReservationService.GetReservation(locationId, eventId, id, trackChanges: false);
+
             return Ok(reservation);
         }
 
         [HttpPost]
-        public IActionResult CreateReservation([FromBody] ReservationForCreationDto reservation)
+        public IActionResult CreateReservation(Guid locationId, Guid eventId, [FromBody] ReservationForCreationDto reservation)
         {
             if (reservation is null)
                 return BadRequest("ReservationForCreationDto is null.");
 
-            var createdReservation = _service.ReservationService.CreateReservation(reservation);
-            return CreatedAtRoute("ReservationById", new { id = createdReservation.Id }, createdReservation);
+            var createdReservation = _service.ReservationService.CreateReservationForEvent(locationId, eventId, reservation, trackChanges: true);
+
+            return CreatedAtRoute("GetReservationForEvent", new { id = createdReservation.Id }, createdReservation);
         }
     }
 }

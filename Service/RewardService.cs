@@ -20,42 +20,44 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<RewardDto> GetAllRewards(bool trackChanges)
+        public IEnumerable<RewardDto> GetRewards(Guid userId, bool trackChanges)
         {
-            var rewards = _repository.Reward.GetAllRewards(trackChanges);
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
 
-            var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewards);
+            if (user == null)
+                throw new UserNotFoundException(userId);
+
+            var rewardsFromDb = _repository.Reward.GetRewards(userId, trackChanges);
+
+            var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewardsFromDb);
 
             return rewardsDto;
         }
 
-        public IEnumerable<RewardDto> GetRewardsForUser(Guid userId, bool trackChanges)
+        public RewardDto GetReward(Guid userId, Guid id, bool trackChanges)
+        {
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
+
+            if (user == null)
+                throw new UserNotFoundException(userId);
+
+            var rewardDb = _repository.Reward.GetReward(userId, id, trackChanges);
+            if (rewardDb is null)
+                throw new RewardNotFoundException(id);
+
+            var rewardDto = _mapper.Map<RewardDto>(rewardDb);
+            return rewardDto;
+        }
+
+        public RewardDto CreateRewardForUser(Guid userId, RewardForCreationDto rewardForCreation, bool trackChanges)
         {
             var user = _repository.AppUser.GetUser(userId, trackChanges);
             if (user is null)
                 throw new UserNotFoundException(userId);
 
-            var rewards = _repository.Reward.GetRewardsForUser(userId, trackChanges);
-            var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewards);
+            var rewardEntity = _mapper.Map<Reward>(rewardForCreation);
 
-            return rewardsDto;
-        }
-
-        public RewardDto GetReward(Guid rewardId, bool trackChanges)
-        {
-            var reward = _repository.Reward.GetReward(rewardId, trackChanges);
-            if (reward is null)
-                throw new RewardNotFoundException(rewardId);
-
-            var rewardDto = _mapper.Map<RewardDto>(reward);
-            return rewardDto;
-        }
-
-        public RewardDto CreateReward(RewardForCreationDto reward)
-        {
-            var rewardEntity = _mapper.Map<Reward>(reward);
-
-            _repository.Reward.CreateReward(rewardEntity);
+            _repository.Reward.CreateRewardForUser(userId, rewardEntity);
             _repository.Save();
 
             var rewardToReturn = _mapper.Map<RewardDto>(rewardEntity);

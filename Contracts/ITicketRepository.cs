@@ -4,9 +4,8 @@ namespace Contracts
 {
     public interface ITicketRepository
     {
-        IEnumerable<Ticket> GetAllTickets(bool trackChanges);
-        IEnumerable<Ticket> GetTicketsForEvent(Guid eventId, bool trackChanges);
-        Ticket GetTicket(Guid ticketId, bool trackChanges);
-        void CreateTicket(Ticket ticket);
+        IEnumerable<Ticket> GetTickets(Guid locationId, Guid eventId, bool trackChanges);
+        Ticket GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        void CreateTicketForEvent(Guid locationId, Guid eventId, Ticket ticket);
     }
 }

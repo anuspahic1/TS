@@ -4,7 +4,7 @@ using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
-    [Route("api/tickets")]
+    [Route("api/locations/{locationId}/events/{eventId}/tickets")]
     [ApiController]
     public class TicketsController : ControllerBase
     {
@@ -16,27 +16,28 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTickets()
+        public IActionResult GetTickets(Guid locationId, Guid eventId)
         {
-            var tickets = _service.TicketService.GetAllTickets(trackChanges: false);
+            var tickets = _service.TicketService.GetTickets(locationId, eventId, trackChanges: false);
             return Ok(tickets);
         }
 
-        [HttpGet("{id:guid}", Name = "TicketById")]
-        public IActionResult GetTicket(Guid id)
+        [HttpGet("{id:guid}", Name = "GetTicketForEvent")]
+        public IActionResult GetTicket(Guid locationId, Guid eventId, Guid id)
         {
-            var ticket = _service.TicketService.GetTicket(id, trackChanges: false);
+            var ticket = _service.TicketService.GetTicket(locationId, eventId, id, trackChanges: false);
             return Ok(ticket);
         }
 
         [HttpPost]
-        public IActionResult CreateTicket([FromBody] TicketForCreationDto ticket)
+        public IActionResult CreateTicket(Guid locationId, Guid eventId, [FromBody] TicketForCreationDto ticket)
         {
             if (ticket is null)
                 return BadRequest("TicketForCreationDto is null.");
 
-            var createdTicket = _service.TicketService.CreateTicket(ticket);
-            return CreatedAtRoute("TicketById", new { id = createdTicket.Id }, createdTicket);
+            var createdTicket = _service.TicketService.CreateTicketForEvent(locationId, eventId, ticket, trackChanges: false);
+
+            return CreatedAtRoute("GetTicketForEvent", new { id = createdTicket.Id }, createdTicket);
         }
     }
 }
