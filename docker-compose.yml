@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: entriox-sql
+    environment:
+      SA_PASSWORD: "YourStrong_Password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - entriox_data:/var/opt/mssql
+
+    networks:
+      - entriox-net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: entriox-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+
+      # override connection string
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EntrioX;User Id=sa;Password=YourStrong_Password123;TrustServerCertificate=True"
+
+      SA_PASSWORD: "YourStrong_Password123"
+
+    depends_on:
+      - sqlserver
+
+    ports:
+      - "5001:8080"
+
+    networks:
+      - entriox-net
+
+networks:
+  entriox-net:
+
+volumes:
+  entriox_data:

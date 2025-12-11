@@ -2,7 +2,9 @@ using EntrioX;
 using EntrioX.Extensions;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NLog;
+using Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +38,13 @@ var app = builder.Build();
 //var logger = app.Services.GetRequiredService<ILoggerManager>();
 
 //app.ConfigureExceptionHandler(logger);
+
+if (args.Contains("--migrate"))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
+    db.Database.Migrate();
+}
 
 app.UseExceptionHandler(opt => { });
 
