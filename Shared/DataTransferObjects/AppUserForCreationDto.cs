@@ -5,5 +5,6 @@
         public string FullName { get; init; }
         public string Email { get; init; }
         public string? BankAccountNumber { get; init; }
+        public IEnumerable<RewardForCreationDto>? Rewards { get; init; }
     }
 }
