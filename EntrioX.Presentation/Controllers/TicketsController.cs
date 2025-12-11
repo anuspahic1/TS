@@ -37,7 +37,7 @@ namespace EntrioX.Presentation.Controllers
 
             var createdTicket = _service.TicketService.CreateTicketForEvent(locationId, eventId, ticket, trackChanges: false);
 
-            return CreatedAtRoute("GetTicketForEvent", new { id = createdTicket.Id }, createdTicket);
+            return CreatedAtRoute("GetTicketForEvent", new { locationId, eventId, id = createdTicket.Id }, createdTicket);
         }
     }
 }

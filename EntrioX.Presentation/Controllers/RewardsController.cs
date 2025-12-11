@@ -37,7 +37,7 @@ namespace EntrioX.Presentation.Controllers
 
             var rewardToReturn = _service.RewardService.CreateRewardForUser(userId, reward, trackChanges: false);
 
-            return CreatedAtRoute("GetRewardForUser", new { id = rewardToReturn.Id }, rewardToReturn);
+            return CreatedAtRoute("GetRewardForUser", new { userId, id = rewardToReturn.Id }, rewardToReturn);
         }
     }
 }

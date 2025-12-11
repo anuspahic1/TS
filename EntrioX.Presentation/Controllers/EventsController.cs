@@ -37,7 +37,7 @@ namespace EntrioX.Presentation.Controllers
 
             var eventToReturn = _service.EventService.CreateEventForLocation(locationId, ev, trackChanges: false);
 
-            return CreatedAtRoute("GetEventForLocation", new { id = eventToReturn.Id }, eventToReturn);
+            return CreatedAtRoute("GetEventForLocation", new { locationId, id = eventToReturn.Id }, eventToReturn) ;
         }
     }
 }

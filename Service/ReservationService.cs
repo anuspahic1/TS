@@ -70,7 +70,7 @@ namespace Service
 
             var reservationEntity = _mapper.Map<Reservation>(reservation);
 
-            _repository.Reservation.CreateReservationForEvent(locationId, eventId, reservationEntity);
+            _repository.Reservation.CreateReservationForEvent(eventId, reservationEntity);
             _repository.Save();
 
             var reservationToReturn = _mapper.Map<ReservationDto>(reservationEntity);

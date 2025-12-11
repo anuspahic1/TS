@@ -12,8 +12,8 @@ namespace Repository
         public IEnumerable<Ticket> GetTickets(Guid locationId, Guid eventId, bool trackChanges)
         {
             return FindByCondition(t => t.EventId.Equals(eventId) && 
-                                   t.Event != null && 
-                                   t.Event.LocationId.Equals(locationId), trackChanges)
+                                   t.Event.LocationId.Equals(locationId), 
+                                   trackChanges)
                     .OrderBy(t => t.Price)
                     .ToList();
         }
@@ -21,15 +21,14 @@ namespace Repository
         public Ticket GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
             return FindByCondition(t => t.EventId.Equals(eventId) &&
-                                    t.Event != null &&
                                     t.Event.LocationId.Equals(locationId) &&
-                                    t.Id.Equals(id), trackChanges)
+                                    t.Id.Equals(id), 
+                                    trackChanges)
                    .SingleOrDefault();
         }
 
-        public void CreateTicketForEvent(Guid locationId, Guid eventId, Ticket ticket)
+        public void CreateTicketForEvent(Guid eventId, Ticket ticket)
         {
-            ticket.Event.LocationId = locationId;
             ticket.EventId = eventId;
             Create(ticket);
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -39,7 +38,7 @@ namespace EntrioX.Presentation.Controllers
 
             var createdReservation = _service.ReservationService.CreateReservationForEvent(locationId, eventId, reservation, trackChanges: true);
 
-            return CreatedAtRoute("GetReservationForEvent", new { id = createdReservation.Id }, createdReservation);
+            return CreatedAtRoute("GetReservationForEvent", new { locationId, eventId, id = createdReservation.Id }, createdReservation);
         }
     }
 }

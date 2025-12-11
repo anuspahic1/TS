@@ -70,7 +70,7 @@ namespace Service
 
             var ticketEntity = _mapper.Map<Ticket>(ticketForCreation);
 
-            _repository.Ticket.CreateTicketForEvent(locationId, eventId, ticketEntity);
+            _repository.Ticket.CreateTicketForEvent(eventId, ticketEntity);
             _repository.Save();
 
             var ticketToReturn = _mapper.Map<TicketDto>(ticketEntity);
