@@ -1,6 +1,5 @@
 ﻿using Contracts;
 using Entities.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Repository
 {
@@ -29,5 +28,9 @@ namespace Repository
             Create(location);
         }
 
+        public void DeleteLocation(Location location)
+        {
+            Delete(location);
+        }
     }
 }

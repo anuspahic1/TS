@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.ComponentModel.Design;
 
 namespace Service
 {
@@ -49,6 +50,16 @@ namespace Service
             var locationToReturn = _mapper.Map<LocationDto>(locationEntity);
 
             return locationToReturn;
+        }
+
+        public void DeleteLocation(Guid locationId, bool trackChanges)
+        {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            _repository.Location.DeleteLocation(location);
+            _repository.Save();
         }
     }
 }

@@ -77,5 +77,19 @@ namespace Service
 
             return reservationToReturn;
         }
+
+        public void DeleteReservationForEvent(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            if (ev is null)
+                throw new EventNotFoundException(eventId);
+
+            var reservationForEvent = _repository.Reservation.GetReservation(locationId, eventId, id, trackChanges);
+            if (reservationForEvent is null)
+                throw new ReservationNotFoundException(id);
+
+            _repository.Reservation.DeleteReservation(reservationForEvent);
+            _repository.Save();
+        }
     }
 }

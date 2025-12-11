@@ -38,5 +38,12 @@ namespace EntrioX.Presentation.Controllers
             var createdLocation = _service.LocationService.CreateLocation(location);
             return CreatedAtRoute("LocationById", new { id = createdLocation.Id }, createdLocation);
         }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteLocation(Guid id)
+        {
+            _service.LocationService.DeleteLocation(id, trackChanges: false);
+            return NoContent();
+        }
     }
 }

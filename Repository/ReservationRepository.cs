@@ -31,5 +31,10 @@ namespace Repository
             reservation.EventId = eventId;
             Create(reservation);
         }
+
+        public void DeleteReservation(Reservation reservation)
+        {
+            Delete(reservation);
+        }
     }
 }

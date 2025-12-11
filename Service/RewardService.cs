@@ -64,5 +64,19 @@ namespace Service
 
             return rewardToReturn;
         }
+
+        public void DeleteRewardForUser(Guid userId, Guid id, bool trackChanges)
+        {
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            if (user is null)
+                throw new EventNotFoundException(userId);
+
+            var rewardForUser = _repository.Reward.GetReward(userId, id, trackChanges);
+            if (rewardForUser is null)
+                throw new RewardNotFoundException(id);
+
+            _repository.Reward.DeleteReward(rewardForUser);
+            _repository.Save();
+        }
     }
 }

@@ -77,5 +77,19 @@ namespace Service
 
             return ticketToReturn;
         }
+
+        public void DeleteTicketForEvent(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            if (ev is null)
+                throw new EventNotFoundException(eventId);
+
+            var ticketForEvent = _repository.Ticket.GetTicket(locationId, eventId, id, trackChanges);
+            if (ticketForEvent is null)
+                throw new TicketNotFoundException(id);
+
+            _repository.Ticket.DeleteTicket(ticketForEvent);
+            _repository.Save();
+        }
     }
 }

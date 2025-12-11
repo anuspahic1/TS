@@ -34,5 +34,10 @@ namespace Repository
             reward.UserId = userId;
             Create(reward);
         }
+
+        public void DeleteReward(Reward reward)
+        {
+            Delete(reward);
+        }
     }
 }

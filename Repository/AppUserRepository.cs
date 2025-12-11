@@ -27,5 +27,10 @@ namespace Repository
         {
             Create(user);
         }
+
+        public void DeleteUser(AppUser user)
+        {
+            Delete(user);
+        }
     }
 }

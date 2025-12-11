@@ -7,5 +7,6 @@ namespace Contracts
         IEnumerable<AppUser> GetAllUsers(bool trackChanges);
         AppUser GetUser(Guid userId, bool trackChanges);
         void CreateUser(AppUser user);
+        void DeleteUser(AppUser user);
     }
 }

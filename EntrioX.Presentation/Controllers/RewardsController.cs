@@ -39,5 +39,12 @@ namespace EntrioX.Presentation.Controllers
 
             return CreatedAtRoute("GetRewardForUser", new { userId, id = rewardToReturn.Id }, rewardToReturn);
         }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteReward(Guid userId, Guid id)
+        {
+            _service.RewardService.DeleteRewardForUser(userId, id, trackChanges: false);
+            return NoContent();
+        }
     }
 }

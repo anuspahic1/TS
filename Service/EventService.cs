@@ -64,5 +64,19 @@ namespace Service
 
             return eventToReturn;
         }
+
+        public void DeleteEventForLocation(Guid locationId, Guid id, bool trackChanges)
+        {
+            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            if (location is null)
+                throw new LocationNotFoundException(locationId);
+
+            var eventForLocation = _repository.Event.GetEvent(locationId, id, trackChanges);
+            if (eventForLocation is null)
+                throw new EventNotFoundException(id);
+
+            _repository.Event.DeleteEvent(eventForLocation);
+            _repository.Save();
+        }
     }
 }

@@ -39,5 +39,12 @@ namespace EntrioX.Presentation.Controllers
 
             return CreatedAtRoute("GetTicketForEvent", new { locationId, eventId, id = createdTicket.Id }, createdTicket);
         }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteTicket(Guid locationId, Guid eventId, Guid id)
+        {
+            _service.TicketService.DeleteTicketForEvent(locationId, eventId, id, trackChanges: false);
+            return NoContent();
+        }
     }
 }

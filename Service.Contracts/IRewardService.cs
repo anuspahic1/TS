@@ -7,5 +7,6 @@ namespace Service.Contracts
         IEnumerable<RewardDto> GetRewards(Guid userId, bool trackChanges);
         RewardDto GetReward(Guid userId, Guid id, bool trackChanges);
         RewardDto CreateRewardForUser(Guid userId, RewardForCreationDto reward, bool trackChanges);
+        void DeleteRewardForUser(Guid userId, Guid id, bool trackChanges);
     }
 }

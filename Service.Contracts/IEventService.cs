@@ -7,5 +7,6 @@ namespace Service.Contracts
         IEnumerable<EventDto> GetEvents(Guid locationId, bool trackChanges);
         EventDto GetEvent(Guid locationId, Guid id, bool trackChanges);
         EventDto CreateEventForLocation(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges);
+        void DeleteEventForLocation(Guid locationId, Guid id, bool trackChanges);
     }
 }

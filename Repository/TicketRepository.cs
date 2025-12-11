@@ -32,5 +32,10 @@ namespace Repository
             ticket.EventId = eventId;
             Create(ticket);
         }
+
+        public void DeleteTicket(Ticket ticket)
+        {
+            Delete(ticket);
+        }
     }
 }

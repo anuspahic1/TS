@@ -28,5 +28,10 @@ namespace Repository
             ev.LocationId = locationId;
             Create(ev);
         }
+
+        public void DeleteEvent(Event ev)
+        {
+            Delete(ev);
+        }
     }
 }

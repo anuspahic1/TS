@@ -38,5 +38,12 @@ namespace EntrioX.Presentation.Controllers
             var createdUser = _service.AppUserService.CreateUser(user);
             return CreatedAtRoute("UserById", new { id = createdUser.Id }, createdUser);
         }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteUser(Guid id)
+        {
+            _service.AppUserService.DeleteUser(id, trackChanges: false);
+            return NoContent();
+        }
     }
 }

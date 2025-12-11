@@ -50,5 +50,15 @@ namespace Service
 
             return userToReturn;
         }
+
+        public void DeleteUser(Guid userId, bool trackChanges)
+        {
+            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            if (user is null)
+                throw new LocationNotFoundException(userId);
+
+            _repository.AppUser.DeleteUser(user);
+            _repository.Save();
+        }
     }
 }

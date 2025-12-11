@@ -40,5 +40,12 @@ namespace EntrioX.Presentation.Controllers
 
             return CreatedAtRoute("GetReservationForEvent", new { locationId, eventId, id = createdReservation.Id }, createdReservation);
         }
+
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteReservation(Guid locationId, Guid eventId, Guid id)
+        {
+            _service.ReservationService.DeleteReservationForEvent(locationId, eventId, id, trackChanges: false);
+            return NoContent();
+        }
     }
 }

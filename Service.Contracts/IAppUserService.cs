@@ -7,5 +7,6 @@ namespace Service.Contracts
         IEnumerable<AppUserDto> GetAllUsers(bool trackChanges);
         AppUserDto GetUser(Guid userId, bool trackChanges);
         AppUserDto CreateUser(AppUserForCreationDto user);
+        void DeleteUser(Guid userId, bool trackChanges);
     }
 }
