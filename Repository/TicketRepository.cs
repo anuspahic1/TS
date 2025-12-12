@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -9,22 +9,22 @@ namespace Repository
         {
         }
 
-        public IEnumerable<Ticket> GetTickets(Guid locationId, Guid eventId, bool trackChanges)
+        public async Task<IEnumerable<Ticket>> GetTicketsAsync(Guid locationId, Guid eventId, bool trackChanges)
         {
-            return FindByCondition(t => t.EventId.Equals(eventId) && 
+            return await FindByCondition(t => t.EventId.Equals(eventId) && 
                                    t.Event.LocationId.Equals(locationId), 
                                    trackChanges)
                     .OrderBy(t => t.Price)
-                    .ToList();
+                    .ToListAsync();
         }
 
-        public Ticket GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task<Ticket> GetTicketAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            return FindByCondition(t => t.EventId.Equals(eventId) &&
+            return await FindByCondition(t => t.EventId.Equals(eventId) &&
                                     t.Event.LocationId.Equals(locationId) &&
                                     t.Id.Equals(id), 
                                     trackChanges)
-                   .SingleOrDefault();
+                   .SingleOrDefaultAsync();
         }
 
         public void CreateTicketForEvent(Guid eventId, Ticket ticket)

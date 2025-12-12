@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -10,17 +10,17 @@ namespace Repository
         {
         }
 
-        public IEnumerable<Location> GetAllLocations(bool trackChanges)
+        public async Task<IEnumerable<Location>> GetAllLocationsAsync(bool trackChanges)
         {
-            return FindAll(trackChanges)
+            return await FindAll(trackChanges)
                 .OrderBy(e => e.Name)
-                .ToList();
+                .ToListAsync();
         }
 
-        public Location GetLocation(Guid locationId, bool trackChanges)
+        public async Task<Location> GetLocationAsync(Guid locationId, bool trackChanges)
         {
-            return FindByCondition(e => e.Id.Equals(locationId), trackChanges)
-                   .SingleOrDefault();
+            return await FindByCondition(e => e.Id.Equals(locationId), trackChanges)
+                   .SingleOrDefaultAsync();
         }
 
         public void CreateLocation(Location location)

@@ -16,21 +16,21 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetLocations()
+        public async Task<IActionResult> GetLocations()
         {
-            var locations = _service.LocationService.GetAllLocations(trackChanges: false);
+            var locations = await _service.LocationService.GetAllLocationsAsync(trackChanges: false);
             return Ok(locations);
         }
 
         [HttpGet("{id:guid}", Name = "LocationById")]
-        public IActionResult GetLocation(Guid id)
+        public async Task<IActionResult> GetLocation(Guid id)
         {
-            var location = _service.LocationService.GetLocation(id, trackChanges: false);
+            var location = await _service.LocationService.GetLocationAsync(id, trackChanges: false);
             return Ok(location);
         }
 
         [HttpPost]
-        public IActionResult CreateLocation([FromBody] LocationForCreationDto location)
+        public async Task<IActionResult> CreateLocation([FromBody] LocationForCreationDto location)
         {
             if (location is null)
                 return BadRequest("LocationForCreationDto is null.");
@@ -38,14 +38,14 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var createdLocation = _service.LocationService.CreateLocation(location);
+            var createdLocation = await _service.LocationService.CreateLocationAsync(location);
             return CreatedAtRoute("LocationById", new { id = createdLocation.Id }, createdLocation);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteLocation(Guid id)
+        public async Task<IActionResult> DeleteLocation(Guid id)
         {
-            _service.LocationService.DeleteLocation(id, trackChanges: false);
+            await _service.LocationService.DeleteLocationAsync(id, trackChanges: false);
             return NoContent();
         }
     }

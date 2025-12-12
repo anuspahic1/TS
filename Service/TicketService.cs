@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
-using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -20,36 +19,36 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<TicketDto> GetTickets(Guid locationId, Guid eventId, bool trackChanges)
+        public async Task<IEnumerable<TicketDto>> GetTicketsAsync(Guid locationId, Guid eventId, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
 
             if (location == null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
 
             if (ev == null)
                 throw new EventNotFoundException(eventId);
 
-            var ticketsFromDb = _repository.Ticket.GetTickets(locationId, eventId, trackChanges);
+            var ticketsFromDb = await _repository.Ticket.GetTicketsAsync(locationId, eventId, trackChanges);
 
             var ticketsDto = _mapper.Map<IEnumerable<TicketDto>>(ticketsFromDb);
 
             return ticketsDto;
         }
 
-        public TicketDto GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task<TicketDto> GetTicketAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(locationId);
 
-            var ticket = _repository.Ticket.GetTicket(locationId, eventId, id, trackChanges);
+            var ticket = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
             if (ticket is null)
                 throw new TicketNotFoundException(id);
 
@@ -58,38 +57,38 @@ namespace Service
             return ticketDto;
         }
 
-        public TicketDto CreateTicketForEvent(Guid locationId, Guid eventId, TicketForCreationDto ticketForCreation, bool trackChanges)
+        public async Task<TicketDto> CreateTicketForEventAsync(Guid locationId, Guid eventId, TicketForCreationDto ticketForCreation, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(eventId);
 
             var ticketEntity = _mapper.Map<Ticket>(ticketForCreation);
 
             _repository.Ticket.CreateTicketForEvent(eventId, ticketEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var ticketToReturn = _mapper.Map<TicketDto>(ticketEntity);
 
             return ticketToReturn;
         }
 
-        public void DeleteTicketForEvent(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task DeleteTicketForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(eventId);
 
-            var ticketForEvent = _repository.Ticket.GetTicket(locationId, eventId, id, trackChanges);
+            var ticketForEvent = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
             if (ticketForEvent is null)
                 throw new TicketNotFoundException(id);
 
             _repository.Ticket.DeleteTicket(ticketForEvent);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
     }
 }

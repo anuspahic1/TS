@@ -1,11 +1,9 @@
-﻿using Entities.Models;
-
-namespace Contracts
+﻿namespace Contracts
 {
     public interface IAppUserRepository
     {
-        IEnumerable<AppUser> GetAllUsers(bool trackChanges);
-        AppUser GetUser(Guid userId, bool trackChanges);
+        Task<IEnumerable<AppUser>> GetAllUsersAsync(bool trackChanges);
+        Task<AppUser> GetUserAsync(Guid userId, bool trackChanges);
         void CreateUser(AppUser user);
         void DeleteUser(AppUser user);
     }

@@ -16,21 +16,21 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetEventsForLocation(Guid locationId) 
+        public async Task<IActionResult> GetEventsForLocation(Guid locationId) 
         {
-            var events = _service.EventService.GetEvents(locationId, trackChanges: false);
+            var events = await _service.EventService.GetEventsAsync(locationId, trackChanges: false);
             return Ok(events);
         }
 
         [HttpGet("{id:guid}", Name = "GetEventForLocation")]
-        public IActionResult GetEventForLocation(Guid locationId, Guid id)
+        public async Task<IActionResult> GetEventForLocation(Guid locationId, Guid id)
         {
-            var ev = _service.EventService.GetEvent(locationId, id, trackChanges: false);
+            var ev = await _service.EventService.GetEventAsync(locationId, id, trackChanges: false);
             return Ok(ev);
         }
 
         [HttpPost]
-        public IActionResult CreateEventForLocation(Guid locationId, [FromBody] EventForCreationDto ev)
+        public async Task<IActionResult> CreateEventForLocation(Guid locationId, [FromBody] EventForCreationDto ev)
         {
             if (ev is null)
                 return BadRequest("EventForCreationDto is null.");
@@ -38,15 +38,15 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var eventToReturn = _service.EventService.CreateEventForLocation(locationId, ev, trackChanges: false);
+            var eventToReturn = await _service.EventService.CreateEventForLocationAsync(locationId, ev, trackChanges: false);
 
             return CreatedAtRoute("GetEventForLocation", new { locationId, id = eventToReturn.Id }, eventToReturn) ;
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteEvent(Guid locationId, Guid id)
+        public async Task<IActionResult> DeleteEvent(Guid locationId, Guid id)
         {
-            _service.EventService.DeleteEventForLocation(locationId, id, trackChanges: false);
+            await _service.EventService.DeleteEventForLocationAsync(locationId, id, trackChanges: false);
             return NoContent();
         }
     }

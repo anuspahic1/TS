@@ -4,9 +4,9 @@ namespace Service.Contracts
 {
     public interface IAppUserService
     {
-        IEnumerable<AppUserDto> GetAllUsers(bool trackChanges);
-        AppUserDto GetUser(Guid userId, bool trackChanges);
-        AppUserDto CreateUser(AppUserForCreationDto user);
-        void DeleteUser(Guid userId, bool trackChanges);
+        Task<IEnumerable<AppUserDto>> GetAllUsersAsync(bool trackChanges);
+        Task<AppUserDto> GetUserAsync(Guid userId, bool trackChanges);
+        Task<AppUserDto> CreateUserAsync(AppUserForCreationDto user);
+        Task DeleteUserAsync(Guid userId, bool trackChanges);
     }
 }

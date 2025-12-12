@@ -20,28 +20,28 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<RewardDto> GetRewards(Guid userId, bool trackChanges)
+        public async Task<IEnumerable<RewardDto>> GetRewardsAsync(Guid userId, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
 
             if (user == null)
                 throw new UserNotFoundException(userId);
 
-            var rewardsFromDb = _repository.Reward.GetRewards(userId, trackChanges);
+            var rewardsFromDb = await _repository.Reward.GetRewardsAsync(userId, trackChanges);
 
             var rewardsDto = _mapper.Map<IEnumerable<RewardDto>>(rewardsFromDb);
 
             return rewardsDto;
         }
 
-        public RewardDto GetReward(Guid userId, Guid id, bool trackChanges)
+        public async Task<RewardDto> GetRewardAsync(Guid userId, Guid id, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
 
             if (user == null)
                 throw new UserNotFoundException(userId);
 
-            var rewardDb = _repository.Reward.GetReward(userId, id, trackChanges);
+            var rewardDb = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
             if (rewardDb is null)
                 throw new RewardNotFoundException(id);
 
@@ -49,34 +49,34 @@ namespace Service
             return rewardDto;
         }
 
-        public RewardDto CreateRewardForUser(Guid userId, RewardForCreationDto rewardForCreation, bool trackChanges)
+        public async Task<RewardDto> CreateRewardForUserAsync(Guid userId, RewardForCreationDto rewardForCreation, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = _repository.AppUser.GetUserAsync(userId, trackChanges);
             if (user is null)
                 throw new UserNotFoundException(userId);
 
             var rewardEntity = _mapper.Map<Reward>(rewardForCreation);
 
             _repository.Reward.CreateRewardForUser(userId, rewardEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var rewardToReturn = _mapper.Map<RewardDto>(rewardEntity);
 
             return rewardToReturn;
         }
 
-        public void DeleteRewardForUser(Guid userId, Guid id, bool trackChanges)
+        public async Task DeleteRewardForUserAsync(Guid userId, Guid id, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
             if (user is null)
                 throw new EventNotFoundException(userId);
 
-            var rewardForUser = _repository.Reward.GetReward(userId, id, trackChanges);
+            var rewardForUser = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
             if (rewardForUser is null)
                 throw new RewardNotFoundException(id);
 
             _repository.Reward.DeleteReward(rewardForUser);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
     }
 }

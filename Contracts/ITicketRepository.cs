@@ -1,11 +1,9 @@
-﻿using Entities.Models;
-
-namespace Contracts
+﻿namespace Contracts
 {
     public interface ITicketRepository
     {
-        IEnumerable<Ticket> GetTickets(Guid locationId, Guid eventId, bool trackChanges);
-        Ticket GetTicket(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        Task<IEnumerable<Ticket>> GetTicketsAsync(Guid locationId, Guid eventId, bool trackChanges);
+        Task<Ticket> GetTicketAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
         void CreateTicketForEvent(Guid eventId, Ticket ticket);
         void DeleteTicket(Ticket ticket);
     }

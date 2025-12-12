@@ -4,9 +4,9 @@ namespace Service.Contracts
 {
     public interface IEventService
     {
-        IEnumerable<EventDto> GetEvents(Guid locationId, bool trackChanges);
-        EventDto GetEvent(Guid locationId, Guid id, bool trackChanges);
-        EventDto CreateEventForLocation(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges);
-        void DeleteEventForLocation(Guid locationId, Guid id, bool trackChanges);
+        Task<IEnumerable<EventDto>> GetEventsAsync(Guid locationId, bool trackChanges);
+        Task<EventDto> GetEventAsync(Guid locationId, Guid id, bool trackChanges);
+        Task<EventDto> CreateEventForLocationAsync(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges);
+        Task DeleteEventForLocationAsync(Guid locationId, Guid id, bool trackChanges);
     }
 }

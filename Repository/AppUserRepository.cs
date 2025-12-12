@@ -1,6 +1,5 @@
 ﻿using Contracts;
-using Entities.Models;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -10,17 +9,17 @@ namespace Repository
         { 
         }
 
-        public IEnumerable<AppUser> GetAllUsers(bool trackChanges)
+        public async Task<IEnumerable<AppUser>> GetAllUsersAsync(bool trackChanges)
         {
-            return FindAll(trackChanges)
+            return await FindAll(trackChanges)
                 .OrderBy(e => e.Email)
-                .ToList();
+                .ToListAsync();
         }
 
-        public AppUser GetUser(Guid userId, bool trackChanges)
+        public async Task<AppUser> GetUserAsync(Guid userId, bool trackChanges)
         {
-            return FindByCondition(e => e.Id.Equals(userId), trackChanges)
-                   .SingleOrDefault();
+            return await FindByCondition(e => e.Id.Equals(userId), trackChanges)
+                   .SingleOrDefaultAsync();
         }
 
         public void CreateUser(AppUser user)

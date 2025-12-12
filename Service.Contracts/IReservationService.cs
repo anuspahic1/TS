@@ -4,9 +4,9 @@ namespace Service.Contracts
 {
     public interface IReservationService
     {
-        IEnumerable<ReservationDto> GetReservations(Guid locationId, Guid eventId, bool trackChanges);
-        ReservationDto GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges);
-        ReservationDto CreateReservationForEvent(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges);
-        void DeleteReservationForEvent(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        Task<IEnumerable<ReservationDto>> GetReservationsAsync(Guid locationId, Guid eventId, bool trackChanges);
+        Task<ReservationDto> GetReservationAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        Task<ReservationDto> CreateReservationForEventAsync(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges);
+        Task DeleteReservationForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
     }
 }

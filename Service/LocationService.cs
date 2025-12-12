@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
-using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
-using System.ComponentModel.Design;
 
 namespace Service
 {
@@ -21,18 +19,18 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<LocationDto> GetAllLocations(bool trackChanges)
+        public async Task<IEnumerable<LocationDto>> GetAllLocationsAsync(bool trackChanges)
         {
-            var locations = _repository.Location.GetAllLocations(trackChanges);
+            var locations = await _repository.Location.GetAllLocationsAsync(trackChanges);
 
             var locationsDto = _mapper.Map<IEnumerable<LocationDto>>(locations);
 
             return locationsDto;
         }
 
-        public LocationDto GetLocation(Guid locationId, bool trackChanges)
+        public async Task<LocationDto> GetLocationAsync(Guid locationId, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
@@ -40,26 +38,26 @@ namespace Service
             return locationDto;
         }
 
-        public LocationDto CreateLocation(LocationForCreationDto location)
+        public async Task<LocationDto> CreateLocationAsync(LocationForCreationDto location)
         {
             var locationEntity = _mapper.Map<Location>(location);
 
             _repository.Location.CreateLocation(locationEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var locationToReturn = _mapper.Map<LocationDto>(locationEntity);
 
             return locationToReturn;
         }
 
-        public void DeleteLocation(Guid locationId, bool trackChanges)
+        public async Task DeleteLocationAsync(Guid locationId, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
             _repository.Location.DeleteLocation(location);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
     }
 }

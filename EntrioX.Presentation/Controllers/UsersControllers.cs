@@ -16,21 +16,21 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _service.AppUserService.GetAllUsers(trackChanges: false);
+            var users = await _service.AppUserService.GetAllUsersAsync(trackChanges: false);
             return Ok(users);
         }
 
         [HttpGet("{id:guid}", Name = "UserById")]
-        public IActionResult GetUser(Guid id)
+        public async Task<IActionResult> GetUser(Guid id)
         {
-            var user = _service.AppUserService.GetUser(id, trackChanges: false);
+            var user = await _service.AppUserService.GetUserAsync(id, trackChanges: false);
             return Ok(user);
         }
 
         [HttpPost]
-        public IActionResult CreateUser([FromBody] AppUserForCreationDto user)
+        public async Task<IActionResult> CreateUser([FromBody] AppUserForCreationDto user)
         {
             if (user is null)
                 return BadRequest("AppUserForCreationDto is null.");
@@ -38,14 +38,14 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var createdUser = _service.AppUserService.CreateUser(user);
+            var createdUser = await _service.AppUserService.CreateUserAsync(user);
             return CreatedAtRoute("UserById", new { id = createdUser.Id }, createdUser);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteUser(Guid id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
-            _service.AppUserService.DeleteUser(id, trackChanges: false);
+            await _service.AppUserService.DeleteUserAsync(id, trackChanges: false);
             return NoContent();
         }
     }

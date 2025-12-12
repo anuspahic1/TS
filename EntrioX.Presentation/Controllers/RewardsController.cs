@@ -16,21 +16,21 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetRewards(Guid userId)
+        public async Task<IActionResult> GetRewards(Guid userId)
         {
-            var rewards = _service.RewardService.GetRewards(userId, trackChanges: false);
+            var rewards = await _service.RewardService.GetRewardsAsync(userId, trackChanges: false);
             return Ok(rewards);
         }
 
         [HttpGet("{id:guid}", Name = "GetRewardForUser")]
-        public IActionResult GetReward(Guid userId, Guid id)
+        public async Task<IActionResult> GetReward(Guid userId, Guid id)
         {
-            var reward = _service.RewardService.GetReward(userId, id, trackChanges: false);
+            var reward = await _service.RewardService.GetRewardAsync(userId, id, trackChanges: false);
             return Ok(reward);
         }
 
         [HttpPost]
-        public IActionResult CreateRewardForUser(Guid userId, [FromBody] RewardForCreationDto reward)
+        public async Task<IActionResult> CreateRewardForUser(Guid userId, [FromBody] RewardForCreationDto reward)
         {
             if (reward is null)
                 return BadRequest("RewardForCreationDto is null.");
@@ -38,15 +38,15 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var rewardToReturn = _service.RewardService.CreateRewardForUser(userId, reward, trackChanges: false);
+            var rewardToReturn = await _service.RewardService.CreateRewardForUserAsync(userId, reward, trackChanges: false);
 
             return CreatedAtRoute("GetRewardForUser", new { userId, id = rewardToReturn.Id }, rewardToReturn);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteReward(Guid userId, Guid id)
+        public async Task<IActionResult> DeleteReward(Guid userId, Guid id)
         {
-            _service.RewardService.DeleteRewardForUser(userId, id, trackChanges: false);
+            await _service.RewardService.DeleteRewardForUserAsync(userId, id, trackChanges: false);
             return NoContent();
         }
     }

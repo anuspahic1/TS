@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -9,24 +10,17 @@ namespace Repository
         {
         }
 
-        public IEnumerable<Reward> GetRewards(Guid userId, bool trackChanges)
+        public async Task<IEnumerable<Reward>> GetRewardsAsync(Guid userId, bool trackChanges)
         {
-            return FindByCondition(r => r.UserId.Equals(userId), trackChanges)
+            return await FindByCondition(r => r.UserId.Equals(userId), trackChanges)
                     .OrderBy(e => e.Description)
-                    .ToList();
+                    .ToListAsync();
         }
 
-        public IEnumerable<Reward> GetRewardsForUser(Guid userId, bool trackChanges)
+        public async Task<Reward> GetRewardAsync(Guid userId, Guid id, bool trackChanges)
         {
-            return FindByCondition(r => r.UserId.Equals(userId), trackChanges)
-                    .OrderBy(r => r.GrantedAt)
-                    .ToList();
-        }
-
-        public Reward GetReward(Guid userId, Guid id, bool trackChanges)
-        {
-            return FindByCondition(r => r.UserId.Equals(userId) && r.Id.Equals(id), trackChanges)
-                   .SingleOrDefault();
+            return await FindByCondition(r => r.UserId.Equals(userId) && r.Id.Equals(id), trackChanges)
+                   .SingleOrDefaultAsync();
         }
 
         public void CreateRewardForUser(Guid userId, Reward reward)

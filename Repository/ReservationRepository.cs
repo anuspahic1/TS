@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -9,20 +9,20 @@ namespace Repository
         {
         }
 
-        public IEnumerable<Reservation> GetReservations(Guid locationId, Guid eventId, bool trackChanges)
+        public async Task<IEnumerable<Reservation>> GetReservationsAsync(Guid locationId, Guid eventId, bool trackChanges)
         {
-            return FindByCondition(r => r.EventId.Equals(eventId) &&
+            return await FindByCondition(r => r.EventId.Equals(eventId) &&
                                    r.Event.LocationId.Equals(locationId), trackChanges)
                     .OrderBy(r => r.CreatedAt)
-                    .ToList();
+                    .ToListAsync();
         }
 
-        public Reservation GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task<Reservation> GetReservationAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            return FindByCondition(r => r.EventId.Equals(eventId) &&
+            return await FindByCondition(r => r.EventId.Equals(eventId) &&
                                     r.Event.LocationId.Equals(locationId) &&
                                     r.Id.Equals(id), trackChanges)
-                   .SingleOrDefault();
+                   .SingleOrDefaultAsync();
         }
 
 

@@ -19,36 +19,36 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<ReservationDto> GetReservations(Guid locationId, Guid eventId, bool trackChanges)
+        public async Task<IEnumerable<ReservationDto>> GetReservationsAsync(Guid locationId, Guid eventId, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
 
             if (location == null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
 
             if (ev == null)
                 throw new EventNotFoundException(eventId);
 
-            var reservationsFromDb = _repository.Reservation.GetReservations(locationId, eventId, trackChanges);
+            var reservationsFromDb = await _repository.Reservation.GetReservationsAsync(locationId, eventId, trackChanges);
 
             var reservationsDto = _mapper.Map<IEnumerable<ReservationDto>>(reservationsFromDb);
 
             return reservationsDto;
         }
 
-        public ReservationDto GetReservation(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task<ReservationDto> GetReservationAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
                 if (ev is null)
                     throw new EventNotFoundException(locationId);
 
-            var reservation = _repository.Reservation.GetReservation(locationId, eventId, id, trackChanges);
+            var reservation = await _repository.Reservation.GetReservationAsync(locationId, eventId, id, trackChanges);
             if (reservation is null)
                 throw new ReservationNotFoundException(id);
 
@@ -57,13 +57,13 @@ namespace Service
             return reservationDto;
         }
 
-        public ReservationDto CreateReservationForEvent(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
+        public async Task<ReservationDto> CreateReservationForEventAsync(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
         {
-            var location = _repository.Location.GetLocation(locationId, trackChanges);
+            var location = _repository.Location.GetLocationAsync(locationId, trackChanges);
             if (location is null)
                 throw new LocationNotFoundException(locationId);
 
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(eventId);
 
@@ -79,25 +79,25 @@ namespace Service
             }
 
             _repository.Reservation.CreateReservationForEvent(eventId, reservationEntity);
-            _repository.Save();
+           await _repository.SaveAsync();
 
             var reservationToReturn = _mapper.Map<ReservationDto>(reservationEntity);
 
             return reservationToReturn;
         }
 
-        public void DeleteReservationForEvent(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task DeleteReservationForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var ev = _repository.Event.GetEvent(locationId, eventId, trackChanges);
+            var ev = _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
             if (ev is null)
                 throw new EventNotFoundException(eventId);
 
-            var reservationForEvent = _repository.Reservation.GetReservation(locationId, eventId, id, trackChanges);
+            var reservationForEvent = await _repository.Reservation.GetReservationAsync(locationId, eventId, id, trackChanges);
             if (reservationForEvent is null)
                 throw new ReservationNotFoundException(id);
 
             _repository.Reservation.DeleteReservation(reservationForEvent);
-            _repository.Save();
+           await _repository.SaveAsync();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
-using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -20,18 +19,18 @@ namespace Service
             _mapper = mapper;
         }
 
-        public IEnumerable<AppUserDto> GetAllUsers(bool trackChanges)
+        public async Task<IEnumerable<AppUserDto>> GetAllUsersAsync(bool trackChanges)
         {
-            var users = _repository.AppUser.GetAllUsers(trackChanges);
+            var users = await _repository.AppUser.GetAllUsersAsync(trackChanges);
 
             var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
 
             return usersDto;
         }
 
-        public AppUserDto GetUser(Guid userId, bool trackChanges)
+        public async Task<AppUserDto> GetUserAsync(Guid userId, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
             if (user == null)
                 throw new UserNotFoundException(userId);
 
@@ -39,26 +38,26 @@ namespace Service
             return userDto;
         }
 
-        public AppUserDto CreateUser(AppUserForCreationDto user)
+        public async Task<AppUserDto> CreateUserAsync(AppUserForCreationDto user)
         {
             var userEntity = _mapper.Map<AppUser>(user);
 
             _repository.AppUser.CreateUser(userEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var userToReturn = _mapper.Map<AppUserDto>(userEntity);
 
             return userToReturn;
         }
 
-        public void DeleteUser(Guid userId, bool trackChanges)
+        public async Task DeleteUserAsync(Guid userId, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUser(userId, trackChanges);
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
             if (user is null)
                 throw new LocationNotFoundException(userId);
 
             _repository.AppUser.DeleteUser(user);
-            _repository.Save();
+            await _repository.SaveAsync();
         }
     }
 }

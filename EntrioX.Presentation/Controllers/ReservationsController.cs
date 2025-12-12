@@ -16,22 +16,22 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetReservations(Guid locationId, Guid eventId)
+        public async Task<IActionResult> GetReservations(Guid locationId, Guid eventId)
         {
-            var reservations = _service.ReservationService.GetReservations(locationId, eventId, trackChanges: false);
+            var reservations = await _service.ReservationService.GetReservationsAsync(locationId, eventId, trackChanges: false);
             return Ok(reservations);
         }
 
         [HttpGet("{id:guid}", Name = "GetReservationForEvent")]
-        public IActionResult GetReservation(Guid locationId, Guid eventId, Guid id)
+        public async Task<IActionResult> GetReservation(Guid locationId, Guid eventId, Guid id)
         {
-            var reservation = _service.ReservationService.GetReservation(locationId, eventId, id, trackChanges: false);
+            var reservation = await _service.ReservationService.GetReservationAsync(locationId, eventId, id, trackChanges: false);
 
             return Ok(reservation);
         }
 
         [HttpPost]
-        public IActionResult CreateReservation(Guid locationId, Guid eventId, [FromBody] ReservationForCreationDto reservation)
+        public async Task<IActionResult> CreateReservation(Guid locationId, Guid eventId, [FromBody] ReservationForCreationDto reservation)
         {
             if (reservation is null)
                 return BadRequest("ReservationForCreationDto is null.");
@@ -39,15 +39,15 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var createdReservation = _service.ReservationService.CreateReservationForEvent(locationId, eventId, reservation, trackChanges: true);
+            var createdReservation = await _service.ReservationService.CreateReservationForEventAsync(locationId, eventId, reservation, trackChanges: true);
 
             return CreatedAtRoute("GetReservationForEvent", new { locationId, eventId, id = createdReservation.Id }, createdReservation);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteReservation(Guid locationId, Guid eventId, Guid id)
+        public async Task<IActionResult> DeleteReservation(Guid locationId, Guid eventId, Guid id)
         {
-            _service.ReservationService.DeleteReservationForEvent(locationId, eventId, id, trackChanges: false);
+            await _service.ReservationService.DeleteReservationForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
     }

@@ -1,5 +1,5 @@
 ﻿using Contracts;
-using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -9,18 +9,18 @@ namespace Repository
         {
         }
 
-        public IEnumerable<Event> GetEvents(Guid locationId, bool trackChanges)
+        public async Task<IEnumerable<Event>> GetEventsAsync(Guid locationId, bool trackChanges)
         {
-            return FindByCondition(e => e.LocationId.Equals(locationId), trackChanges)
+            return await FindByCondition(e => e.LocationId.Equals(locationId), trackChanges)
                     .OrderBy(e => e.Name)
-                    .ToList();
+                    .ToListAsync();
         }
 
-        public Event GetEvent(Guid locationId, Guid id, bool trackChanges)
+        public async Task<Event> GetEventAsync(Guid locationId, Guid id, bool trackChanges)
         {
-            return FindByCondition(e => e.LocationId.Equals(locationId) && 
+            return await FindByCondition(e => e.LocationId.Equals(locationId) && 
                                    e.Id.Equals(id), trackChanges)
-                   .SingleOrDefault();
+                   .SingleOrDefaultAsync();
         }
 
         public void CreateEventForLocation(Guid locationId, Event ev)

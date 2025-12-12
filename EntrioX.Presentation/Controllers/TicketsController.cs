@@ -16,21 +16,21 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTickets(Guid locationId, Guid eventId)
+        public async Task<IActionResult> GetTickets(Guid locationId, Guid eventId)
         {
-            var tickets = _service.TicketService.GetTickets(locationId, eventId, trackChanges: false);
+            var tickets = await _service.TicketService.GetTicketsAsync(locationId, eventId, trackChanges: false);
             return Ok(tickets);
         }
 
         [HttpGet("{id:guid}", Name = "GetTicketForEvent")]
-        public IActionResult GetTicket(Guid locationId, Guid eventId, Guid id)
+        public async Task<IActionResult> GetTicket(Guid locationId, Guid eventId, Guid id)
         {
-            var ticket = _service.TicketService.GetTicket(locationId, eventId, id, trackChanges: false);
+            var ticket = await _service.TicketService.GetTicketAsync(locationId, eventId, id, trackChanges: false);
             return Ok(ticket);
         }
 
         [HttpPost]
-        public IActionResult CreateTicket(Guid locationId, Guid eventId, [FromBody] TicketForCreationDto ticket)
+        public async Task<IActionResult> CreateTicket(Guid locationId, Guid eventId, [FromBody] TicketForCreationDto ticket)
         {
             if (ticket is null)
                 return BadRequest("TicketForCreationDto is null.");
@@ -38,15 +38,15 @@ namespace EntrioX.Presentation.Controllers
             if (!ModelState.IsValid)
                 return UnprocessableEntity(ModelState);
 
-            var createdTicket = _service.TicketService.CreateTicketForEvent(locationId, eventId, ticket, trackChanges: false);
+            var createdTicket = await _service.TicketService.CreateTicketForEventAsync(locationId, eventId, ticket, trackChanges: false);
 
             return CreatedAtRoute("GetTicketForEvent", new { locationId, eventId, id = createdTicket.Id }, createdTicket);
         }
 
         [HttpDelete("{id:guid}")]
-        public IActionResult DeleteTicket(Guid locationId, Guid eventId, Guid id)
+        public async Task<IActionResult> DeleteTicket(Guid locationId, Guid eventId, Guid id)
         {
-            _service.TicketService.DeleteTicketForEvent(locationId, eventId, id, trackChanges: false);
+            await _service.TicketService.DeleteTicketForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
     }

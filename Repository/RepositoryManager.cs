@@ -51,9 +51,9 @@ namespace Repository
         {
             get { return _ticketRepository.Value; }
         }
-        public void Save()
+        public async Task SaveAsync()
         {
-            _repositoryContext.SaveChanges();
+           await _repositoryContext.SaveChangesAsync();
         }
     }
 }

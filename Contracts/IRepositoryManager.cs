@@ -8,7 +8,7 @@
         IReservationRepository Reservation { get; }
         IRewardRepository Reward { get; }
         ITicketRepository Ticket { get; }
-        void Save();
+        Task SaveAsync();
     }
 
 }
