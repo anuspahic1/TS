@@ -13,7 +13,7 @@ WORKDIR /app
 COPY --from=build /app .
 
 # Script that runs migrations before app starts
-COPY entrypoint.sh .
+COPY ./EntrioX/entrypoint.sh .
 
 RUN chmod +x entrypoint.sh
 
