@@ -19,10 +19,11 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ./EntrioX/Dockerfile
     container_name: entriox-api
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
+      MSSQL_MEMORY_LIMIT_MB: "4096"
 
       # override connection string
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EntrioX;User Id=sa;Password=YourStrong_Password123;TrustServerCertificate=True"
@@ -40,6 +41,7 @@ services:
 
 networks:
   entriox-net:
+
 
 volumes:
   entriox_data:
