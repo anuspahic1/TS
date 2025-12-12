@@ -35,6 +35,9 @@ namespace EntrioX.Presentation.Controllers
             if (ticket is null)
                 return BadRequest("TicketForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var createdTicket = _service.TicketService.CreateTicketForEvent(locationId, eventId, ticket, trackChanges: false);
 
             return CreatedAtRoute("GetTicketForEvent", new { locationId, eventId, id = createdTicket.Id }, createdTicket);

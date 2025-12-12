@@ -35,6 +35,9 @@ namespace EntrioX.Presentation.Controllers
             if (user is null)
                 return BadRequest("AppUserForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var createdUser = _service.AppUserService.CreateUser(user);
             return CreatedAtRoute("UserById", new { id = createdUser.Id }, createdUser);
         }

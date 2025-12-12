@@ -35,6 +35,9 @@ namespace EntrioX.Presentation.Controllers
             if (location is null)
                 return BadRequest("LocationForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var createdLocation = _service.LocationService.CreateLocation(location);
             return CreatedAtRoute("LocationById", new { id = createdLocation.Id }, createdLocation);
         }

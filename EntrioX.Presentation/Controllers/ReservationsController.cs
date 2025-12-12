@@ -36,6 +36,9 @@ namespace EntrioX.Presentation.Controllers
             if (reservation is null)
                 return BadRequest("ReservationForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var createdReservation = _service.ReservationService.CreateReservationForEvent(locationId, eventId, reservation, trackChanges: true);
 
             return CreatedAtRoute("GetReservationForEvent", new { locationId, eventId, id = createdReservation.Id }, createdReservation);

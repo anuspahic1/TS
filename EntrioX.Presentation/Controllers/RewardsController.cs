@@ -35,6 +35,9 @@ namespace EntrioX.Presentation.Controllers
             if (reward is null)
                 return BadRequest("RewardForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var rewardToReturn = _service.RewardService.CreateRewardForUser(userId, reward, trackChanges: false);
 
             return CreatedAtRoute("GetRewardForUser", new { userId, id = rewardToReturn.Id }, rewardToReturn);

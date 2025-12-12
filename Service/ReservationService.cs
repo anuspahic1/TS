@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
-using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -69,6 +68,15 @@ namespace Service
                 throw new EventNotFoundException(eventId);
 
             var reservationEntity = _mapper.Map<Reservation>(reservation);
+
+            if (reservationEntity.Tickets != null)
+            {
+                foreach (var ticket in reservationEntity.Tickets)
+                {
+                    ticket.EventId = eventId;
+                    ticket.Reservation = reservationEntity;
+                }
+            }
 
             _repository.Reservation.CreateReservationForEvent(eventId, reservationEntity);
             _repository.Save();

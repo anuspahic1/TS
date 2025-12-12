@@ -35,6 +35,9 @@ namespace EntrioX.Presentation.Controllers
             if (ev is null)
                 return BadRequest("EventForCreationDto is null.");
 
+            if (!ModelState.IsValid)
+                return UnprocessableEntity(ModelState);
+
             var eventToReturn = _service.EventService.CreateEventForLocation(locationId, ev, trackChanges: false);
 
             return CreatedAtRoute("GetEventForLocation", new { locationId, id = eventToReturn.Id }, eventToReturn) ;
