@@ -45,5 +45,16 @@ namespace EntrioX.Presentation.Controllers
             await _service.AppUserService.DeleteUserAsync(id, trackChanges: false);
             return NoContent();
         }
+
+        [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] AppUserForUpdateDto user)
+        {
+            if (user is null)
+                return BadRequest("UserForUpdateDto object is null");
+            await _service.AppUserService.UpdateUserAsync(id, user, trackChanges: true);
+            return NoContent();
+        }
+
     }
 }

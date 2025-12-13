@@ -45,5 +45,14 @@ namespace EntrioX.Presentation.Controllers
             await _service.LocationService.DeleteLocationAsync(id, trackChanges: false);
             return NoContent();
         }
+        [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateLocation(Guid id, [FromBody] LocationForUpdateDto location)
+        {
+            if (location is null)
+                return BadRequest("LocationForUpdateDto object is null");
+            await _service.LocationService.UpdateLocationAsync(id, location, trackChanges: true);
+            return NoContent();
+        }
     }
 }

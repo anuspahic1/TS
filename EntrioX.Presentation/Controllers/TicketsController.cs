@@ -45,5 +45,12 @@ namespace EntrioX.Presentation.Controllers
             await _service.TicketService.DeleteTicketForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
+        [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateTicket(Guid locationId, Guid eventId, Guid id, [FromBody] TicketForUpdateDto ticket)
+        {
+            await _service.TicketService.UpdateTicketForEventAsync(locationId, eventId, id, ticket, locationTrackChanges: false, eventTrackChanges: false, ticketTrackChanges: true);
+            return NoContent();
+        }
     }
 }

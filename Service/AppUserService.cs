@@ -61,5 +61,15 @@ namespace Service
             var user = await _repository.AppUser.GetUserAsync(id, trackChanges);
             return user is null ? throw new UserNotFoundException(id) : user;
         }
+
+        public async Task UpdateUserAsync(Guid userId, AppUserForUpdateDto userForUpdate, bool trackChanges)
+        {
+            var userEntity = await GetUserAndCheckIfItExist(userId, trackChanges) ?? throw new UserNotFoundException(userId);
+            _mapper.Map(userForUpdate, userEntity);
+            await _repository.SaveAsync();
+        }
+
+
+
     }
 }

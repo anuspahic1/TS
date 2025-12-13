@@ -75,5 +75,13 @@ namespace Service
             var reward = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
             return reward is null ? throw new RewardNotFoundException(id) : reward;
         }
+        public async Task UpdateRewardForUserAsync(Guid userId, Guid id, RewardForUpdateDto reward, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, id, trackChanges) ?? throw new RewardNotFoundException(id);
+            _mapper.Map(reward, rewardEntity);
+            await _repository.SaveAsync();
+        }
     }
 }

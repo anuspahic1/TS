@@ -61,5 +61,12 @@ namespace Service
             var location = await _repository.Location.GetLocationAsync(id, trackChanges);
             return location is null ? throw new LocationNotFoundException(id) : location;
         }
+
+        public async Task UpdateLocationAsync(Guid locationId, LocationForUpdateDto locationForUpdate, bool trackChanges)
+        {
+            var locationEntity = await GetLocationAndCheckIfItExist(locationId, trackChanges) ?? throw new LocationNotFoundException(locationId);
+            _mapper.Map(locationForUpdate, locationEntity);
+            await _repository.SaveAsync();
+        }
     }
 }

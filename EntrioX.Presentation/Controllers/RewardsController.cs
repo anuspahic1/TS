@@ -45,5 +45,13 @@ namespace EntrioX.Presentation.Controllers
             await _service.RewardService.DeleteRewardForUserAsync(userId, id, trackChanges: false);
             return NoContent();
         }
+        [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateRewardForUser(Guid userId, Guid id, [
+            FromBody] RewardForUpdateDto reward)
+        {
+            await _service.RewardService.UpdateRewardForUserAsync(userId, id, reward, trackChanges: true);
+            return NoContent();
+        }
     }
 }

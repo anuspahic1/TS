@@ -8,5 +8,6 @@ namespace Service.Contracts
         Task<TicketDto> GetTicketAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
         Task<TicketDto> CreateTicketForEventAsync(Guid locationId, Guid eventId, TicketForCreationDto ticket, bool trackChanges);
         Task DeleteTicketForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
+        Task UpdateTicketForEventAsync(Guid locationId, Guid eventId, Guid id, TicketForUpdateDto ticket, bool locationTrackChanges, bool eventTrackChanges, bool ticketTrackChanges);
     }
 }

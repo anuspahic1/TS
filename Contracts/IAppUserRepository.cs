@@ -6,5 +6,6 @@
         Task<AppUser> GetUserAsync(Guid userId, bool trackChanges);
         void CreateUser(AppUser user);
         void DeleteUser(AppUser user);
+
     }
 }

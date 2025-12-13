@@ -88,5 +88,17 @@ namespace Service
             var ticketDb = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
             return ticketDb is null ? throw new TicketNotFoundException(id) : ticketDb;
         }
+
+        public async Task UpdateTicketForEventAsync(Guid locationId, Guid eventId, Guid id, TicketForUpdateDto ticket, bool locationTrackChanges, bool eventTrackChanges, bool ticketTrackChanges)
+        {
+            await CheckIfLocationExists(locationId, locationTrackChanges);
+
+            await CheckIfEventExists(locationId, eventId, eventTrackChanges);
+
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, ticketTrackChanges);
+
+            _mapper.Map(ticket, ticketEntity);
+            await _repository.SaveAsync();
+        }
     }
 }
