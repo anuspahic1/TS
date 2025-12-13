@@ -83,5 +83,26 @@ namespace Service
             _mapper.Map(reward, rewardEntity);
             await _repository.SaveAsync();
         }
+        public async Task<(RewardForUpdateDto rewardToPatch, Guid userId, Guid rewardId)> GetRewardForPatchAsync(Guid userId, Guid rewardId, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, rewardId, trackChanges);
+
+            var rewardToPatch = _mapper.Map<RewardForUpdateDto>(rewardEntity);
+
+            return (rewardToPatch, userId, rewardId);
+        }
+        public async Task SaveChangesForPatchAsync(RewardForUpdateDto rewardToPatch, Guid
+            userId, Guid rewardId, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, rewardId, trackChanges);
+
+            _mapper.Map(rewardToPatch, rewardEntity);
+
+            await _repository.SaveAsync();
+        }
     }
 }
