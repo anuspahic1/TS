@@ -69,6 +69,25 @@ namespace Service
             await _repository.SaveAsync();
         }
 
+        public async Task<(AppUserForUpdateDto userToPatch, Guid userId)> GetUserForPatchAsync(Guid userId, bool trackChanges)
+        {
+            var userEntity = await GetUserAndCheckIfItExist(userId, trackChanges);
+
+            var userToPatch = _mapper.Map<AppUserForUpdateDto>(userEntity);
+
+            return (userToPatch, userId);
+        }
+
+
+        public async Task SaveChangesForPatchAsync(AppUserForUpdateDto userToPatch, Guid userId, bool trackChanges)
+        {
+            var userEntity = await GetUserAndCheckIfItExist(userId, trackChanges);
+
+            _mapper.Map(userToPatch, userEntity);
+
+            await _repository.SaveAsync();
+        }
+
 
 
     }

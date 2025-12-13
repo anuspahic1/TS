@@ -1,4 +1,5 @@
 ﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -53,6 +54,22 @@ namespace EntrioX.Presentation.Controllers
             if (user is null)
                 return BadRequest("UserForUpdateDto object is null");
             await _service.AppUserService.UpdateUserAsync(id, user, trackChanges: true);
+            return NoContent();
+        }
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> PartiallyUpdateUser(Guid id, [FromBody] JsonPatchDocument
+            <AppUserForUpdateDto> patchDoc)
+        {
+            if (patchDoc is null)
+                return BadRequest("patchDoc object is null");
+
+            var (userToPatch, userId) = await _service.AppUserService.GetUserForPatchAsync(id, trackChanges: true);
+            patchDoc.ApplyTo(userToPatch);
+            if (!TryValidateModel(userToPatch))
+                return UnprocessableEntity(ModelState);
+
+            await _service.AppUserService.SaveChangesForPatchAsync(userToPatch, userId, trackChanges: true);
+
             return NoContent();
         }
 

@@ -9,5 +9,10 @@ namespace Service.Contracts
         Task<AppUserDto> CreateUserAsync(AppUserForCreationDto user);
         Task UpdateUserAsync(Guid userId, AppUserForUpdateDto userForUpdate, bool trackChanges);
         Task DeleteUserAsync(Guid userId, bool trackChanges);
+
+        Task<(AppUserForUpdateDto userToPatch, Guid userId)>
+        GetUserForPatchAsync(Guid userId, bool trackChanges);
+
+        Task SaveChangesForPatchAsync(AppUserForUpdateDto userToPatch, Guid userId, bool trackChanges);
     }
 }
