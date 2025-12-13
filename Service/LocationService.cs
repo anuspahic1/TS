@@ -30,9 +30,7 @@ namespace Service
 
         public async Task<LocationDto> GetLocationAsync(Guid locationId, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            var location = await GetLocationAndCheckIfItExist(locationId, trackChanges);
 
             var locationDto = _mapper.Map<LocationDto>(location);
             return locationDto;
@@ -52,12 +50,16 @@ namespace Service
 
         public async Task DeleteLocationAsync(Guid locationId, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            var location = await GetLocationAndCheckIfItExist(locationId, trackChanges);
 
             _repository.Location.DeleteLocation(location);
             await _repository.SaveAsync();
+        }
+
+        private async Task<Location> GetLocationAndCheckIfItExist(Guid id, bool trackChanges)
+        {
+            var location = await _repository.Location.GetLocationAsync(id, trackChanges);
+            return location is null ? throw new LocationNotFoundException(id) : location;
         }
     }
 }

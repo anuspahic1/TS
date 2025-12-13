@@ -22,10 +22,7 @@ namespace Service
 
         public async Task<IEnumerable<RewardDto>> GetRewardsAsync(Guid userId, bool trackChanges)
         {
-            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
-
-            if (user == null)
-                throw new UserNotFoundException(userId);
+            await CheckIfUserExists(userId, trackChanges);
 
             var rewardsFromDb = await _repository.Reward.GetRewardsAsync(userId, trackChanges);
 
@@ -36,14 +33,9 @@ namespace Service
 
         public async Task<RewardDto> GetRewardAsync(Guid userId, Guid id, bool trackChanges)
         {
-            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
+            await CheckIfUserExists(userId, trackChanges);
 
-            if (user == null)
-                throw new UserNotFoundException(userId);
-
-            var rewardDb = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
-            if (rewardDb is null)
-                throw new RewardNotFoundException(id);
+            var rewardDb = await GetRewardForUserAndCheckIfItExists(userId, id, trackChanges);
 
             var rewardDto = _mapper.Map<RewardDto>(rewardDb);
             return rewardDto;
@@ -51,9 +43,7 @@ namespace Service
 
         public async Task<RewardDto> CreateRewardForUserAsync(Guid userId, RewardForCreationDto rewardForCreation, bool trackChanges)
         {
-            var user = _repository.AppUser.GetUserAsync(userId, trackChanges);
-            if (user is null)
-                throw new UserNotFoundException(userId);
+            await CheckIfUserExists(userId, trackChanges);
 
             var rewardEntity = _mapper.Map<Reward>(rewardForCreation);
 
@@ -67,16 +57,23 @@ namespace Service
 
         public async Task DeleteRewardForUserAsync(Guid userId, Guid id, bool trackChanges)
         {
-            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
-            if (user is null)
-                throw new EventNotFoundException(userId);
+            await CheckIfUserExists(userId, trackChanges);
 
-            var rewardForUser = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
-            if (rewardForUser is null)
-                throw new RewardNotFoundException(id);
+            var rewardForUser = await GetRewardForUserAndCheckIfItExists(userId, id, trackChanges);
 
             _repository.Reward.DeleteReward(rewardForUser);
             await _repository.SaveAsync();
+        }
+
+        private async Task CheckIfUserExists(Guid id, bool trackChanges)
+        {
+            _ = await _repository.AppUser.GetUserAsync(id, trackChanges) ?? throw new UserNotFoundException(id);
+        }
+
+        private async Task<Reward> GetRewardForUserAndCheckIfItExists(Guid userId, Guid id, bool trackChanges)
+        {
+            var reward = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
+            return reward is null ? throw new RewardNotFoundException(id) : reward;
         }
     }
 }

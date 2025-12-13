@@ -21,10 +21,7 @@ namespace Service
 
         public async Task<IEnumerable<EventDto>> GetEventsAsync(Guid locationId, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-
-            if (location == null) 
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
             var eventsFromDb = await _repository.Event.GetEventsAsync(locationId, trackChanges);
 
@@ -35,13 +32,9 @@ namespace Service
 
         public async Task<EventDto> GetEventAsync(Guid locationId, Guid id, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            var eventDb = await _repository.Event.GetEventAsync(locationId, id, trackChanges);
-            if (eventDb is null)
-                throw new EventNotFoundException(locationId);
+            var eventDb = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
 
             var ev = _mapper.Map<EventDto>(eventDb);
 
@@ -50,9 +43,7 @@ namespace Service
 
         public async Task<EventDto> CreateEventForLocationAsync(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
             var eventEntity = _mapper.Map<Event>(eventForCreation);
 
@@ -66,16 +57,23 @@ namespace Service
 
         public async Task DeleteEventForLocationAsync(Guid locationId, Guid id, bool trackChanges)
         {
-            var location = _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            var eventForLocation = await _repository.Event.GetEventAsync(locationId, id, trackChanges);
-            if (eventForLocation is null)
-                throw new EventNotFoundException(id);
+            var eventDb = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges)
 
-            _repository.Event.DeleteEvent(eventForLocation);
+            _repository.Event.DeleteEvent(eventDb);
             await _repository.SaveAsync();
+        }
+
+        private async Task CheckIfLocationExists(Guid id, bool trackChanges)
+        {
+            var location = await _repository.Location.GetLocationAsync(id, trackChanges) ?? throw new LocationNotFoundException(id);
+        }
+
+        private async Task<Event> GetEventForLocationAndCheckIfItExists(Guid locationId, Guid id, bool trackChanges)
+        {
+            var eventDb = await _repository.Event.GetEventAsync(locationId, id, trackChanges);
+            return eventDb is null ? throw new EventNotFoundException(id) : eventDb;
         }
     }
 }

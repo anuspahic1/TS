@@ -21,15 +21,9 @@ namespace Service
 
         public async Task<IEnumerable<TicketDto>> GetTicketsAsync(Guid locationId, Guid eventId, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            if (location == null)
-                throw new LocationNotFoundException(locationId);
-
-            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
-
-            if (ev == null)
-                throw new EventNotFoundException(eventId);
+            await CheckIfEventExists(locationId, eventId, trackChanges);
 
             var ticketsFromDb = await _repository.Ticket.GetTicketsAsync(locationId, eventId, trackChanges);
 
@@ -40,17 +34,11 @@ namespace Service
 
         public async Task<TicketDto> GetTicketAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
-            if (ev is null)
-                throw new EventNotFoundException(locationId);
+            await CheckIfEventExists(locationId, eventId, trackChanges);
 
-            var ticket = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
-            if (ticket is null)
-                throw new TicketNotFoundException(id);
+            var ticket = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
 
             var ticketDto = _mapper.Map<TicketDto>(ticket);
 
@@ -59,13 +47,9 @@ namespace Service
 
         public async Task<TicketDto> CreateTicketForEventAsync(Guid locationId, Guid eventId, TicketForCreationDto ticketForCreation, bool trackChanges)
         {
-            var location = await _repository.Location.GetLocationAsync(locationId, trackChanges);
-            if (location is null)
-                throw new LocationNotFoundException(locationId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
-            if (ev is null)
-                throw new EventNotFoundException(eventId);
+            await CheckIfEventExists(locationId, eventId, trackChanges);
 
             var ticketEntity = _mapper.Map<Ticket>(ticketForCreation);
 
@@ -79,16 +63,30 @@ namespace Service
 
         public async Task DeleteTicketForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            var ev = await _repository.Event.GetEventAsync(locationId, eventId, trackChanges);
-            if (ev is null)
-                throw new EventNotFoundException(eventId);
+            await CheckIfLocationExists(locationId, trackChanges);
 
-            var ticketForEvent = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
-            if (ticketForEvent is null)
-                throw new TicketNotFoundException(id);
+            await CheckIfEventExists(locationId, eventId, trackChanges);
+
+            var ticketForEvent = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
 
             _repository.Ticket.DeleteTicket(ticketForEvent);
             await _repository.SaveAsync();
+        }
+
+        private async Task CheckIfLocationExists(Guid id, bool trackChanges)
+        {
+            _ = await _repository.Location.GetLocationAsync(id, trackChanges) ?? throw new LocationNotFoundException(id);
+        }
+
+        private async Task CheckIfEventExists(Guid locationId, Guid id, bool trackChanges)
+        {
+            _ = await _repository.Event.GetEventAsync(locationId, id, trackChanges) ?? throw new EventNotFoundException(id);
+        }
+
+        private async Task<Ticket> GetTicketForEventAndCheckIfItExists(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            var ticketDb = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
+            return ticketDb is null ? throw new TicketNotFoundException(id) : ticketDb;
         }
     }
 }

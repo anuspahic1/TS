@@ -30,9 +30,7 @@ namespace Service
 
         public async Task<AppUserDto> GetUserAsync(Guid userId, bool trackChanges)
         {
-            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
-            if (user == null)
-                throw new UserNotFoundException(userId);
+            var user = await GetUserAndCheckIfItExist(userId, trackChanges);
 
             var userDto = _mapper.Map<AppUserDto>(user);
             return userDto;
@@ -52,12 +50,16 @@ namespace Service
 
         public async Task DeleteUserAsync(Guid userId, bool trackChanges)
         {
-            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges);
-            if (user is null)
-                throw new LocationNotFoundException(userId);
+            var user = await GetUserAndCheckIfItExist(userId, trackChanges);
 
             _repository.AppUser.DeleteUser(user);
             await _repository.SaveAsync();
+        }
+
+        private async Task<AppUser> GetUserAndCheckIfItExist(Guid id, bool trackChanges)
+        {
+            var user = await _repository.AppUser.GetUserAsync(id, trackChanges);
+            return user is null ? throw new UserNotFoundException(id) : user;
         }
     }
 }
