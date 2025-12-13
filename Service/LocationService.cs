@@ -68,5 +68,22 @@ namespace Service
             _mapper.Map(locationForUpdate, locationEntity);
             await _repository.SaveAsync();
         }
+        public async Task<(LocationForUpdateDto locationToPatch, Guid locationId)> GetLocationForPatchAsync(Guid locationId, bool trackChanges)
+        {
+            var locationEntity = await GetLocationAndCheckIfItExist(locationId, trackChanges);
+
+            var locationToPatch = _mapper.Map<LocationForUpdateDto>(locationEntity);
+
+            return (locationToPatch, locationId);
+        }
+        public async Task SaveChangesForPatchAsync(LocationForUpdateDto locationToPatch, Guid locationId, bool trackChanges)
+        {
+            var locationEntity = await GetLocationAndCheckIfItExist(locationId, trackChanges);
+
+            _mapper.Map(locationToPatch, locationEntity);
+
+            await _repository.SaveAsync();
+        }
+        
     }
 }

@@ -47,6 +47,7 @@ namespace EntrioX
             CreateMap<AppUserForUpdateDto, AppUser>();
             CreateMap<AppUserForUpdateDto, AppUser>().ReverseMap();
             CreateMap<LocationForUpdateDto, Location>();
+            CreateMap<LocationForUpdateDto, Location>().ReverseMap();
             CreateMap<RewardForUpdateDto, Reward>();
             CreateMap<EventForUpdateDto, Event>().ForMember(dest => dest.LocationId, opt => opt.Ignore());
             CreateMap<TicketForUpdateDto, Ticket>();

@@ -9,5 +9,8 @@ namespace Service.Contracts
         Task<LocationDto> CreateLocationAsync(LocationForCreationDto location);
         Task DeleteLocationAsync(Guid locationId, bool trackChanges);
         Task UpdateLocationAsync(Guid locationId, LocationForUpdateDto locationForUpdate, bool trackChanges);
+        Task<(LocationForUpdateDto locationToPatch, Guid locationId)>
+        GetLocationForPatchAsync(Guid locationId, bool trackChanges);
+        Task SaveChangesForPatchAsync(LocationForUpdateDto locationToPatch, Guid locationId, bool trackChanges);
     }
 }

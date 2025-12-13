@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -52,6 +53,25 @@ namespace EntrioX.Presentation.Controllers
             if (location is null)
                 return BadRequest("LocationForUpdateDto object is null");
             await _service.LocationService.UpdateLocationAsync(id, location, trackChanges: true);
+            return NoContent();
+        }
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> PartiallyUpdateLocation(Guid id, [FromBody] JsonPatchDocument
+            <LocationForUpdateDto> patchDoc)
+        {
+            if (patchDoc is null)
+                return BadRequest("patchDoc object is null");
+
+            var (locationToPatch, locationId) = await _service.LocationService
+                .GetLocationForPatchAsync(id, trackChanges: true);
+
+            patchDoc.ApplyTo(locationToPatch);
+
+            if (!TryValidateModel(locationToPatch))
+                return UnprocessableEntity(ModelState);
+
+            await _service.LocationService.SaveChangesForPatchAsync(locationToPatch, locationId, trackChanges: true);
+
             return NoContent();
         }
     }
