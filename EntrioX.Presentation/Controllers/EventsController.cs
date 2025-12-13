@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -30,14 +31,9 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateEventForLocation(Guid locationId, [FromBody] EventForCreationDto ev)
         {
-            if (ev is null)
-                return BadRequest("EventForCreationDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var eventToReturn = await _service.EventService.CreateEventForLocationAsync(locationId, ev, trackChanges: false);
 
             return CreatedAtRoute("GetEventForLocation", new { locationId, id = eventToReturn.Id }, eventToReturn) ;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -30,15 +31,11 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateLocation([FromBody] LocationForCreationDto location)
         {
-            if (location is null)
-                return BadRequest("LocationForCreationDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdLocation = await _service.LocationService.CreateLocationAsync(location);
+
             return CreatedAtRoute("LocationById", new { id = createdLocation.Id }, createdLocation);
         }
 

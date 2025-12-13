@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -30,14 +31,9 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateTicket(Guid locationId, Guid eventId, [FromBody] TicketForCreationDto ticket)
         {
-            if (ticket is null)
-                return BadRequest("TicketForCreationDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdTicket = await _service.TicketService.CreateTicketForEventAsync(locationId, eventId, ticket, trackChanges: false);
 
             return CreatedAtRoute("GetTicketForEvent", new { locationId, eventId, id = createdTicket.Id }, createdTicket);

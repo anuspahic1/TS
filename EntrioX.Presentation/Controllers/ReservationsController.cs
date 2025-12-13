@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -31,14 +32,9 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateReservation(Guid locationId, Guid eventId, [FromBody] ReservationForCreationDto reservation)
         {
-            if (reservation is null)
-                return BadRequest("ReservationForCreationDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdReservation = await _service.ReservationService.CreateReservationForEventAsync(locationId, eventId, reservation, trackChanges: true);
 
             return CreatedAtRoute("GetReservationForEvent", new { locationId, eventId, id = createdReservation.Id }, createdReservation);

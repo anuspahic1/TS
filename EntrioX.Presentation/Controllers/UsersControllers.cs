@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -30,15 +31,11 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateUser([FromBody] AppUserForCreationDto user)
         {
-            if (user is null)
-                return BadRequest("AppUserForCreationDto is null.");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdUser = await _service.AppUserService.CreateUserAsync(user);
+
             return CreatedAtRoute("UserById", new { id = createdUser.Id }, createdUser);
         }
 
