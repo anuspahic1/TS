@@ -100,5 +100,27 @@ namespace Service
             _mapper.Map(ticket, ticketEntity);
             await _repository.SaveAsync();
         }
+        public async Task<(TicketForUpdateDto ticketToPatch, Guid ticketId)> GetTicketForPatchAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            await CheckIfLocationExists(locationId, trackChanges);
+
+            await CheckIfEventExists(locationId, eventId, trackChanges);
+
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
+
+            var ticketToPatch = _mapper.Map<TicketForUpdateDto>(ticketEntity);
+
+            return (ticketToPatch, ticketEntity.Id);
+        }
+
+        public async Task SaveChangesForPatchAsync(TicketForUpdateDto ticketToPatch, Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
+
+            _mapper.Map(ticketToPatch, ticketEntity);
+
+            await _repository.SaveAsync();
+        }
+
     }
 }

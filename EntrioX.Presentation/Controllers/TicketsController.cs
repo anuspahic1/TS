@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -50,6 +51,22 @@ namespace EntrioX.Presentation.Controllers
         public async Task<IActionResult> UpdateTicket(Guid locationId, Guid eventId, Guid id, [FromBody] TicketForUpdateDto ticket)
         {
             await _service.TicketService.UpdateTicketForEventAsync(locationId, eventId, id, ticket, locationTrackChanges: false, eventTrackChanges: false, ticketTrackChanges: true);
+            return NoContent();
+        }
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> PartiallyUpdateTicket(Guid locationId, Guid eventId,
+            Guid id, [FromBody] JsonPatchDocument<TicketForUpdateDto> patchDoc)
+        {
+            if (patchDoc is null)
+                return BadRequest("patchDoc object is null");
+
+            var (ticketToPatch, ticketId) = await _service.TicketService.GetTicketForPatchAsync(locationId, eventId, id, trackChanges: true);
+            patchDoc.ApplyTo(ticketToPatch);
+            if (!TryValidateModel(ticketToPatch))
+                return UnprocessableEntity(ModelState);
+
+            await _service.TicketService.SaveChangesForPatchAsync(ticketToPatch, locationId, eventId, ticketId, trackChanges: true);
+
             return NoContent();
         }
     }

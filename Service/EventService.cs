@@ -89,5 +89,29 @@ namespace Service
             _mapper.Map(eventForUpdate, eventEntity);
             await _repository.SaveAsync();
         }
+        public async Task<(EventForUpdateDto eventToPatch, Guid eventId)> GetEventForPatchAsync(Guid locationId, Guid id, bool trackChanges)
+        {
+            await CheckIfLocationExists(locationId, trackChanges);
+
+            var eventEntity = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
+
+            var eventToPatch = _mapper.Map<EventForUpdateDto>(eventEntity);
+
+            return (eventToPatch, eventEntity.Id);
+        }
+        public async Task SaveChangesForPatchAsync(EventForUpdateDto eventToPatch, Guid locationId, Guid id, bool trackChanges)
+        {
+            var eventEntity = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
+
+            if (eventToPatch.LocationId.HasValue && eventToPatch.LocationId != locationId)
+            {
+                await CheckIfLocationExists(eventToPatch.LocationId.Value, trackChanges);
+                eventEntity.LocationId = eventToPatch.LocationId.Value;
+            }
+
+            _mapper.Map(eventToPatch, eventEntity);
+
+            await _repository.SaveAsync();
+        }
     }
 }
