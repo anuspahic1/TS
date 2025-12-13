@@ -75,5 +75,34 @@ namespace Service
             var reward = await _repository.Reward.GetRewardAsync(userId, id, trackChanges);
             return reward is null ? throw new RewardNotFoundException(id) : reward;
         }
+        public async Task UpdateRewardForUserAsync(Guid userId, Guid id, RewardForUpdateDto reward, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, id, trackChanges) ?? throw new RewardNotFoundException(id);
+            _mapper.Map(reward, rewardEntity);
+            await _repository.SaveAsync();
+        }
+        public async Task<(RewardForUpdateDto rewardToPatch, Guid userId, Guid rewardId)> GetRewardForPatchAsync(Guid userId, Guid rewardId, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, rewardId, trackChanges);
+
+            var rewardToPatch = _mapper.Map<RewardForUpdateDto>(rewardEntity);
+
+            return (rewardToPatch, userId, rewardId);
+        }
+        public async Task SaveChangesForPatchAsync(RewardForUpdateDto rewardToPatch, Guid
+            userId, Guid rewardId, bool trackChanges)
+        {
+            await CheckIfUserExists(userId, trackChanges);
+
+            var rewardEntity = await GetRewardForUserAndCheckIfItExists(userId, rewardId, trackChanges);
+
+            _mapper.Map(rewardToPatch, rewardEntity);
+
+            await _repository.SaveAsync();
+        }
     }
 }

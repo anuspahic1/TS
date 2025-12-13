@@ -88,5 +88,39 @@ namespace Service
             var ticketDb = await _repository.Ticket.GetTicketAsync(locationId, eventId, id, trackChanges);
             return ticketDb is null ? throw new TicketNotFoundException(id) : ticketDb;
         }
+
+        public async Task UpdateTicketForEventAsync(Guid locationId, Guid eventId, Guid id, TicketForUpdateDto ticket, bool locationTrackChanges, bool eventTrackChanges, bool ticketTrackChanges)
+        {
+            await CheckIfLocationExists(locationId, locationTrackChanges);
+
+            await CheckIfEventExists(locationId, eventId, eventTrackChanges);
+
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, ticketTrackChanges);
+
+            _mapper.Map(ticket, ticketEntity);
+            await _repository.SaveAsync();
+        }
+        public async Task<(TicketForUpdateDto ticketToPatch, Guid ticketId)> GetTicketForPatchAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            await CheckIfLocationExists(locationId, trackChanges);
+
+            await CheckIfEventExists(locationId, eventId, trackChanges);
+
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
+
+            var ticketToPatch = _mapper.Map<TicketForUpdateDto>(ticketEntity);
+
+            return (ticketToPatch, ticketEntity.Id);
+        }
+
+        public async Task SaveChangesForPatchAsync(TicketForUpdateDto ticketToPatch, Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        {
+            var ticketEntity = await GetTicketForEventAndCheckIfItExists(locationId, eventId, id, trackChanges);
+
+            _mapper.Map(ticketToPatch, ticketEntity);
+
+            await _repository.SaveAsync();
+        }
+
     }
 }

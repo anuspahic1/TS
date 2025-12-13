@@ -31,8 +31,13 @@ builder.Services.AddControllers(config =>
     config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true;
 })
+.AddNewtonsoftJson()
 .AddXmlDataContractSerializerFormatters()
 .AddCustomCSVFormatter()
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+})
 .AddApplicationPart(typeof(EntrioX.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();

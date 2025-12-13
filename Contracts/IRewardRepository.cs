@@ -8,5 +8,6 @@ namespace Contracts
         Task<Reward> GetRewardAsync(Guid userId, Guid id, bool trackChanges);
         void CreateRewardForUser(Guid userId, Reward reward);
         void DeleteReward(Reward reward);
+
     }
 }

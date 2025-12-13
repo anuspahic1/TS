@@ -20,7 +20,7 @@ namespace EntrioX
 
             CreateMap<Ticket, TicketDto>()
                 .ForMember(dest => dest.EventName,
-                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : "")) ;
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""));
 
             CreateMap<Reservation, ReservationDto>()
                 .ForMember(dest => dest.UserFullName,
@@ -43,6 +43,19 @@ namespace EntrioX
             CreateMap<ReservationForCreationDto, Reservation>();
 
             CreateMap<RewardForCreationDto, Reward>();
+
+            CreateMap<AppUserForUpdateDto, AppUser>();
+            CreateMap<AppUserForUpdateDto, AppUser>().ReverseMap();
+            CreateMap<LocationForUpdateDto, Location>();
+            CreateMap<LocationForUpdateDto, Location>().ReverseMap();
+            CreateMap<RewardForUpdateDto, Reward>();
+            CreateMap<RewardForUpdateDto, Reward>().ReverseMap();
+            CreateMap<EventForUpdateDto, Event>().ForMember(dest => dest.LocationId, opt => opt.Ignore());
+            CreateMap<EventForUpdateDto, Event>().ReverseMap();
+            CreateMap<TicketForUpdateDto, Ticket>();
+            CreateMap<TicketForUpdateDto, Ticket>().ReverseMap();
+
+
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Service
             _repository.Event.CreateEventForLocation(locationId, eventEntity);
             await _repository.SaveAsync();
 
-            var eventToReturn =_mapper.Map<EventDto>(eventEntity);
+            var eventToReturn = _mapper.Map<EventDto>(eventEntity);
 
             return eventToReturn;
         }
@@ -59,7 +59,7 @@ namespace Service
         {
             await CheckIfLocationExists(locationId, trackChanges);
 
-            var eventDb = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges)
+            var eventDb = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
 
             _repository.Event.DeleteEvent(eventDb);
             await _repository.SaveAsync();
@@ -74,6 +74,44 @@ namespace Service
         {
             var eventDb = await _repository.Event.GetEventAsync(locationId, id, trackChanges);
             return eventDb is null ? throw new EventNotFoundException(id) : eventDb;
+        }
+
+        public async Task UpdateEventForLocationAsync(Guid locationId, Guid id, EventForUpdateDto eventForUpdate, bool trackChanges)
+        {
+            await CheckIfLocationExists(locationId, trackChanges);
+
+            var eventEntity = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges) ?? throw new EventNotFoundException(id);
+            if (eventForUpdate.LocationId.HasValue && eventForUpdate.LocationId != locationId)
+            {
+                await CheckIfLocationExists(eventForUpdate.LocationId.Value, trackChanges);
+                eventEntity.LocationId = eventForUpdate.LocationId.Value;
+            }
+            _mapper.Map(eventForUpdate, eventEntity);
+            await _repository.SaveAsync();
+        }
+        public async Task<(EventForUpdateDto eventToPatch, Guid eventId)> GetEventForPatchAsync(Guid locationId, Guid id, bool trackChanges)
+        {
+            await CheckIfLocationExists(locationId, trackChanges);
+
+            var eventEntity = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
+
+            var eventToPatch = _mapper.Map<EventForUpdateDto>(eventEntity);
+
+            return (eventToPatch, eventEntity.Id);
+        }
+        public async Task SaveChangesForPatchAsync(EventForUpdateDto eventToPatch, Guid locationId, Guid id, bool trackChanges)
+        {
+            var eventEntity = await GetEventForLocationAndCheckIfItExists(locationId, id, trackChanges);
+
+            if (eventToPatch.LocationId.HasValue && eventToPatch.LocationId != locationId)
+            {
+                await CheckIfLocationExists(eventToPatch.LocationId.Value, trackChanges);
+                eventEntity.LocationId = eventToPatch.LocationId.Value;
+            }
+
+            _mapper.Map(eventToPatch, eventEntity);
+
+            await _repository.SaveAsync();
         }
     }
 }

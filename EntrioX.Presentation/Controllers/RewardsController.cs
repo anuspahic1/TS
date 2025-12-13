@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -43,6 +44,33 @@ namespace EntrioX.Presentation.Controllers
         public async Task<IActionResult> DeleteReward(Guid userId, Guid id)
         {
             await _service.RewardService.DeleteRewardForUserAsync(userId, id, trackChanges: false);
+            return NoContent();
+        }
+        [HttpPut("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateRewardForUser(Guid userId, Guid id, [
+            FromBody] RewardForUpdateDto reward)
+        {
+            await _service.RewardService.UpdateRewardForUserAsync(userId, id, reward, trackChanges: true);
+            return NoContent();
+        }
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> PartiallyUpdateRewardForUser(Guid userId, Guid id
+
+            , [FromBody] JsonPatchDocument<RewardForUpdateDto> patchDoc)
+        {
+            if (patchDoc is null)
+                return BadRequest("patchDoc object is null");
+
+            var (rewardToPatch, _, _) = await _service.RewardService
+                .GetRewardForPatchAsync(userId, id, trackChanges: true);
+
+            patchDoc.ApplyTo(rewardToPatch);
+            if (!TryValidateModel(rewardToPatch))
+                return UnprocessableEntity(ModelState);
+
+            await _service.RewardService.SaveChangesForPatchAsync(rewardToPatch, userId, id, trackChanges: true);
+
             return NoContent();
         }
     }
