@@ -18,7 +18,7 @@ namespace Service
         private readonly Lazy<ITicketService> _ticketService;
         private readonly Lazy<IAuthenticationService> _authenticationService;
 
-        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptions<JwtConfiguration> configuration)
+        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
         {
             _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper));
             _eventService = new Lazy<IEventService>(() => new EventService(repository, logger, mapper));
