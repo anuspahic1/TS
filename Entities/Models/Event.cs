@@ -14,6 +14,8 @@ public class Event
     public string? Description { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public decimal MinTicketPrice { get; set; }
+    public DateTime EventDate { get; set; }
 
     [Required(ErrorMessage = "LocationId is required.")]
     public Guid LocationId { get; set; }
