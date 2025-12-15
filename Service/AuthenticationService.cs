@@ -21,17 +21,17 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IOptions<JwtConfiguration> _configuration;
+        private readonly IOptionsSnapshot<JwtConfiguration> _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
         private User? _user;
 
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptions<JwtConfiguration> configuration)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
-            _jwtConfiguration = _configuration.Value;
+            _jwtConfiguration = _configuration.Get("JwtSettings");
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
