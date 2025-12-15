@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,11 @@ using Repository;
 namespace EntrioX.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20251215114141_AdditionalUserFieldsForRefreshTokenMigration")]
+    partial class AdditionalUserFieldsForRefreshTokenMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -310,19 +313,19 @@ namespace EntrioX.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "bcab77da-cb1f-459f-b811-d11a7e5f404d",
+                            Id = "913330f3-447c-4008-9e7d-22a7a490a0d1",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "9a240ea3-6d6a-4ef0-8078-baa13a9d9368",
+                            Id = "0e819c0b-39d4-4181-a454-6532cba63dd3",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
                         },
                         new
                         {
-                            Id = "fd353dc9-7cf8-493b-9396-7cf08f361853",
+                            Id = "cb9d89a2-144e-44b9-af5d-de16b7a3e978",
                             Name = "User",
                             NormalizedName = "USER"
                         });
