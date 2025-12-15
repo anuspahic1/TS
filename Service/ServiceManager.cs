@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Service.Contracts;
 
 namespace Service
@@ -12,8 +15,9 @@ namespace Service
         private readonly Lazy<IReservationService> _reservationService;
         private readonly Lazy<IRewardService> _rewardService;
         private readonly Lazy<ITicketService> _ticketService;
+        private readonly Lazy<IAuthenticationService> _authenticationService;
 
-        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IConfiguration configuration)
         {
             _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper));
             _eventService = new Lazy<IEventService>(() => new EventService(repository, logger, mapper));
@@ -21,6 +25,7 @@ namespace Service
             _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger, mapper));
             _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger, mapper));
             _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger, mapper));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration));
         }
         public IAppUserService AppUserService
         {
@@ -40,11 +45,15 @@ namespace Service
         }
         public IRewardService RewardService
         {
-            get { return _rewardService.Value;  }
+            get { return _rewardService.Value; }
         }
         public ITicketService TicketService
         {
             get { return _ticketService.Value; }
+        }
+        public IAuthenticationService AuthenticationService
+        {
+            get { return _authenticationService.Value; }
         }
     }
 }

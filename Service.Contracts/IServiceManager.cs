@@ -8,5 +8,6 @@
         IReservationService ReservationService { get; }
         IRewardService RewardService { get; }
         ITicketService TicketService { get; }
+        IAuthenticationService AuthenticationService { get; }
     }
 }

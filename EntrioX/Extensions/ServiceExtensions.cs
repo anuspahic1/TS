@@ -4,6 +4,8 @@ using Repository;
 using Service.Contracts;
 using Service;
 using Microsoft.EntityFrameworkCore;
+using Entities.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace EntrioX.Extensions
 {
@@ -51,6 +53,21 @@ namespace EntrioX.Extensions
         public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder)
         {
             return builder.AddMvcOptions(config => config.OutputFormatters.Add(new CsvOutputFormatter()));
+        }
+
+        public static void ConfigureIdentity(this IServiceCollection services)
+        {
+            var builder = services.AddIdentity<User, IdentityRole>(o =>
+            {
+                o.Password.RequireDigit = true;
+                o.Password.RequireLowercase = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequireNonAlphanumeric = false;
+                o.Password.RequiredLength = 10;
+                o.User.RequireUniqueEmail = true;
+            })
+            .AddEntityFrameworkStores<RepositoryContext>()
+            .AddDefaultTokenProviders();
         }
     }
 }
