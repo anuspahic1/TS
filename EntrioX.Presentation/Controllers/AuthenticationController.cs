@@ -1,4 +1,6 @@
 ﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -41,6 +43,22 @@ namespace EntrioX.Presentation.Controllers
 
             var tokenDto = await _service.AuthenticationService.CreateToken(populateExp: true);
             return Ok(tokenDto);
+        }
+
+        [HttpGet("tfa-setup")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> GetTfaSetup([FromQuery] string email)
+        {
+            var tfaSetup = await _service.AuthenticationService.GetTfaSetup(email);
+            return Ok(tfaSetup);
+        }
+
+        [HttpPost("tfa-setup")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> PostTfaSetup([FromBody] TfaSetupDto tfaModel)
+        {
+            var tfaSetup = await _service.AuthenticationService.PostTfaSetup(tfaModel);
+            return Ok(tfaSetup);
         }
     }
 }

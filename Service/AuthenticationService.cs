@@ -4,7 +4,6 @@ using Entities.ConfigurationModels;
 using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
@@ -13,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 
 namespace Service
 {
@@ -24,6 +24,9 @@ namespace Service
         private readonly IOptionsSnapshot<JwtConfiguration> _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
         private User? _user;
+        private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
+        private readonly UrlEncoder _urlEncoder;
+
 
         public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
         {
@@ -56,6 +59,7 @@ namespace Service
 
             return result;
         }
+
         public async Task<TokenDto> CreateToken(bool populateExp)
         {
             var signingCredentials = GetSigningCredentials();
@@ -73,6 +77,81 @@ namespace Service
             var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
             return new TokenDto(accessToken, refreshToken);
+        }
+
+        public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
+        {
+            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+            var user = await _userManager.FindByNameAsync(principal.Identity.Name);
+
+            if (user is null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+                throw new RefreshTokenBadRequest();
+
+            _user = user;
+
+            return await CreateToken(populateExp: false);
+        }
+
+        public async Task<TfaSetupDto> GetTfaSetup(string email)
+        {
+            // refactor this email with var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByNameAsync(email);
+
+            if (user is null)
+                throw new TfaBadRequest();
+
+            var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+
+            var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            if (authenticatorKey is null)
+            {
+                await _userManager.ResetAuthenticatorKeyAsync(user);
+                authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            }
+
+            var formattedKey = GenerateQRCode(email, authenticatorKey);
+
+            return new TfaSetupDto
+            {
+                IsTfaEnabled = isTfaEnabled,
+                AuthenticatorKey = authenticatorKey,
+                FormattedKey = formattedKey
+            };
+        }
+
+        public async Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel)
+        {
+            var user = await _userManager.FindByNameAsync(tfaModel.Email);
+            var isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, tfaModel.Code);
+            if (isValidCode)
+            {
+                await _userManager.SetTwoFactorEnabledAsync(user, true);
+                return new TfaSetupDto 
+                { 
+                    IsTfaEnabled = true 
+                };
+            }
+            else
+            {
+                throw new TfaBadRequest();
+            }
+        }
+
+        public async Task<TfaSetupDto> DeleteTfaSetup(string email)
+        {
+            var user = await _userManager.FindByNameAsync(email);
+            if (user == null)
+            {
+                throw new TfaBadRequest();
+            }
+            else
+            {
+                await _userManager.SetTwoFactorEnabledAsync(user, false);
+                return new TfaSetupDto 
+                { 
+                    IsTfaEnabled = false 
+                };
+            }
         }
 
         private SigningCredentials GetSigningCredentials()
@@ -99,8 +178,7 @@ namespace Service
             return claims;
         }
 
-        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials,
-        List<Claim> claims)
+        private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
             var tokenOptions = new JwtSecurityToken
             (
@@ -113,7 +191,7 @@ namespace Service
             return tokenOptions;
         }
 
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
@@ -143,24 +221,16 @@ namespace Service
 
             var jwtSecurityToken = securityToken as JwtSecurityToken;
 
-            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            if (jwtSecurityToken is null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid token");
             }
             return principal;
         }
 
-        public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
+        private string GenerateQRCode(string email, string unformattedKey)
         {
-            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
-            var user = await _userManager.FindByNameAsync(principal.Identity.Name);
-
-            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
-                throw new RefreshTokenBadRequest();
-            
-            _user = user;
-
-            return await CreateToken(populateExp: false);
+            return string.Format(AuthenticatorUriFormat, _urlEncoder.Encode("EntrioX Two-Factor Auth"), _urlEncoder.Encode(email), unformattedKey);
         }
     }
 }

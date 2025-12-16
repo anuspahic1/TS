@@ -9,5 +9,8 @@ namespace Service.Contracts
         Task<bool> ValidateUser(UserForAuthenticationDto userForAuth);
         Task<TokenDto> CreateToken(bool populateExp);
         Task<TokenDto> RefreshToken(TokenDto tokenDto);
+        Task<TfaSetupDto> GetTfaSetup(string email);
+        Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel);
+        Task<TfaSetupDto> DeleteTfaSetup(string email);
     }
 }
