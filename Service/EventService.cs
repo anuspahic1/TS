@@ -19,11 +19,11 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<EventDto>> GetEventsAsync(Guid locationId, bool trackChanges)
+        public async Task<IEnumerable<EventDto>> GetEventsAsync(Guid locationId, EventParameters eventParameters, bool trackChanges)
         {
             await CheckIfLocationExists(locationId, trackChanges);
 
-            var eventsFromDb = await _repository.Event.GetEventsAsync(locationId, trackChanges);
+            var eventsFromDb = await _repository.Event.GetEventsAsync(locationId, eventParameters, trackChanges);
 
             var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsFromDb);
 

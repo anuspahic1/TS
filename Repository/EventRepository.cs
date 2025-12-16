@@ -9,16 +9,20 @@ namespace Repository
         {
         }
 
-        public async Task<IEnumerable<Event>> GetEventsAsync(Guid locationId, bool trackChanges)
+        public async Task<IEnumerable<Event>> GetEventsAsync(Guid locationId, EventParameters eventParameters, bool trackChanges)
         {
             return await FindByCondition(e => e.LocationId.Equals(locationId), trackChanges)
                     .OrderBy(e => e.Name)
+                    .Skip((eventParameters.PageNumber - 1) * eventParameters.PageSize)
+                    .Take(eventParameters.PageSize)
+                    .Sort(eventParameters.OrderBy)
+                    .Search(eventParameters.SearchTerm)
                     .ToListAsync();
         }
 
         public async Task<Event> GetEventAsync(Guid locationId, Guid id, bool trackChanges)
         {
-            return await FindByCondition(e => e.LocationId.Equals(locationId) && 
+            return await FindByCondition(e => e.LocationId.Equals(locationId) &&
                                    e.Id.Equals(id), trackChanges)
                    .SingleOrDefaultAsync();
         }
