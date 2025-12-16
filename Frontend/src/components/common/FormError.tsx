@@ -1,0 +1,5 @@
+export const FormError = ({ message }: { message: string }) => (
+  <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+    {message}
+  </div>
+);
