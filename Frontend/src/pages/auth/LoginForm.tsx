@@ -45,8 +45,8 @@ const LoginForm = ({
         placeholder="Password"
         required
       />
-
-      <Input
+      
+      {/* <Input this should go on new page after submiting username and password
         name="totpCode"
         value={formData.totpCode}
         onChange={(e) =>
@@ -59,7 +59,7 @@ const LoginForm = ({
           } as React.ChangeEvent<HTMLInputElement>)
         }
         placeholder="2FA code"
-      />
+      /> */}
 
       {error && <FormError message={error} />}
 

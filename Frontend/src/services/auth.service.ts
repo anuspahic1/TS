@@ -16,7 +16,6 @@ export interface ISignupRequest {
 
 export interface IAuthResponse {
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface ITwoFactorSetupInfo {
@@ -27,8 +26,9 @@ export interface ITwoFactorSetupInfo {
 export const authService = {
   login,
   signup,
-  get2FASetup,
-  verify2FA,
+  getTfaSetup,
+  postTfaSetup,
+  refresh,
 };
 
 async function login(data: ILoginRequest): Promise<IAuthResponse> {
@@ -39,10 +39,14 @@ async function signup(data: ISignupRequest): Promise<void> {
   await apiClient.post('/authentication', data);
 }
 
-async function get2FASetup(): Promise<ITwoFactorSetupInfo> {
-  return apiClient.get('/account/setup2fa');
+async function getTfaSetup(): Promise<ITwoFactorSetupInfo> {
+  return apiClient.get('/authentication/tfa-setup');
 }
 
-async function verify2FA(totpCode: string): Promise<IAuthResponse> {
-  return apiClient.post('/account/verify2fa', { totpCode });
+async function postTfaSetup(data: { totpCode: string }): Promise<IAuthResponse> {
+  return apiClient.post('/authentication/tfa-setup', data);
+}
+
+async function refresh(): Promise<IAuthResponse> {
+  return apiClient.post('/authentication/refresh');
 }

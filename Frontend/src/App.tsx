@@ -12,6 +12,7 @@ import TwoStepVerificationPage from "./pages/auth/TwoStepVerificationPage";
 import TwoFactorSetupPage from "./pages/auth/TwoFactorSetupPage";
 
 import Enable2FAPage from "./pages/Enable2FA/Enable2FAPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
 
 export default function App() {
   return (
@@ -26,9 +27,11 @@ export default function App() {
           <Route path="/2fa-setup" element={<TwoFactorSetupPage />} />
         </Route>
 
-        <Route element={<AppLayout />}>
-          <Route path="/rewards" element={<div>Rewards Page (TODO)</div>} />
-          <Route path="/account/enable-2fa" element={<Enable2FAPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppLayout />}>
+            <Route path="/rewards" element={<div>Rewards Page</div>} />
+            <Route path="/account/enable-2fa" element={<Enable2FAPage />} />
+          </Route>
         </Route>
 
         <Route

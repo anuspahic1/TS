@@ -1,6 +1,5 @@
 ﻿using EntrioX.Presentation.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -47,8 +46,14 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpGet("tfa-setup")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> GetTfaSetup([FromQuery] string email)
+        [Authorize]
+        public async Task<IActionResult> GetTfaSetup()  //security issue, removing email from query param
         {
+            var email = User.Identity?.Name;
+
+            if (string.IsNullOrWhiteSpace(email))
+                return Unauthorized();
+
             var tfaSetup = await _service.AuthenticationService.GetTfaSetup(email);
             return Ok(tfaSetup);
         }

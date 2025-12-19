@@ -9,21 +9,46 @@ export const apiClient = {
   },
 };
 
+let isRefreshing = false;
+
 async function request<T>(
   url: string,
   method: string,
   body?: unknown
 ): Promise<T> {
-  const token = localStorage.getItem('authToken');
-
+  const token = sessionStorage.getItem('accessToken');
+  
   const response = await fetch(`${API_BASE_URL}${url}`, {
     method,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
+
+  if (response.status === 401 && !isRefreshing) {
+    isRefreshing = true;
+
+    const refreshResponse = await fetch(`${API_BASE_URL}/authentication/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+
+    isRefreshing = false;
+
+    if (!refreshResponse.ok) {
+      sessionStorage.removeItem('accessToken');
+      window.location.href = '/login';
+      throw new Error('Session expired');
+    }
+
+    const { accessToken } = await refreshResponse.json();
+    sessionStorage.setItem('accessToken', accessToken);
+
+    return request<T>(url, method, body);
+  }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));

@@ -74,9 +74,17 @@ namespace Service
 
             await _userManager.UpdateAsync(_user);
 
+            var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
+            var hasAuthenticatorKey = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
+
             var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
-            return new TokenDto(accessToken, refreshToken);
+            return new TokenDto(
+                accessToken,
+                refreshToken,
+                twoFactorEnabled,
+                hasAuthenticatorKey
+            );
         }
 
         public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
@@ -165,7 +173,8 @@ namespace Service
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, _user.UserName)
+                new Claim(ClaimTypes.Name, _user.UserName),
+                new Claim(ClaimTypes.Email, _user.Email),
             };
 
             var roles = await _userManager.GetRolesAsync(_user);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/auth.service';
+import { useAuth } from '../../context/AuthContext';
 
 export const useLogin = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ export const useLogin = () => {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
 
   const navigate = useNavigate();
 
@@ -27,11 +28,8 @@ export const useLogin = () => {
     setError(null);
 
     try {
-      const result = await authService.login(formData);
-
-      localStorage.setItem('authToken', result.accessToken);
-
-      navigate('/');
+      await login(formData);
+      navigate('/rewards');
     } catch (err: any) {
       setError(err.message || 'Login failed.');
     } finally {
