@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 
+
 type SignupFormState = {
   fullName: string;
   email: string;
@@ -39,7 +40,8 @@ export const useSignup = () => {
     setLoading(true);
     setError(null);
 
-    const [firstName, ...lastNameParts] = formData.fullName.trim().split(' ');
+    const trimmedName = formData.fullName.trim();
+    const [firstName, ...lastNameParts] = trimmedName.split(' ');
     const lastName = lastNameParts.join(' ');
 
     const payload = {

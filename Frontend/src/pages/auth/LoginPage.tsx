@@ -1,36 +1,39 @@
 import { Link } from 'react-router-dom';
 import LoginForm from './LoginForm';
 import { useLogin } from './useLogin';
+import { AuthCard } from '../../components/auth/AuthCard';
+import { AuthHeader } from '../../components/auth/AuthHeader';
 
 const LoginPage = () => {
   const login = useLogin();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow p-8">
-        <h2 className="text-3xl font-bold text-center mb-2">
-          Welcome Back
-        </h2>
-        <p className="text-gray-600 text-center mb-8">
-          Sign in to your account
-        </p>
+    <AuthCard>
+      <AuthHeader 
+        title="Welcome Back" 
+        subtitle="Sign in to your account" 
+      />
 
-        <LoginForm
-          formData={login.formData}
-          loading={login.loading}
-          error={login.error}
-          onChange={login.handleChange}
-          onSubmit={login.submit}
-        />
+      {login.error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 border-l-4 border-red-500 text-sm">
+          {login.error}
+        </div>
+      )}
 
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Don't have an account?
-          <Link to="/signup" className="ml-2 text-yellow-600 font-semibold">
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </div>
+      <LoginForm
+        formData={login.formData}
+        loading={login.loading}
+        onChange={login.handleChange}
+        onSubmit={login.submit} 
+      />
+
+      <p className="text-center text-sm text-gray-600 mt-6">
+        Don't have an account?
+        <Link to="/signup" className="ml-2 text-yellow-600 font-semibold hover:underline">
+          Sign up
+        </Link>
+      </p>
+    </AuthCard>
   );
 };
 
