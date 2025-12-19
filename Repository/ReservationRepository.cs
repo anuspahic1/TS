@@ -36,5 +36,9 @@ namespace Repository
         {
             Delete(reservation);
         }
+        public async Task<int> GetTotalBookingsCountAsync(bool trackChanges)
+        {
+            return await FindAll(trackChanges).CountAsync();
+        }
     }
 }

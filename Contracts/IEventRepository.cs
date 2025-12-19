@@ -7,5 +7,6 @@ namespace Contracts
         Task<Event> GetEventAsync(Guid locationId, Guid id, bool trackChanges);
         void CreateEventForLocation(Guid locationId, Event ev);
         void DeleteEvent(Event ev);
+        Task<int> GetTotalEventsCountAsync(bool trackChanges);
     }
 }

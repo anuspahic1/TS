@@ -1,4 +1,5 @@
 ﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
@@ -18,9 +19,10 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers()
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUsers([FromQuery] UserParameters userParameters)
         {
-            var users = await _service.AppUserService.GetAllUsersAsync(trackChanges: false);
+            var users = await _service.AppUserService.GetAllUsersAsync(userParameters, trackChanges: false);
             return Ok(users);
         }
 

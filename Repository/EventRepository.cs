@@ -37,5 +37,9 @@ namespace Repository
         {
             Delete(ev);
         }
+        public async Task<int> GetTotalEventsCountAsync(bool trackChanges)
+        {
+            return await FindAll(trackChanges).CountAsync();
+        }
     }
 }
