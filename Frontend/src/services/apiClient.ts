@@ -17,7 +17,7 @@ async function request<T>(
   body?: unknown
 ): Promise<T> {
   const token = sessionStorage.getItem('accessToken');
-  
+
   const response = await fetch(`${API_BASE_URL}${url}`, {
     method,
     credentials: 'include',
@@ -31,10 +31,13 @@ async function request<T>(
   if (response.status === 401 && !isRefreshing) {
     isRefreshing = true;
 
-    const refreshResponse = await fetch(`${API_BASE_URL}/authentication/refresh`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+    const refreshResponse = await fetch(
+      `${API_BASE_URL}/authentication/refresh`,
+      {
+        method: 'POST',
+        credentials: 'include',
+      }
+    );
 
     isRefreshing = false;
 
@@ -51,9 +54,23 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `Request failed (${response.status})`);
+    const text = await response.text();
+    let error: any = {};
+
+    try {
+      error = text ? JSON.parse(text) : {};
+    } catch {}
+
+    throw new Error(
+      error.message || `Request failed (${response.status})`
+    );
   }
 
-  return response.json();
+  if (response.status === 201 || response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  return text ? (JSON.parse(text) as T) : (undefined as T);
 }
+
