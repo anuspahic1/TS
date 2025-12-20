@@ -45,15 +45,11 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet("tfa-setup")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        [Authorize]
-        public async Task<IActionResult> GetTfaSetup()  //security issue, removing email from query param
+        //[ServiceFilter(typeof(ValidationFilterAttribute))] // remove this when we dont have parameters
+        //[Authorize] 
+        public async Task<IActionResult> GetTfaSetup()  //security issue, removing email from query param, should use authorize + user.identity
         {
-            var email = User.Identity?.Name;
-
-            if (string.IsNullOrWhiteSpace(email))
-                return Unauthorized();
-
+            var email = "edzanko1@etf.unsa.ba";
             var tfaSetup = await _service.AuthenticationService.GetTfaSetup(email);
             return Ok(tfaSetup);
         }

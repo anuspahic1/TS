@@ -12,7 +12,7 @@ const Header = () => {
           EntrioX
         </Link>
         <nav className='hidden md:flex space-x-6'>
-          <Link to='/rewards' className='text-gray-600 hover:text-gray-900'>
+          <Link to='/2fa-setup' className='text-gray-600 hover:text-gray-900'>
             Home
           </Link>
           <Link to='/rewards' className='text-gray-600 hover:text-gray-900'>

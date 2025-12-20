@@ -5,6 +5,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Service.Contracts;
+using System.Text.Encodings.Web;
 
 namespace Service
 {
@@ -18,7 +19,7 @@ namespace Service
         private readonly Lazy<ITicketService> _ticketService;
         private readonly Lazy<IAuthenticationService> _authenticationService;
 
-        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
+        public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
         {
             _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper));
             _eventService = new Lazy<IEventService>(() => new EventService(repository, logger, mapper));
@@ -26,7 +27,7 @@ namespace Service
             _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger, mapper));
             _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger, mapper));
             _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger, mapper));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, urlEncoder));
         }
         public IAppUserService AppUserService
         {

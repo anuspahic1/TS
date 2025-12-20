@@ -52,7 +52,7 @@ export const useSignup = () => {
 
     try {
       await authService.signup(payload);
-      navigate('/2fa-setup');
+      navigate('/login');
     } catch (err: any) {
       setError(err.message || 'Signup failed.');
     } finally {

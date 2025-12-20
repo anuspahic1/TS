@@ -20,7 +20,7 @@ export const useTwoFactorSetup = () => {
     const loadSetup = async () => {
       try {
         setPageLoading(true);
-        const info = await authService.get2FASetup();
+        const info = await authService.getTfaSetup();
         setSetupInfo(info);
       } catch (err: any) {
         setError(err.message || 'Failed to load 2FA setup.');
@@ -51,11 +51,8 @@ export const useTwoFactorSetup = () => {
 
     try {
       setLoading(true);
-      const result = await authService.verify2FA(verificationCode);
-
-      localStorage.setItem('authToken', result.accessToken);
-
-      navigate('/');
+      await authService.postTfaSetup(verificationCode);
+      navigate('/rewards');
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
     } finally {

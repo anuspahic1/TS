@@ -16,6 +16,9 @@ export interface ISignupRequest {
 
 export interface IAuthResponse {
   accessToken: string;
+  refreshToken: string;
+  twoFactorEnabled: boolean;
+  hasAuthenticatorKey: boolean;
 }
 
 export interface ITwoFactorSetupInfo {
@@ -43,8 +46,8 @@ async function getTfaSetup(): Promise<ITwoFactorSetupInfo> {
   return apiClient.get('/authentication/tfa-setup');
 }
 
-async function postTfaSetup(data: { totpCode: string }): Promise<IAuthResponse> {
-  return apiClient.post('/authentication/tfa-setup', data);
+async function postTfaSetup(totpCode: string): Promise<void> {
+  return apiClient.post('/authentication/tfa-setup', { totpCode });
 }
 
 async function refresh(): Promise<IAuthResponse> {

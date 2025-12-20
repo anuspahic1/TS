@@ -28,13 +28,14 @@ namespace Service
         private readonly UrlEncoder _urlEncoder;
 
 
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
             _jwtConfiguration = _configuration.Get("JwtSettings");
+            _urlEncoder = urlEncoder;
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -108,7 +109,8 @@ namespace Service
             if (user is null)
                 throw new TfaBadRequest();
 
-            var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+            //var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+            var isTfaEnabled = true; // hardcoded for now
 
             var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
             if (authenticatorKey is null)

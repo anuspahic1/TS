@@ -3,8 +3,15 @@ import { authService } from "../services/auth.service";
 
 type AuthContextType = {
   token: string | null;
-  login: (data: any) => Promise<void>;
+  login: (data: any) => Promise<LoginResult>;
   logout: () => void;
+};
+
+type LoginResult = {
+  accessToken: string;
+  refreshToken: string;
+  twoFactorEnabled: boolean;
+  hasAuthenticatorKey: boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -14,15 +21,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.getItem("authToken")
   );
 
-  const login = async (data: any) => {
+  const login = async (data: any): Promise<LoginResult> => {
     const res = await authService.login(data);
-    console.log("Login successful:", res);
+
     localStorage.setItem("authToken", res.accessToken);
     setToken(res.accessToken);
+
+    return res;
   };
 
   const logout = () => {
-    console.log("Logging out");
     localStorage.removeItem("authToken");
     setToken(null);
   };
