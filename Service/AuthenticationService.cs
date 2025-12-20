@@ -28,13 +28,14 @@ namespace Service
         private readonly UrlEncoder _urlEncoder;
 
 
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
             _jwtConfiguration = _configuration.Get("JwtSettings");
+            _urlEncoder = urlEncoder;
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -43,7 +44,7 @@ namespace Service
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
             if (result.Succeeded)
-                await _userManager.AddToRolesAsync(user, userForRegistration.Roles);
+                await _userManager.AddToRoleAsync(user, "User"); // hardcoded for now
 
             return result;
         }
@@ -74,9 +75,17 @@ namespace Service
 
             await _userManager.UpdateAsync(_user);
 
+            var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
+            var hasAuthenticatorKey = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
+
             var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
-            return new TokenDto(accessToken, refreshToken);
+            return new TokenDto(
+                accessToken,
+                refreshToken,
+                twoFactorEnabled,
+                hasAuthenticatorKey
+            );
         }
 
         public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
@@ -100,7 +109,8 @@ namespace Service
             if (user is null)
                 throw new TfaBadRequest();
 
-            var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+            //var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+            var isTfaEnabled = true; // hardcoded for now
 
             var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
             if (authenticatorKey is null)
@@ -165,7 +175,8 @@ namespace Service
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, _user.UserName)
+                new Claim(ClaimTypes.Name, _user.UserName),
+                new Claim(ClaimTypes.Email, _user.Email),
             };
 
             var roles = await _userManager.GetRolesAsync(_user);

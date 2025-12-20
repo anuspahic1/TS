@@ -21,9 +21,14 @@ namespace EntrioX.Extensions
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
-                builder.AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+                    builder.WithOrigins(
+                            "http://localhost:5173",
+                            "https://entriox.com"
+                        )
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials()
+                );
             });
         }
 
