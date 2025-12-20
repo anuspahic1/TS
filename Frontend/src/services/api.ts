@@ -15,9 +15,19 @@ export async function apiFetch<T>(
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error?.message || "Request failed");
+ if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    let errorMessage = "Request failed";
+
+    if (Array.isArray(errorData)) {
+      errorMessage = errorData.map((e: any) => e.description).join(". ");
+    } else if (errorData.message) {
+      errorMessage = errorData.message;
+    } else if (errorData.errors) {
+      errorMessage = Object.values(errorData.errors).flat().join(". ");
+    }
+
+    throw new Error(errorMessage);
   }
 
   return response.json();

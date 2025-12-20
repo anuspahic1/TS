@@ -31,25 +31,43 @@ export const useSignup = () => {
     setError(null);
   };
 
-  const submit = async () => {
+const submit = async () => {
+    setError(null);
+
+    if (!formData.fullName || !formData.email || !formData.password) {
+      setError('All fields are required.');
+      return;
+    }
+
+    const trimmedName = formData.fullName.trim();
+    const nameParts = trimmedName.split(/\s+/); 
+
+    if (nameParts.length < 2) {
+      setError('Please enter both your first and last name (e.g., John Doe).');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match.');
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    if (formData.password.length < 10) {
+      setError('Password must be at least 10 characters long.');
+      return;
+    }
 
-    const trimmedName = formData.fullName.trim();
-    const [firstName, ...lastNameParts] = trimmedName.split(' ');
-    const lastName = lastNameParts.join(' ');
+    setLoading(true);
+
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ');
 
     const payload = {
-      userName: formData.email,
+      userName: formData.email, 
       email: formData.email,
       password: formData.password,
-      firstName: firstName || undefined,
-      lastName: lastName || undefined,
+      firstName: firstName,
+      lastName: lastName,
     };
 
     try {
