@@ -6,7 +6,7 @@ export const useLogin = () => {
   const [formData, setFormData] = useState({
     userName: '',
     password: '',
-    totpCode: '',
+   // totpCode: '',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +24,13 @@ export const useLogin = () => {
   };
 
   const submit = async () => {
-    setLoading(true);
     setError(null);
+
+    if (!formData.userName.includes('@')) {
+    setError('Please enter a valid email address.');
+    return;
+  }
+      setLoading(true);
 
     try {
       const result = await login(formData);

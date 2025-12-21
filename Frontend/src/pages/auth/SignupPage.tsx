@@ -3,6 +3,7 @@ import SignupForm from './SignupForm';
 import { useSignup } from './useSignup';
 import { AuthCard } from '../../components/auth/AuthCard';
 import { AuthHeader } from '../../components/auth/AuthHeader';
+import { FormError } from '../../components/common/FormError'; 
 
 const SignupPage = () => {
     const signup = useSignup();
@@ -14,11 +15,8 @@ const SignupPage = () => {
                 subtitle="Join our community and get started today" 
             />
 
-            {signup.error && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-800 text-sm font-medium rounded-r-lg">
-                    {signup.error}
-                </div>
-            )}
+           
+            <FormError message={signup.error} />
 
             <SignupForm
                 formData={signup.formData}

@@ -19,9 +19,9 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AppUserDto>> GetAllUsersAsync(bool trackChanges)
+        public async Task<IEnumerable<AppUserDto>> GetAllUsersAsync(UserParameters userParameters, bool trackChanges)
         {
-            var users = await _repository.AppUser.GetAllUsersAsync(trackChanges);
+            var users = await _repository.AppUser.GetAllUsersAsync(userParameters, trackChanges);
 
             var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
 
