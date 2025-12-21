@@ -1,12 +1,200 @@
-import React from 'react';
+// src/pages/UserDashboard.tsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const UserDashboard = () => {
+// Import service - obrati pažnju na naziv fajla, promeni u userDashboardService ako si ga preimenovao
+import { getUserDashboardData, type ReservationStatus } from '../services/userDashboardService';
+
+// Import components
+import ReservationHistory from '../components/dashboard/ReservationHistory';
+import ActiveTickets from '../components/dashboard/ActiveTickets';
+import UserProfile from '../components/dashboard/UserProfile';
+import DashboardSidebar from '../components/dashboard/DashboardSidebar';
+
+// Types (lokalni interfejsi usklađeni sa servisom)
+interface IReservation {
+  id: string;
+  userId: string;
+  eventId: string;
+  totalPrice: number;
+  createdAt: string;
+  eventName?: string;
+  eventDate?: string;
+  ticketsCount?: number;
+  status?: ReservationStatus;
+}
+
+interface ITicket {
+  id: string;
+  reservationId?: string;
+  eventId: string;
+  price: number;
+  seatNumber?: string;
+  qrCode?: string;
+  isReserved: boolean;
+  eventName?: string;
+  eventDate?: string;
+  isActive?: boolean;
+}
+
+interface IAppUser {
+  id: string;
+  fullName: string;
+  email: string;
+  bankAccountNumber?: string;
+}
+
+const UserDashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>('reservations');
+  const [reservations, setReservations] = useState<IReservation[]>([]);
+  const [tickets, setTickets] = useState<ITicket[]>([]);
+  const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const data = await getUserDashboardData();
+        
+        setReservations(data.reservations);
+        setTickets(data.tickets);
+        // FIX: Dodat fallback '|| null' da spreči 'undefined' grešku (TS 2345)
+        setUserProfile(data.user || null); 
+      } catch (err: any) {
+        setError(err.message || 'Failed to load dashboard data');
+        console.error('Dashboard error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Are you sure you want to delete your account?')) {
+      handleLogout();
+    }
+  };
+
+  const handleUpdateProfile = (updatedProfile: IAppUser) => {
+    setUserProfile(updatedProfile);
+    alert('Profile updated successfully!');
+  };
+
+  if (error && !loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50 flex items-center justify-center">
+        <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg max-w-md">
+          <h3 className="text-lg font-medium text-red-800">Error Loading Dashboard</h3>
+          <p className="text-red-700 mt-1">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-800">User Dashboard</h1>
-      <p className="text-gray-600">Welcome, Customer!</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            Welcome back, {userProfile?.fullName?.split(' ')[0] || 'User'}!
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Manage your reservations, tickets, and account settings
+          </p>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          <DashboardSidebar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            onLogout={handleLogout}
+            onDeleteAccount={handleDeleteAccount}
+          />
+
+          <div className="flex-1">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-yellow-500 border-t-transparent"></div>
+              </div>
+            ) : (
+              <>
+                {activeTab === 'reservations' && (
+                  <ReservationHistory reservations={reservations} />
+                )}
+                
+                {activeTab === 'tickets' && (
+                  <ActiveTickets tickets={tickets} />
+                )}
+                
+                {activeTab === 'profile' && userProfile && (
+                  <UserProfile 
+                    profile={userProfile} 
+                    onUpdateProfile={handleUpdateProfile}
+                  />
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        {!loading && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <StatCard 
+              title="Total Reservations" 
+              value={reservations.length} 
+              color="bg-yellow-100 text-yellow-600" 
+            />
+            <StatCard 
+              title="Active Tickets" 
+              value={tickets.filter(t => t.isActive).length} 
+              color="bg-green-100 text-green-600" 
+            />
+            <StatCard 
+              title="Total Spent" 
+              value={`$${reservations.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}`} 
+              color="bg-blue-100 text-blue-600" 
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
+// Helper komponenta za Stat kartice
+// FIX: Iskoristili smo 'color' prop (TS 6133)
+const StatCard = ({ title, value, color }: { title: string; value: string | number; color: string }) => (
+  <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 flex items-center justify-between">
+    <div>
+      <p className="text-sm font-medium text-gray-500">{title}</p>
+      <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
+    </div>
+    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
+      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+      </svg>
+    </div>
+  </div>
+);
 
 export default UserDashboard;
