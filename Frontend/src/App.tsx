@@ -16,20 +16,24 @@ import OrganizerDashboard from './pages/OrganizerDashboard';
 import Enable2FAPage from './pages/Enable2FA/Enable2FAPage';
 import ProtectedRoute from './routes/ProtectedRoute';
 
+import HomePage from './pages/HomePage';
+import EventDetailsPage from './pages/EventDetailsPage';
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/locations/:locationId/events/:eventId" element={<EventDetailsPage />} />
+
         <Route element={<AuthLayout />}>
-          <Route path='/' element={<Navigate to='/login' replace />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/two-step-verification' element={<TwoStepVerificationPage />} />
           <Route path='/2fa-setup' element={<TwoFactorSetupPage />} />
-
         </Route>
 
-       <Route element={<ProtectedRoute />}>
+        <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path='/account/enable-2fa' element={<Enable2FAPage />} />
             
@@ -41,10 +45,8 @@ export default function App() {
             <Route element={<ProtectedRoute allowedRoles={["Organizer"]} />}>
               <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
             </Route>
-            
           </Route>
         </Route>
-        
 
         <Route
           path='*'

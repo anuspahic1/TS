@@ -19,7 +19,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+        //[Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetLocations()
         {
             var locations = await _service.LocationService.GetAllLocationsAsync(trackChanges: false);

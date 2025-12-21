@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 import { useAuth } from '../../context/AuthContext'; 
 import { jwtDecode } from 'jwt-decode'; 
+import { useLocation } from 'react-router-dom'; 
 
 export const useTwoStepVerification = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-const { updateToken } = useAuth(); 
+  const { updateToken } = useAuth(); 
   const navigate = useNavigate();
+  const location = useLocation(); 
 
   const updateCode = (value: string) => {
     setCode(value.replace(/\D/g, '').slice(0, 6));
@@ -25,7 +27,6 @@ const { updateToken } = useAuth();
     try {
       setLoading(true);
       const result = await authService.verifyTfa(code);
-
       updateToken(result.accessToken);
 
       const decoded: any = jwtDecode(result.accessToken);
@@ -34,7 +35,11 @@ const { updateToken } = useAuth();
                     ? decoded[rolesClaim] 
                     : [decoded[rolesClaim]];
 
-      if (roles.includes('Organizer')) {
+      const from = location.state?.from; 
+
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (roles.includes('Organizer')) {
         navigate('/organizer-dashboard');
       } else {
         navigate('/user-dashboard');

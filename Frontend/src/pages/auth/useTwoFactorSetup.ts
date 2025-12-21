@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 
 
@@ -15,7 +15,8 @@ export const useTwoFactorSetup = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  
   useEffect(() => {
     const loadSetup = async () => {
       try {
@@ -54,11 +55,11 @@ export const useTwoFactorSetup = () => {
 
     try {
       setLoading(true);
-      
-      await authService.postTfaSetup(verificationCode, 'anuspahic1@etf.unsa.ba'); 
-      alert("2FA successfully enabled! Please login again to verify your device.");
 
-      navigate('/login');
+      await authService.postTfaSetup(verificationCode, 'anuspahic1@etf.unsa.ba'); 
+      alert("2FA successfully enabled! Please login again.");
+
+      navigate('/login', { state: location.state }); 
 
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
