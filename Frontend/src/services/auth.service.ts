@@ -22,8 +22,8 @@ export interface IAuthResponse {
 }
 
 export interface ITwoFactorSetupInfo {
-  qrCodeImageUrl: string;
-  secretKey: string;
+  formattedKey: string;
+  authenticatorKey: string;
 }
 
 export const authService = {
@@ -31,6 +31,7 @@ export const authService = {
   signup,
   getTfaSetup,
   postTfaSetup,
+  verifyTfa,
   refresh,
 };
 
@@ -46,8 +47,16 @@ async function getTfaSetup(): Promise<ITwoFactorSetupInfo> {
   return apiClient.get('/authentication/tfa-setup');
 }
 
-async function postTfaSetup(totpCode: string): Promise<void> {
-  return apiClient.post('/authentication/tfa-setup', { totpCode });
+async function postTfaSetup(code: string, email: string): Promise<void> {
+  return apiClient.post('/authentication/tfa-setup', {
+    email,
+    code,
+  });
+}
+
+async function verifyTfa(code: string): Promise<IAuthResponse> {
+  console.log('Verifying TFA with code:', code);
+  return apiClient.post('/authentication/verify-tfa', { code });
 }
 
 async function refresh(): Promise<IAuthResponse> {

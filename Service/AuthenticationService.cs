@@ -147,6 +147,23 @@ namespace Service
             }
         }
 
+        public async Task<TokenDto> VerifyTfa(VerifyTfaDto dto, string email)
+        {
+            var user = await _userManager.FindByNameAsync(email);
+
+            var valid = await _userManager.VerifyTwoFactorTokenAsync(
+                user,
+                _userManager.Options.Tokens.AuthenticatorTokenProvider,
+                dto.Code
+            );
+
+            if (!valid)
+                throw new TfaBadRequest();
+
+            _user = user;
+            return await CreateToken(populateExp: true);
+        }
+
         public async Task<TfaSetupDto> DeleteTfaSetup(string email)
         {
             var user = await _userManager.FindByNameAsync(email);

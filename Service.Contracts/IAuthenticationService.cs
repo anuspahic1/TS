@@ -11,6 +11,7 @@ namespace Service.Contracts
         Task<TokenDto> RefreshToken(TokenDto tokenDto);
         Task<TfaSetupDto> GetTfaSetup(string email);
         Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel);
+        Task<TokenDto> VerifyTfa(VerifyTfaDto dto, string email);
         Task<TfaSetupDto> DeleteTfaSetup(string email);
     }
 }

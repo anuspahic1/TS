@@ -22,12 +22,12 @@ export default function App() {
           <Route path='/' element={<Navigate to='/login' replace />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
+          <Route path='/two-step-verification' element={<TwoStepVerificationPage />} />
         </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path='/2fa-setup' element={<TwoFactorSetupPage />} />
-            <Route path='/two-step-verification' element={<TwoStepVerificationPage />} />
             <Route path='/rewards' element={<div>Rewards Page</div>} />
             <Route path='/account/enable-2fa' element={<Enable2FAPage />} />
             {/* double check route above */}

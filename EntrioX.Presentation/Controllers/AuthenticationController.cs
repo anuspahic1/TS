@@ -61,5 +61,14 @@ namespace EntrioX.Presentation.Controllers
             var tfaSetup = await _service.AuthenticationService.PostTfaSetup(tfaModel);
             return Ok(tfaSetup);
         }
+
+        [HttpPost("verify-tfa")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> VerifyTfa([FromBody] VerifyTfaDto dto)
+        {
+            var email = "edzanko1@etf.unsa.ba";
+            var token = await _service.AuthenticationService.VerifyTfa(dto, email); // should be used really identity mail, hardcoded for now
+            return Ok(token);
+        }
     }
 }

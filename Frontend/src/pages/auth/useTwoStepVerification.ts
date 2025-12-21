@@ -23,11 +23,11 @@ export const useTwoStepVerification = () => {
     try {
       setLoading(true);
 
-      const result = await authService.verify2FA(code);
+      const result = await authService.verifyTfa(code);
 
-      localStorage.setItem('authToken', result.accessToken);
+      // localStorage.setItem('authToken', result.accessToken);
 
-      navigate('/');
+      navigate('/rewards');
     } catch (err: any) {
       setError(err.message || 'Invalid verification code.');
     } finally {
