@@ -2,11 +2,12 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { FormError } from '../../components/common/FormError';
 import { Spinner } from '../../components/common/Spinner';
+import QRCode from "react-qr-code";
 
 type Props = {
   setupInfo: {
-    qrCodeImageUrl: string;
-    secretKey: string;
+    formattedKey: string;
+    authenticatorKey: string;
   } | null;
   verificationCode: string;
   error: string | null;
@@ -39,20 +40,21 @@ const TwoFactorSetupView = ({
 
   return (
     <div className="space-y-8">
-      <img
-        src={setupInfo.qrCodeImageUrl}
-        alt="2FA QR Code"
+      <QRCode
+        value={setupInfo.formattedKey}
+        size={224}
+        // alt="2FA QR Code"
         className="mx-auto w-56 h-56"
-      />
+      />  
 
       <div className="text-center">
         <code className="block font-mono text-lg mb-2">
-          {setupInfo.secretKey}
+          {setupInfo.authenticatorKey}
         </code>
 
         <Button
           variant="secondary"
-          onClick={() => onCopy(setupInfo.secretKey)}
+          onClick={() => onCopy(setupInfo.authenticatorKey)}
         >
           {copied ? 'Copied!' : 'Copy key'}
         </Button>

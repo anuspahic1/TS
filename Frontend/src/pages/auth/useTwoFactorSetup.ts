@@ -4,8 +4,8 @@ import { authService } from '../../services/auth.service';
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
-    qrCodeImageUrl: string;
-    secretKey: string;
+    formattedKey: string;      
+    authenticatorKey: string;  
   } | null>(null);
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -20,8 +20,11 @@ export const useTwoFactorSetup = () => {
     const loadSetup = async () => {
       try {
         setPageLoading(true);
-        const info = await authService.getTfaSetup();
-        setSetupInfo(info);
+        const res = await authService.getTfaSetup();
+        setSetupInfo({
+          formattedKey: res.formattedKey,
+          authenticatorKey: res.authenticatorKey,
+        });
       } catch (err: any) {
         setError(err.message || 'Failed to load 2FA setup.');
       } finally {
@@ -51,7 +54,7 @@ export const useTwoFactorSetup = () => {
 
     try {
       setLoading(true);
-      await authService.postTfaSetup(verificationCode);
+      await authService.postTfaSetup(verificationCode, 'edzanko1@etf.unsa.ba'); // should be  setupInfo?.email ||
       navigate('/rewards');
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
