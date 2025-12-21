@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 
+
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
     formattedKey: string;      
@@ -13,7 +14,6 @@ export const useTwoFactorSetup = () => {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,8 +54,12 @@ export const useTwoFactorSetup = () => {
 
     try {
       setLoading(true);
-      await authService.postTfaSetup(verificationCode, 'edzanko1@etf.unsa.ba'); // should be  setupInfo?.email ||
-      navigate('/rewards');
+      
+      await authService.postTfaSetup(verificationCode, 'anuspahic1@etf.unsa.ba'); 
+      alert("2FA successfully enabled! Please login again to verify your device.");
+
+      navigate('/login');
+
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
     } finally {

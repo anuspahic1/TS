@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { jwtDecode } from 'jwt-decode'; 
 
 export const useLogin = () => {
   const [formData, setFormData] = useState({
@@ -16,9 +17,10 @@ export const useLogin = () => {
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev: any) => ({
+    const { name, value } = e.target;
+    setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
     setError(null);
   };
@@ -27,22 +29,37 @@ export const useLogin = () => {
     setError(null);
 
     if (!formData.userName.includes('@')) {
-    setError('Please enter a valid email address.');
-    return;
-  }
-      setLoading(true);
+      setError('Please enter a valid email address.');
+      return;
+    }
+    
+    setLoading(true);
 
     try {
-      const result = await login(formData);
+      const result = await login(formData); 
+
       if (!result.hasAuthenticatorKey) {
-        console.log('Navigating to 2FA setup');
         navigate('/2fa-setup');
-      } else if (result.twoFactorEnabled) {
-        console.log('Navigating to two-step verification');
+        return; 
+      } 
+
+      if (result.twoFactorEnabled) {
         navigate('/two-step-verification');
+        return; 
+      } 
+
+      const decoded: any = jwtDecode(result.accessToken);
+      const rolesClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+      const roles: string[] = Array.isArray(decoded[rolesClaim]) 
+                              ? decoded[rolesClaim] 
+                              : [decoded[rolesClaim]];
+
+      if (roles.includes('Organizer')) {
+        navigate('/organizer-dashboard');
       } else {
-        navigate('/rewards');
+        navigate('/user-dashboard');
       }
+      
     } catch (err: any) {
       setError(err.message || 'Login failed.');
     } finally {

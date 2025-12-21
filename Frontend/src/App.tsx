@@ -10,6 +10,8 @@ import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
 import TwoStepVerificationPage from './pages/auth/TwoStepVerificationPage';
 import TwoFactorSetupPage from './pages/auth/TwoFactorSetupPage';
+import UserDashboard from './pages/UserDashboard';
+import OrganizerDashboard from './pages/OrganizerDashboard';
 
 import Enable2FAPage from './pages/Enable2FA/Enable2FAPage';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -23,16 +25,26 @@ export default function App() {
           <Route path='/login' element={<LoginPage />} />
           <Route path='/signup' element={<SignupPage />} />
           <Route path='/two-step-verification' element={<TwoStepVerificationPage />} />
+          <Route path='/2fa-setup' element={<TwoFactorSetupPage />} />
+
         </Route>
 
-        <Route element={<ProtectedRoute />}>
+       <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
-            <Route path='/2fa-setup' element={<TwoFactorSetupPage />} />
-            <Route path='/rewards' element={<div>Rewards Page</div>} />
             <Route path='/account/enable-2fa' element={<Enable2FAPage />} />
-            {/* double check route above */}
+            
+            <Route element={<ProtectedRoute allowedRoles={["User"]} />}>
+              <Route path="/user-dashboard" element={<UserDashboard />} />
+              <Route path='/rewards' element={<div>Rewards Page</div>} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={["Organizer"]} />}>
+              <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
+            </Route>
+            
           </Route>
         </Route>
+        
 
         <Route
           path='*'
