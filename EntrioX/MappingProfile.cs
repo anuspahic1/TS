@@ -20,13 +20,19 @@ namespace EntrioX
 
             CreateMap<Ticket, TicketDto>()
                 .ForMember(dest => dest.EventName,
-                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""));
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""))
+                .ForMember(dest => dest.EventDate,
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.EventDate : DateTime.MinValue));
 
             CreateMap<Reservation, ReservationDto>()
                 .ForMember(dest => dest.UserFullName,
                     opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""))
                 .ForMember(dest => dest.EventName,
-                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""));
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.Name : ""))
+                .ForMember(dest => dest.EventDate,
+                    opt => opt.MapFrom(src => src.Event != null ? src.Event.EventDate : DateTime.MinValue))
+                .ForMember(dest => dest.TicketsCount,
+                    opt => opt.MapFrom(src => src.Tickets != null ? src.Tickets.Count : 0));
 
             CreateMap<Reward, RewardDto>()
                 .ForMember(dest => dest.UserFullName,

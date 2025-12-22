@@ -9,5 +9,8 @@
         public string? QRCode { get; init; }
         public Guid EventId { get; init; }
         public string EventName { get; init; }
+
+        public DateTime EventDate { get; init; } 
+        public Guid? ReservationId { get; init; } 
     }
 }

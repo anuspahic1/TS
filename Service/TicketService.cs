@@ -122,5 +122,32 @@ namespace Service
             await _repository.SaveAsync();
         }
 
+        public async Task<IEnumerable<TicketDto>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges)
+        {
+            
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges: false);
+            if (user == null)
+                throw new UserNotFoundException(userId);
+            
+       
+            var tickets = await _repository.Ticket
+                .GetTicketsByUserIdWithDetailsAsync(userId, trackChanges);
+            
+            var ticketsDto = tickets.Select(t => new TicketDto
+            {
+                Id = t.Id,
+                Price = t.Price,
+                SeatNumber = t.SeatNumber,
+                IsReserved = t.IsReserved,
+                QRCode = t.QRCode,
+                EventId = t.EventId,
+                EventName = t.Event?.Name ?? "Unknown Event",
+                EventDate = t.Event?.EventDate ?? DateTime.MinValue,
+                ReservationId = t.ReservationId
+            });
+            
+            return ticketsDto;
+        }
+
     }
 }

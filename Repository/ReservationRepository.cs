@@ -40,5 +40,17 @@ namespace Repository
         {
             return await FindAll(trackChanges).CountAsync();
         }
+
+        public async Task<IEnumerable<Reservation>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges) =>
+            await FindByCondition(r => r.UserId == userId, trackChanges)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        
+        public async Task<IEnumerable<Reservation>> GetReservationsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
+            await FindByCondition(r => r.UserId == userId, trackChanges)
+                .Include(r => r.Event) 
+                .Include(r => r.Tickets) 
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
     }
 }
