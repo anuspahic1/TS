@@ -16,7 +16,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ formData, loading, onChange, onSu
   };
 
   return (
-    <form onSubmit={handleFormSubmit} className="space-y-5">
+    <form onSubmit={handleFormSubmit} className="space-y-5" noValidate>
       <Input
         label="Email"
         name="userName"
