@@ -42,12 +42,12 @@ namespace Repository
         }
 
         public async Task<IEnumerable<Reservation>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges) =>
-            await FindByCondition(r => r.UserId == userId, trackChanges)
+            await FindByCondition(r => r.UserId == userId.ToString(), trackChanges) 
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
-        
+
         public async Task<IEnumerable<Reservation>> GetReservationsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
-            await FindByCondition(r => r.UserId == userId, trackChanges)
+            await FindByCondition(r => r.UserId == userId.ToString(), trackChanges) 
                 .Include(r => r.Event) 
                 .Include(r => r.Tickets) 
                 .OrderByDescending(r => r.CreatedAt)

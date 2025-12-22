@@ -41,16 +41,15 @@ namespace Repository
         public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges)
         {
             return await FindByCondition(t => 
-                t.Reservation != null && t.Reservation.UserId == userId, 
+                t.Reservation != null && t.Reservation.UserId == userId.ToString(), // Convert Guid to string
                 trackChanges)
                 .ToListAsync();
         }
-        
-     
+
         public async Task<IEnumerable<Ticket>> GetTicketsByUserIdWithDetailsAsync(Guid userId, bool trackChanges)
         {
             return await FindByCondition(t => 
-                t.Reservation != null && t.Reservation.UserId == userId, 
+                t.Reservation != null && t.Reservation.UserId == userId.ToString(), // Convert Guid to string
                 trackChanges)
                 .Include(t => t.Event) 
                 .Include(t => t.Reservation) 
