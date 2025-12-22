@@ -97,5 +97,45 @@ namespace Service
             var reservationDb = await _repository.Reservation.GetReservationAsync(locationId, eventId, id, trackChanges);
             return reservationDb is null ? throw new ReservationNotFoundException(id) : reservationDb;
         }
+
+        public async Task<IEnumerable<ReservationDto>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges)
+        {
+   
+            var user = await _repository.AppUser.GetUserAsync(userId, trackChanges: false);
+            if (user == null)
+                throw new UserNotFoundException(userId);
+            
+
+            var reservations = await _repository.Reservation
+                .GetReservationsByUserIdWithDetailsAsync(userId, trackChanges);
+            
+ 
+            var reservationsDto = reservations.Select(r => new ReservationDto
+            {
+                Id = r.Id,
+                CreatedAt = r.CreatedAt,
+                TotalPrice = r.TotalPrice,
+                UserId = r.UserId,
+                UserFullName = r.User?.FullName ?? "Unknown",
+                EventId = r.EventId,
+                EventName = r.Event?.Name ?? "Unknown Event",
+                EventDate = r.Event?.EventDate ?? DateTime.MinValue,
+                TicketsCount = r.Tickets?.Count ?? 0,
+                Status = DetermineReservationStatus(r.Event?.EventDate)
+            });
+            
+            return reservationsDto;
+        }
+        
+        private string DetermineReservationStatus(DateTime? eventDate)
+        {
+            if (!eventDate.HasValue)
+                return "completed";
+                
+            if (eventDate.Value < DateTime.UtcNow)
+                return "completed";
+            else
+                return "upcoming";
+        }
     }
 }

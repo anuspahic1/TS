@@ -7,5 +7,8 @@
         void CreateReservationForEvent(Guid eventId, Reservation reservation);
         void DeleteReservation(Reservation reservation);
         Task<int> GetTotalBookingsCountAsync(bool trackChanges);
+
+        Task<IEnumerable<Reservation>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<Reservation>> GetReservationsByUserIdWithDetailsAsync(Guid userId, bool trackChanges);
     }
 }

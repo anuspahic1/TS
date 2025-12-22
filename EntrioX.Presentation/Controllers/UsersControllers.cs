@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.Security.Claims;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -73,6 +74,75 @@ namespace EntrioX.Presentation.Controllers
             await _service.AppUserService.SaveChangesForPatchAsync(userToPatch, userId, trackChanges: true);
 
             return NoContent();
+        }
+
+        [HttpGet("{userId}/reservations")]
+        [Authorize] 
+        public async Task<IActionResult> GetUserReservations(Guid userId)
+        {
+            var currentUserId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (userId != currentUserId && !isAdmin)
+                return Forbid();
+            
+            var reservations = await _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
+            return Ok(reservations);
+        }
+        
+        [HttpGet("{userId}/tickets")]
+        [Authorize]
+        public async Task<IActionResult> GetUserTickets(Guid userId)
+        {
+            var currentUserId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (userId != currentUserId && !isAdmin)
+                return Forbid();
+            
+            var tickets = await _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
+            return Ok(tickets);
+        }
+        
+        [HttpGet("{userId}/dashboard")]
+        [Authorize]
+        public async Task<IActionResult> GetUserDashboard(Guid userId)
+        {
+            var currentUserId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (userId != currentUserId && !isAdmin)
+                return Forbid();
+            
+            var userTask = _service.AppUserService.GetUserAsync(userId, trackChanges: false);
+            var reservationsTask = _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
+            var ticketsTask = _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
+            
+            await Task.WhenAll(userTask, reservationsTask, ticketsTask);
+            
+            var dashboardData = new
+            {
+                User = await userTask,
+                Reservations = await reservationsTask,
+                Tickets = await ticketsTask,
+                Stats = new
+                {
+                    TotalReservations = (await reservationsTask).Count(),
+                    ActiveTickets = (await ticketsTask).Count(t => t.EventDate > DateTime.UtcNow),
+                    TotalSpent = (await reservationsTask).Sum(r => r.TotalPrice)
+                }
+            };
+            
+            return Ok(dashboardData);
+        }
+        
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            
+            return userId;
         }
 
     }

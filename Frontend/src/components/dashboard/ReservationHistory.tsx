@@ -1,13 +1,12 @@
-// src/components/dashboard/ReservationHistory.tsx
 import React from 'react';
 
 interface IReservation {
   id: string;
-  eventName?: string;
+  eventName: string;
   eventDate?: string;
   totalPrice: number;
   ticketsCount?: number;
-  status?: 'completed' | 'cancelled' | 'upcoming'; // Specific type
+  status?: 'completed' | 'cancelled' | 'upcoming';
   createdAt: string;
 }
 

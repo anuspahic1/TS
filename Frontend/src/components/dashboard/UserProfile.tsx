@@ -1,11 +1,9 @@
-// src/components/dashboard/UserProfile.tsx
 import React, { useState } from 'react';
 
 interface IAppUser {
   id: string;
   fullName: string;
   email: string;
-  bankAccountNumber?: string;
 }
 
 interface UserProfileProps {
@@ -27,7 +25,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
     e.preventDefault();
     setLoading(true);
     
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     onUpdateProfile(formData);
@@ -37,7 +34,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      {/* Header */}
       <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
@@ -53,7 +49,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
         </div>
       </div>
 
-      {/* Content */}
+    
       <div className="p-6">
         {isEditing ? (
           <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
@@ -85,21 +81,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bank Account
-                </label>
-                <input
-                  type="text"
-                  name="bankAccountNumber"
-                  value={formData.bankAccountNumber || ''}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition-all"
-                  placeholder="Enter account number"
-                />
-              </div>
-            </div>
+            </div> 
 
             <div className="flex gap-4 pt-4">
               <button
@@ -140,44 +122,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                   </div>
                 </div>
               </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Payment Information</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-sm text-gray-500">Bank Account</p>
-                      <p className="font-medium text-gray-900">
-                        {profile.bankAccountNumber || 'Not set'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Account Status</p>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Security Section */}
+    
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Security</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <p className="font-medium text-gray-900">Two-Factor Authentication</p>
-                    <p className="text-sm text-gray-600">Add extra security to your account</p>
-                  </div>
-                  <a 
-                    href="/account/enable-2fa"
-                    className="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all"
-                  >
-                    Enable
-                  </a>
-                </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div>

@@ -1,54 +1,30 @@
-// src/pages/UserDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Import service - obrati pažnju na naziv fajla, promeni u userDashboardService ako si ga preimenovao
-import { getUserDashboardData, type ReservationStatus } from '../services/userDashboardService';
+import { 
+  getUserDashboardData, 
+  type IAppUser, 
+  type IReservation, 
+  type ITicket 
+} from '../services/userDashboardService'; 
 
-// Import components
+
 import ReservationHistory from '../components/dashboard/ReservationHistory';
 import ActiveTickets from '../components/dashboard/ActiveTickets';
 import UserProfile from '../components/dashboard/UserProfile';
 import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 
-// Types (lokalni interfejsi usklađeni sa servisom)
-interface IReservation {
-  id: string;
-  userId: string;
-  eventId: string;
-  totalPrice: number;
-  createdAt: string;
-  eventName?: string;
-  eventDate?: string;
-  ticketsCount?: number;
-  status?: ReservationStatus;
-}
-
-interface ITicket {
-  id: string;
-  reservationId?: string;
-  eventId: string;
-  price: number;
-  seatNumber?: string;
-  qrCode?: string;
-  isReserved: boolean;
-  eventName?: string;
-  eventDate?: string;
-  isActive?: boolean;
-}
-
-interface IAppUser {
-  id: string;
-  fullName: string;
-  email: string;
-  bankAccountNumber?: string;
-}
 
 const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>('reservations');
   const [reservations, setReservations] = useState<IReservation[]>([]);
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
+  const [stats, setStats] = useState({
+    totalReservations: 0,
+    activeTicketsCount: 0,
+    totalSpent: 0
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -63,8 +39,9 @@ const UserDashboard: React.FC = () => {
         
         setReservations(data.reservations);
         setTickets(data.tickets);
-        // FIX: Dodat fallback '|| null' da spreči 'undefined' grešku (TS 2345)
-        setUserProfile(data.user || null); 
+        setUserProfile(data.user || null);
+        setStats(data.stats);
+        
       } catch (err: any) {
         setError(err.message || 'Failed to load dashboard data');
         console.error('Dashboard error:', err);
@@ -112,7 +89,6 @@ const UserDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Welcome back, {userProfile?.fullName?.split(' ')[0] || 'User'}!
@@ -156,22 +132,21 @@ const UserDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
             <StatCard 
               title="Total Reservations" 
-              value={reservations.length} 
+              value={stats.totalReservations}
               color="bg-yellow-100 text-yellow-600" 
             />
             <StatCard 
               title="Active Tickets" 
-              value={tickets.filter(t => t.isActive).length} 
+              value={stats.activeTicketsCount}
               color="bg-green-100 text-green-600" 
             />
             <StatCard 
               title="Total Spent" 
-              value={`$${reservations.reduce((sum, r) => sum + r.totalPrice, 0).toFixed(2)}`} 
+              value={`$${stats.totalSpent.toFixed(2)}`}
               color="bg-blue-100 text-blue-600" 
             />
           </div>
@@ -181,8 +156,6 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-// Helper komponenta za Stat kartice
-// FIX: Iskoristili smo 'color' prop (TS 6133)
 const StatCard = ({ title, value, color }: { title: string; value: string | number; color: string }) => (
   <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 flex items-center justify-between">
     <div>

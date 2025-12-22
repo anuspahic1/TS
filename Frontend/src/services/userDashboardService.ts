@@ -1,26 +1,22 @@
-// src/services/userDashboardService.ts
-const API_BASE_URL = 'http://localhost:5001/api';
 
-export type ReservationStatus = 'completed' | 'cancelled' | 'upcoming';
+const API_BASE_URL = 'https://localhost:5001/api';
 
 export interface IAppUser {
   id: string;
   fullName: string;
   email: string;
-  bankAccountNumber?: string;
 }
 
 export interface IReservation {
   id: string;
   userId: string;
   eventId: string;
-  createdAt: string;
   totalPrice: number;
-  eventName?: string;
-  eventDate?: string;
-  locationName?: string;
-  ticketsCount?: number;
-  status?: ReservationStatus;
+  createdAt: string;
+  eventName: string;
+  eventDate: string;
+  ticketsCount: number;
+  status: 'completed' | 'upcoming';
 }
 
 export interface ITicket {
@@ -31,158 +27,196 @@ export interface ITicket {
   seatNumber?: string;
   qrCode?: string;
   isReserved: boolean;
-  eventName?: string;
-  eventDate?: string;
+  eventName: string;
+  eventDate: string;
   isActive?: boolean;
 }
 
-export interface IEvent {
-  id: string;
-  name: string;
-  description?: string;
-  eventDate: string;
-  locationId: string;
-  minTicketPrice?: number;
-  createdAt: string;
-}
-
-// --- POMOĆNE FUNKCIJE ---
-
-export const getUserIdFromToken = (): string | null => {
-  // Ovde bi trebala ići prava logika dekodiranja JWT-a
-  return 'user123'; 
-};
-
-const determineStatus = (eventDate?: string): ReservationStatus => {
-  if (!eventDate) return 'completed';
-  try {
-    const date = new Date(eventDate);
-    const now = new Date();
-    return date < now ? 'completed' : 'upcoming';
-  } catch {
-    return 'completed';
-  }
-};
-
-// --- API POZIVI ---
-
-const getHeaders = () => ({
-  'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-  'Content-Type': 'application/json'
-});
-
-export const getAllUsers = async (): Promise<IAppUser[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/users`, { headers: getHeaders() });
-    return response.ok ? await response.json() : [];
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    return [];
-  }
-};
-
-export const getAllReservations = async (): Promise<IReservation[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/reservations`, { headers: getHeaders() });
-    return response.ok ? await response.json() : [];
-  } catch (error) {
-    console.error('Error fetching reservations:', error);
-    return [];
-  }
-};
-
-export const getAllTickets = async (): Promise<ITicket[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/tickets`, { headers: getHeaders() });
-    return response.ok ? await response.json() : [];
-  } catch (error) {
-    console.error('Error fetching tickets:', error);
-    return [];
-  }
-};
-
-export const getAllEvents = async (): Promise<IEvent[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/events`, { headers: getHeaders() });
-    return response.ok ? await response.json() : [];
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    return [];
-  }
-};
-
-// --- GLAVNA FUNKCIJA ZA DASHBOARD ---
-
-/**
- * Prikuplja sve podatke, filtrira ih za trenutnog korisnika 
- * i spaja (join) podatke iz različitih tabela/endpointa.
- */
 export const getUserDashboardData = async () => {
-  const userId = getUserIdFromToken();
-  if (!userId) throw new Error('User not authenticated');
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    console.warn('No token found, using mock data');
+    return getMockData();
+  }
 
-  // Paralelno uzimanje svih potrebnih sirovih podataka
-  const [allUsers, allReservations, allTickets, allEvents] = await Promise.all([
-    getAllUsers(),
-    getAllReservations(),
-    getAllTickets(),
-    getAllEvents()
-  ]);
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
 
-  // 1. Trenutni korisnik
-  const currentUser = allUsers.find(user => user.id === userId);
+  try {
+    const userId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    
+    console.log('Fetching dashboard data for user:', userId);
+    
+    const [userRes, reservationsRes, ticketsRes] = await Promise.all([
+      fetch(`${API_BASE_URL}/users/${userId}`, { headers }),
+      fetch(`${API_BASE_URL}/users/${userId}/reservations`, { headers }),
+      fetch(`${API_BASE_URL}/users/${userId}/tickets`, { headers })
+    ]);
 
-  // 2. Filtriranje i obogaćivanje rezervacija
-  const userReservations = allReservations
-    .filter(res => res.userId === userId)
-    .map(res => {
-      const event = allEvents.find(e => e.id === res.eventId);
+    if (userRes.status === 404) {
+      console.log('User not found, using mock data');
+      return getMockData();
+    }
+
+    if (!userRes.ok) throw new Error(`User fetch failed: ${userRes.status}`);
+    if (!reservationsRes.ok) throw new Error(`Reservations fetch failed: ${reservationsRes.status}`);
+    if (!ticketsRes.ok) throw new Error(`Tickets fetch failed: ${ticketsRes.status}`);
+
+    const user = await userRes.json();
+    const reservations = await reservationsRes.json();
+    const tickets = await ticketsRes.json();
+
+    console.log('API Tickets response:', tickets);
+    
+    
+    if (tickets.length > 0) {
+      const sampleTicket = tickets[0];
+      console.log('Sample ticket eventDate:', sampleTicket.eventDate);
+      console.log('Parsed date:', new Date(sampleTicket.eventDate));
+      console.log('Is valid date?', !isNaN(new Date(sampleTicket.eventDate).getTime()));
+      console.log('Current date:', new Date());
+      console.log('Is future?', new Date(sampleTicket.eventDate) > new Date());
+    }
+
+    
+    const processedTickets = tickets.map((ticket: ITicket) => {
+      const eventDate = new Date(ticket.eventDate);
+      const now = new Date();
+      const isActive = !isNaN(eventDate.getTime()) && eventDate > now;
+      
+      console.log(`Ticket ${ticket.id}: eventDate=${ticket.eventDate}, parsed=${eventDate}, isActive=${isActive}`);
+      
       return {
-        ...res,
-        eventName: event?.name || 'Unknown Event',
-        eventDate: event?.eventDate,
-        ticketsCount: allTickets.filter(t => t.reservationId === res.id).length,
-        status: determineStatus(event?.eventDate)
+        ...ticket,
+        isActive
       };
     });
 
-  // 3. Filtriranje i obogaćivanje karata (samo aktivne)
-  const userTickets = allTickets
-    .filter(ticket => {
-      const res = allReservations.find(r => r.id === ticket.reservationId);
-      return res?.userId === userId;
-    })
-    .map(ticket => {
-      const event = allEvents.find(e => e.id === ticket.eventId);
-      const isActive = event ? determineStatus(event.eventDate) === 'upcoming' : false;
-      return {
-        ...ticket,
-        eventName: event?.name,
-        eventDate: event?.eventDate,
-        isActive
-      };
-    })
-    .filter(t => t.isActive); // Prikazujemo samo one koje tek dolaze
+    
+    const activeTickets = processedTickets.filter((t: ITicket) => t.isActive);
+    
+    console.log('Total tickets:', tickets.length);
+    console.log('Active tickets:', activeTickets.length);
+ 
+    console.log('Active tickets IDs:', activeTickets.map((t: ITicket) => t.id));
 
+    return {
+      user,
+      reservations,
+      tickets: processedTickets,
+      stats: {
+        totalReservations: reservations.length,
+        activeTicketsCount: activeTickets.length,
+        totalSpent: reservations.reduce((sum: number, r: IReservation) => sum + r.totalPrice, 0)
+      }
+    };
+    
+  } catch (error: any) {
+    console.error('Dashboard API error:', error);
+    return getMockData();
+  }
+};
+
+
+const getMockData = () => {
+  const mockUser: IAppUser = {
+    id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    fullName: "Emin Džanko",
+    email: "emin@example.com"
+  };
+  
+  const mockReservations: IReservation[] = [
+    {
+      id: "res1",
+      userId: mockUser.id,
+      eventId: "event1",
+      totalPrice: 120.50,
+      createdAt: "2025-01-15T10:30:00Z",
+      eventName: "Concert Night",
+      eventDate: "2024-12-25T20:00:00Z",
+      ticketsCount: 2,
+      status: "upcoming"
+    },
+    {
+      id: "res2", 
+      userId: mockUser.id,
+      eventId: "event2",
+      totalPrice: 75.00,
+      createdAt: "2024-01-10T14:20:00Z",
+      eventName: "Theater Show",
+      eventDate: "2025-01-20T19:30:00Z",
+      ticketsCount: 1,
+      status: "completed"
+    }
+  ];
+  
+  const mockTickets: ITicket[] = [
+    {
+      id: "ticket1",
+      eventId: "event1",
+      price: 60.25,
+      seatNumber: "A12",
+      isReserved: true,
+      eventName: "Concert Night",
+      eventDate: "2025-12-25T20:00:00Z",
+      qrCode: "TICKET-12345-EMIN"
+    },
+    {
+      id: "ticket2",
+      eventId: "event1",
+      price: 60.25,
+      seatNumber: "A13",
+      isReserved: true,
+      eventName: "Concert Night", 
+      eventDate: "2025-12-25T20:00:00Z",
+      qrCode: "TICKET-67890-EMIN"
+    }
+  ];
+  
+  const processedTickets = mockTickets.map(ticket => ({
+    ...ticket,
+    isActive: new Date(ticket.eventDate) > new Date()
+  }));
+  
+  
+  const activeTicketsFromMock = processedTickets.filter((t: ITicket) => t.isActive);
+  
   return {
-    user: currentUser,
-    reservations: userReservations,
-    tickets: userTickets,
+    user: mockUser,
+    reservations: mockReservations,
+    tickets: processedTickets,
     stats: {
-      totalSpent: userReservations.reduce((sum, r) => sum + r.totalPrice, 0),
-      activeTicketsCount: userTickets.length,
-      totalReservations: userReservations.length
+      totalReservations: mockReservations.length,
+      activeTicketsCount: activeTicketsFromMock.length,
+      totalSpent: mockReservations.reduce((sum: number, r: IReservation) => sum + r.totalPrice, 0)
     }
   };
 };
 
 export const updateUserProfile = async (userId: string, userData: Partial<IAppUser>): Promise<IAppUser> => {
-  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-    method: 'PUT',
-    headers: getHeaders(),
-    body: JSON.stringify(userData)
-  });
+  const token = localStorage.getItem('authToken');
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(userData)
+    });
 
-  if (!response.ok) throw new Error('Failed to update profile');
-  return await response.json();
+    if (!response.ok) throw new Error('Failed to update profile');
+    return await response.json();
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return {
+      id: userId,
+      fullName: userData.fullName || "Updated User",
+      email: userData.email || "updated@example.com"
+    };
+  }
 };
