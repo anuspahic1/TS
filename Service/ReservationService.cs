@@ -115,7 +115,7 @@ namespace Service
                 Id = r.Id,
                 CreatedAt = r.CreatedAt,
                 TotalPrice = r.TotalPrice,
-                UserId = Guid.Parse(r.UserId),
+                UserId = r.UserId,
                 UserFullName = r.User?.FullName ?? "Unknown",
                 EventId = r.EventId,
                 EventName = r.Event?.Name ?? "Unknown Event",
