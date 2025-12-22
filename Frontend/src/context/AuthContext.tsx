@@ -23,20 +23,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
   const [user, setUser] = useState<any | null>(null);
 
-  const getUserFromToken = (t: string) => {
-    try {
-      const decoded: any = jwtDecode(t);
-      return {
-        name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-        email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-        roles: Array.isArray(decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) 
-               ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] 
-               : [decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]]
-      };
-    } catch {
-      return null;
-    }
-  };
+ const getUserFromToken = (t: string) => {
+  try {
+    const decoded: any = jwtDecode(t);
+    console.log("Sadržaj tokena:", decoded); 
+    return {
+      id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+      name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+      email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+      roles: Array.isArray(decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]) 
+              ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] 
+              : [decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]]
+    };
+  } catch {
+    return null;
+  }
+};
 
   useEffect(() => {
     if (token) {

@@ -17,6 +17,7 @@ async function request<T>(
   body?: unknown
 ): Promise<T> {
   const token = sessionStorage.getItem('accessToken');
+  //const token = localStorage.getItem('authToken'); 
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     method,

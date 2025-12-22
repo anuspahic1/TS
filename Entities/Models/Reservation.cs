@@ -12,7 +12,7 @@ public class Reservation
     public decimal TotalPrice { get; set; }
 
     [Required(ErrorMessage = "UserId is required.")]
-    public Guid UserId { get; set; }
+    public string UserId { get; set; }
     public AppUser? User { get; set; }
 
     [Required(ErrorMessage = "EventId is required.")]

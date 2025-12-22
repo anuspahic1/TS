@@ -198,22 +198,24 @@ namespace Service
         }
 
         private async Task<List<Claim>> GetClaims()
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, _user.UserName),
-                new Claim(ClaimTypes.Email, _user.Email),
-            };
+{
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, _user.UserName),
+        new Claim(ClaimTypes.Email, _user.Email),
+        // DODAJ OVU LINIJU ISPOD:
+        new Claim(ClaimTypes.NameIdentifier, _user.Id) 
+    };
 
-            var roles = await _userManager.GetRolesAsync(_user);
+    var roles = await _userManager.GetRolesAsync(_user);
 
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+    foreach (var role in roles)
+    {
+        claims.Add(new Claim(ClaimTypes.Role, role));
+    }
 
-            return claims;
-        }
+    return claims;
+}
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {
