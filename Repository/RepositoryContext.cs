@@ -21,7 +21,7 @@ namespace Repository
             modelBuilder.ApplyConfiguration(new ReservationConfiguration());
             modelBuilder.ApplyConfiguration(new RewardConfiguration());
             modelBuilder.ApplyConfiguration(new TicketConfiguration());
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
+           // modelBuilder.ApplyConfiguration(new RoleConfiguration());
         }
 
         public DbSet<AppUser>? AppUsers { get; set; }

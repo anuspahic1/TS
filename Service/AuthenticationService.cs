@@ -26,9 +26,9 @@ namespace Service
         private User? _user;
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private readonly UrlEncoder _urlEncoder;
+        private readonly IRepositoryManager _repository; 
 
-
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder, IRepositoryManager repository)
         {
             _logger = logger;
             _mapper = mapper;
@@ -36,27 +36,38 @@ namespace Service
             _configuration = configuration;
             _jwtConfiguration = _configuration.Get("JwtSettings");
             _urlEncoder = urlEncoder;
+            _repository = repository;
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
+{
+    var user = _mapper.Map<User>(userForRegistration);
+    var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+
+    if (result.Succeeded)
+    {
+        if (userForRegistration.Roles != null && userForRegistration.Roles.Any())
         {
-            var user = _mapper.Map<User>(userForRegistration);
-            var result = await _userManager.CreateAsync(user, userForRegistration.Password);
-
-            if (result.Succeeded)
-            {
-                if (userForRegistration.Roles != null && userForRegistration.Roles.Any())
-                {
-                    await _userManager.AddToRoleAsync(user, userForRegistration.Roles.First());
-                }
-                else
-                {
-                    await _userManager.AddToRoleAsync(user, "User");
-                }
-            }
-
-            return result;
+            await _userManager.AddToRoleAsync(user, userForRegistration.Roles.First());
         }
+        else
+        {
+            await _userManager.AddToRoleAsync(user, "User");
+        }
+
+        var appUser = new AppUser
+        {
+            Id = Guid.Parse(user.Id), 
+            FullName = $"{userForRegistration.FirstName} {userForRegistration.LastName}",
+            Email = user.Email
+        };
+
+        _repository.AppUser.CreateUser(appUser);
+        await _repository.SaveAsync(); 
+    }
+
+    return result;
+}
 
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
         {
@@ -198,24 +209,23 @@ namespace Service
         }
 
         private async Task<List<Claim>> GetClaims()
-{
-    var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, _user.UserName),
-        new Claim(ClaimTypes.Email, _user.Email),
-        // DODAJ OVU LINIJU ISPOD:
-        new Claim(ClaimTypes.NameIdentifier, _user.Id) 
-    };
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, _user.UserName),
+                new Claim(ClaimTypes.Email, _user.Email),
+                new Claim(ClaimTypes.NameIdentifier, _user.Id) 
+            };
 
-    var roles = await _userManager.GetRolesAsync(_user);
+            var roles = await _userManager.GetRolesAsync(_user);
 
-    foreach (var role in roles)
-    {
-        claims.Add(new Claim(ClaimTypes.Role, role));
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            return claims;
     }
-
-    return claims;
-}
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {

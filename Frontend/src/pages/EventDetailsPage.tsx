@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import Swal from 'sweetalert2'; // Dodaj ovaj import
 import { apiClient } from "../services/apiClient"; 
 import type { EventDto } from "../types/IEvent";
 import { useAuth } from '../context/AuthContext'; 
@@ -13,10 +14,9 @@ const EventDetailsPage: React.FC = () => {
   const [event, setEvent] = useState<EventDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const { token, user } = useAuth(); 
   const navigate = useNavigate();
   const routerLocation = useLocation(); 
-  const { token } = useAuth(); 
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -26,7 +26,6 @@ const EventDetailsPage: React.FC = () => {
         const data = await apiClient.get<EventDto>(`/locations/${locationId}/events/${eventId}`);
         setEvent(data);
       } catch (err: any) {
-        // Provjera da li je error objekt ili string
         const message = err.response?.data || err.message || "Failed to load event details.";
         setError(message);
       } finally {
@@ -36,13 +35,26 @@ const EventDetailsPage: React.FC = () => {
     fetchEventDetails();
   }, [locationId, eventId]);
 
-  const handleBooking = () => {
-    if (!token) {
-      navigate('/login', { state: { from: routerLocation.pathname } });
-    } else {
-      navigate(`/locations/${locationId}/events/${eventId}/reservation`);
-    }
-  };
+ const handleBooking = () => {
+  console.log("Dugme kliknuto. Trenutni user:", user); 
+  if (!token) {
+    navigate('/login', { state: { from: routerLocation.pathname } });
+    return;
+  }
+const isOrganizer = user?.roles?.includes('Organizer');
+  if (isOrganizer) {
+    Swal.fire({
+      title: 'Access Denied',
+      text: 'Organizers are not allowed to purchase tickets. Please use a User account.',
+      icon: 'warning',
+      confirmButtonColor: '#000000', 
+      confirmButtonText: 'Understood'
+    });
+    return;
+  }
+
+  navigate(`/locations/${locationId}/events/${eventId}/reservation`);
+};
 
   if (loading) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white">

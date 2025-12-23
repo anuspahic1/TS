@@ -48,26 +48,25 @@ namespace Service
         public async Task<ReservationDto> CreateReservationForEventAsync(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
         {
             await CheckIfLocationExists(locationId, trackChanges);
-
             await CheckIfEventExists(locationId, eventId, trackChanges);
 
             var reservationEntity = _mapper.Map<Reservation>(reservation);
+            
+            reservationEntity.EventId = eventId;
+            reservationEntity.CreatedAt = DateTime.UtcNow;
 
             if (reservationEntity.Tickets != null)
             {
                 foreach (var ticket in reservationEntity.Tickets)
                 {
                     ticket.EventId = eventId;
-                    ticket.Reservation = reservationEntity;
                 }
             }
 
             _repository.Reservation.CreateReservationForEvent(eventId, reservationEntity);
-            await _repository.SaveAsync();
+            await _repository.SaveAsync(); 
 
-            var reservationToReturn = _mapper.Map<ReservationDto>(reservationEntity);
-
-            return reservationToReturn;
+            return _mapper.Map<ReservationDto>(reservationEntity);
         }
 
         public async Task DeleteReservationForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)

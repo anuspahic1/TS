@@ -27,7 +27,7 @@ namespace Service
             _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger, mapper));
             _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger, mapper));
             _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger, mapper));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, urlEncoder));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, urlEncoder, repository));
         }
         public IAppUserService AppUserService
         {

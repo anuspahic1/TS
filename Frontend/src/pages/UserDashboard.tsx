@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; // Dodaj useLocation ovdje
 
 import { 
   getUserDashboardData, 
@@ -16,8 +16,11 @@ import DashboardSidebar from '../components/dashboard/DashboardSidebar';
 
 
 const UserDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>('reservations');
-  const [reservations, setReservations] = useState<IReservation[]>([]);
+  const navigate = useNavigate();
+  const location = useLocation(); // Inicijaliziraj useLocation
+const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>(
+    location.state?.activeTab || 'reservations'
+  );  const [reservations, setReservations] = useState<IReservation[]>([]);
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
   const [stats, setStats] = useState({
@@ -27,7 +30,6 @@ const UserDashboard: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
