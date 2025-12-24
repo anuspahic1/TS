@@ -16,7 +16,11 @@ namespace EntrioX
 
             CreateMap<Event, EventDto>()
                 .ForMember(dest => dest.LocationName,
-                    opt => opt.MapFrom(src => src.Location != null ? src.Location.Name : ""));
+                    opt => opt.MapFrom(src => src.Location != null ? src.Location.Name : ""))
+                .ForMember(dest => dest.Capacity,
+                    opt => opt.MapFrom(src => src.Capacity));
+
+            // Map CreatorId automatically from Event -> EventDto
 
             CreateMap<Ticket, TicketDto>()
                 .ForMember(dest => dest.EventName,
@@ -38,7 +42,9 @@ namespace EntrioX
                 .ForMember(dest => dest.UserFullName,
                     opt => opt.MapFrom(src => src.User != null ? src.User.FullName : ""));
 
-            CreateMap<EventForCreationDto, Event>();
+            CreateMap<EventForCreationDto, Event>()
+                .ForMember(dest => dest.Capacity,
+                    opt => opt.MapFrom(src => src.Capacity));
 
             CreateMap<LocationForCreationDto, Location>();
 
@@ -56,7 +62,11 @@ namespace EntrioX
             CreateMap<LocationForUpdateDto, Location>().ReverseMap();
             CreateMap<RewardForUpdateDto, Reward>();
             CreateMap<RewardForUpdateDto, Reward>().ReverseMap();
-            CreateMap<EventForUpdateDto, Event>().ForMember(dest => dest.LocationId, opt => opt.Ignore());
+            CreateMap<EventForUpdateDto, Event>()
+                .ForMember(dest => dest.LocationId, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatorId, opt => opt.Ignore())
+                .ForMember(dest => dest.Capacity,
+                    opt => opt.MapFrom(src => src.Capacity));
             CreateMap<EventForUpdateDto, Event>().ReverseMap();
             CreateMap<TicketForUpdateDto, Ticket>();
             CreateMap<TicketForUpdateDto, Ticket>().ReverseMap();

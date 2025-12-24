@@ -46,7 +46,7 @@ namespace EntrioX
 
         private static void FormatCsv(StringBuilder buffer, EventDto e)
         {
-            buffer.AppendLine($"{e.Id},\"{e.Name}\",\"{e.LocationName}\"");
+            buffer.AppendLine($"{e.Id},\"{e.Name}\",\"{e.LocationName}\",{e.CreatorId},{e.Capacity}");
         }
     }
 

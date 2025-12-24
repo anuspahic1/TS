@@ -6,4 +6,6 @@ export interface EventDto {
     minTicketPrice: number;
     eventDate: string;
     locationName: string;
+    creatorId: string;
+    capacity: number;
 }
