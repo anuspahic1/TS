@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,11 @@ using Repository;
 namespace EntrioX.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20251224201326_AddCreatorAndCapacity")]
+    partial class AddCreatorAndCapacity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,9 +46,6 @@ namespace EntrioX.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
-                    b.Property<int>("LoyaltyPoints")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers");
@@ -56,15 +56,13 @@ namespace EntrioX.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             BankAccountNumber = "BA392004000012345678",
                             Email = "emin@example.com",
-                            FullName = "Emin Džanko",
-                            LoyaltyPoints = 0
+                            FullName = "Emin Džanko"
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Email = "john.smith@example.com",
-                            FullName = "John Smith",
-                            LoyaltyPoints = 0
+                            FullName = "John Smith"
                         });
                 });
 

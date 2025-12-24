@@ -22,4 +22,7 @@ public class Event
     public Location? Location { get; set; }
 
     public ICollection<Ticket>? Tickets { get; set; }
+    public Guid CreatorId { get; set; }
+    public int Capacity { get; set; }
+
 }
