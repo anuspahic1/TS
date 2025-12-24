@@ -14,6 +14,7 @@ import UserDashboard from './pages/UserDashboard';
 import OrganizerDashboard from './pages/OrganizerDashboard';
 import ReservationPage from './pages/ReservationPage';
 import CheckoutPage from './pages/CheckoutPage';
+import RewardsPage from './pages/RewardsPage';
 
 import Enable2FAPage from './pages/Enable2FA/Enable2FAPage';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -41,7 +42,7 @@ export default function App() {
             
             <Route element={<ProtectedRoute allowedRoles={["User"]} />}>
               <Route path="/user-dashboard" element={<UserDashboard />} />
-              <Route path='/rewards' element={<div>Rewards Page</div>} />
+              <Route path="/rewards" element={<RewardsPage />} />
               <Route path="/locations/:locationId/events/:eventId/reservation" element={<ReservationPage />} />
               <Route path="/locations/:locationId/events/:eventId/checkout" element={<CheckoutPage />} />
             </Route>

@@ -1,9 +1,7 @@
-// src/pages/UserDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-// Uvozi servis i tipove
 import { 
   getUserDashboardData, 
   type IAppUser, 
@@ -11,7 +9,7 @@ import {
   type ITicket 
 } from '../services/userDashboardService'; 
 
-// Uvozi komponente
+
 import ReservationHistory from '../components/dashboard/ReservationHistory';
 import ActiveTickets from '../components/dashboard/ActiveTickets';
 import UserProfile from '../components/dashboard/UserProfile';
@@ -22,12 +20,11 @@ const UserDashboard: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  // State za navigaciju kroz tabove
   const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>(
     location.state?.activeTab || 'reservations'
   );
 
-  // State za podatke
+
   const [reservations, setReservations] = useState<IReservation[]>([]);
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
@@ -37,11 +34,9 @@ const UserDashboard: React.FC = () => {
     totalSpent: 0
   });
 
-  // State za UI (loading i error)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Funkcija za dobavljanje podataka sa API-ja
   const fetchData = async () => {
   try {
     setLoading(true);
@@ -51,31 +46,27 @@ const UserDashboard: React.FC = () => {
     
     if (data) {
       const allTickets = data.tickets || [];
-      
-      // LOGIKA FILTRIRANJA: Brojimo samo karte čiji je datum u budućnosti ili danas
+
       const activeTicketsOnly = allTickets.filter(ticket => {
         const eventDate = new Date(ticket.eventDate);
         const today = new Date();
-        
-        // Postavljamo "danas" na početak dana (00:00) radi preciznijeg poređenja
+
         today.setHours(0, 0, 0, 0);
         
         return eventDate >= today;
       });
 
       setReservations(data.reservations || []);
-      setTickets(allTickets); // Čuvamo sve karte za prikaz u listi (ili ih isto filtrirajte ako želite)
+      setTickets(allTickets); 
       setUserProfile(data.user || null);
 
       setStats({
         totalReservations: data.stats?.totalReservations || (data.reservations?.length || 0),
-        // Ovdje sada koristimo filtrirani niz za broj aktivnih karata
         activeTicketsCount: activeTicketsOnly.length, 
         totalSpent: data.stats?.totalSpent || 0
       });
     }
   } catch (err: any) {
-    // ... error handling ostaje isti
   } finally {
     setLoading(false);
   }
@@ -84,12 +75,11 @@ const UserDashboard: React.FC = () => {
     fetchData();
   }, [navigate]);
 
-  // Funkcija koju prosljeđujemo UserProfile komponenti da ažurira Dashboard bez refresha
   const handleUpdateProfile = (updatedUser: IAppUser) => {
     setUserProfile(updatedUser);
   };
 
-  // Loader ekran
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
@@ -101,18 +91,14 @@ const UserDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row p-4 lg:p-8 gap-8">
-      {/* Sidebar - Meni */}
       <DashboardSidebar 
         activeTab={activeTab} 
         onTabChange={setActiveTab} 
         displayName={userProfile?.username || userProfile?.firstName || user?.email?.split('@')[0]}
-        // onDeleteAccount je uklonjen
       />
 
-      {/* Glavni Sadržaj */}
       <div className="flex-1 space-y-8">
         
-        {/* Prikaz greške ako postoji */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl">
             <p className="text-red-700 font-medium">{error}</p>
@@ -120,12 +106,11 @@ const UserDashboard: React.FC = () => {
               onClick={fetchData} 
               className="mt-2 text-sm text-red-600 underline hover:text-red-800"
             >
-              Pokušaj ponovo
+              Try again
             </button>
           </div>
         )}
 
-        {/* Tabovi - Dinamički prikaz */}
         <div className="transition-all duration-300">
           {activeTab === 'reservations' && (
             <ReservationHistory reservations={reservations} />
@@ -149,7 +134,6 @@ const UserDashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Stats Kartice - Prikazuju se ispod sadržaja taba */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard 
             title="Total Reservations" 
@@ -172,7 +156,6 @@ const UserDashboard: React.FC = () => {
   );
 };
 
-// Pomoćna komponenta za statistiku
 const StatCard = ({ title, value, color }: { title: string; value: string | number; color: string }) => (
   <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 flex items-center justify-between hover:shadow-xl transition-shadow">
     <div>

@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { apiClient } from '../services/apiClient';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
+
 
 const CheckoutPage: React.FC = () => {
   const { state } = useLocation();
   const { locationId, eventId } = useParams<{ locationId: string; eventId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth(); 
+  const [usePoints, setUsePoints] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [profile, setProfile] = useState<any>(null);
 
   const { selectedTickets, event, totalPrice } = state || { 
     selectedTickets: [], 
     event: null, 
     totalPrice: 0 
   };
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const response = await apiClient.get(`/users/${user.id}`);
+          setProfile(response); 
+        } catch (err) {
+          console.error("Could not fetch user profile", err);
+        }
+      }
+    };
+    fetchUserProfile();
+  }, [user?.id]);
 
   const handleConfirmReservation = async () => {
     if (!user?.id) {
@@ -34,6 +52,7 @@ const CheckoutPage: React.FC = () => {
     const reservationData = {
       userId: user.id, 
       totalPrice: totalPrice, 
+      useLoyaltyPoints: usePoints,
       tickets: selectedTickets.map((t: any) => ({
         price: t.price, 
         seatNumber: t.seatNumber
@@ -164,22 +183,43 @@ const CheckoutPage: React.FC = () => {
               </label>
             </div>
 
+            <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-2xl mb-6 border border-yellow-200">
+            <input 
+              type="checkbox" 
+              id="loyalty"
+              checked={usePoints}
+              disabled={!profile || profile.loyaltyPoints < 10}
+              onChange={(e) => setUsePoints(e.target.checked)}
+              className={`w-5 h-5 accent-yellow-600 ${(!profile || profile.loyaltyPoints < 10) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          />
+            <label htmlFor="loyalty" className="text-sm font-bold text-neutral-800 cursor-pointer">
+            Use 10 Loyalty Points for 10% discount 
+            <span className="block text-[10px] text-neutral-500 font-normal">
+                (Current balance: {profile?.loyaltyPoints || 0} pts)
+            </span>
+</label>
+        </div>
+
             <button
-              onClick={handleConfirmReservation}
-              disabled={isSubmitting}
-              className={`w-full py-7 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-2xl transition-all transform active:scale-95 mb-8 ${
-                isSubmitting 
-                ? "bg-neutral-200 text-neutral-400 cursor-not-allowed scale-95" 
-                : "bg-neutral-900 text-white hover:bg-black shadow-neutral-900/40"
-              }`}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center justify-center gap-3">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span>Processing...</span>
-                </div>
-              ) : "Complete Purchase"}
-            </button>
+            onClick={handleConfirmReservation}
+            disabled={isSubmitting}
+            className={`w-full py-7 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-2xl transition-all transform active:scale-95 mb-8 ${
+              isSubmitting 
+              ? "bg-neutral-200 text-neutral-400 cursor-not-allowed scale-95" 
+              : "bg-neutral-900 text-white hover:bg-black shadow-neutral-900/40"
+            }`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-3">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Processing...</span>
+              </div>
+            ) : (
+              usePoints 
+                ? `Pay ${(totalPrice * 0.9).toFixed(2)} USD` 
+                : "Complete Purchase"
+            )}
+          </button>
             
             <div className="flex items-center justify-center gap-3 opacity-40 grayscale">
               <div className="h-px w-10 bg-neutral-300"></div>

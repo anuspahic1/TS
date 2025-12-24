@@ -1,8 +1,7 @@
-// src/services/userDashboardService.ts
+
 import { apiClient } from './apiClient';
 import { jwtDecode } from 'jwt-decode';
 
-// --- INTERFEJSI (ostaju isti) ---
 export interface IAppUser {
   id: string;
   firstName?: string; 
@@ -10,6 +9,7 @@ export interface IAppUser {
   fullName?: string;
   email: string;
   username?: string;
+  loyaltyPoints: number;
 }
 
 export interface IReservation {
@@ -43,7 +43,6 @@ export interface IDashboardResponse {
   };
 }
 
-// --- FUNKCIJE ---
 
 export const getUserDashboardData = async (): Promise<IDashboardResponse> => {
   const token = localStorage.getItem('accessToken');
@@ -58,7 +57,6 @@ export const getUserDashboardData = async (): Promise<IDashboardResponse> => {
 
     if (!userId) throw new Error('The user ID is not valid');
 
-    // Koristimo apiClient koji već dodaje Authorization header
     return await apiClient.get<IDashboardResponse>(`/users/${userId}/dashboard`);
   } catch (err: any) {
     console.error("Dashboard Service Error:", err);
@@ -67,7 +65,6 @@ export const getUserDashboardData = async (): Promise<IDashboardResponse> => {
 };
 
 export const updateUserProfile = async (userId: string, userData: any): Promise<IAppUser> => {
-  // Promijenili smo tip sa Partial<IAppUser> na 'any' da dopustimo PascalCase za backend
   const updatedUser = await apiClient.put<IAppUser>(`/users/${userId}`, userData);
   return updatedUser;
 };

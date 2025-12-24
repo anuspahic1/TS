@@ -1,4 +1,3 @@
-// src/components/dashboard/DashboardSidebar.tsx
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,7 +10,6 @@ interface DashboardSidebarProps {
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, onTabChange }) => {
   const { user } = useAuth();
 
-  // Logika za prikaz imena (uzima dio prije @ u emailu)
   const displayName = user?.email ? user.email.split('@')[0] : 'User';
 
   const tabs = [
@@ -23,7 +21,6 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, onTabCha
   return (
     <div className="lg:w-64">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden sticky top-8">
-        {/* MODIFIKOVAN HEADER: Uklonjen "Welcome back" tekst */}
         <div className="p-6 bg-yellow-500 text-white text-center">
         <p className="text-lg font-bold truncate">
           {displayName}'s Dashboard

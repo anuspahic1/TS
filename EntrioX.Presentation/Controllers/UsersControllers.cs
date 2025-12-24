@@ -114,7 +114,6 @@ namespace EntrioX.Presentation.Controllers
                 if (userId != currentUserId && !isAdmin)
                     return Forbid();
 
-                // Izvršavaj upite sekvencijalno (jedan po jedan)
                 var user = await _service.AppUserService.GetUserAsync(userId, trackChanges: false);
                 var reservations = await _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
                 var tickets = await _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);

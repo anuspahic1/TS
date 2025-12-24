@@ -12,7 +12,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Inicijalizacija forme sa svim poljima (uključujući firstName i lastName)
   const [formData, setFormData] = useState({
     firstName: profile?.firstName || '',
     lastName: profile?.lastName || '',
@@ -20,7 +19,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
     username: profile?.username || ''
   });
 
-  // Sinhronizacija: Ako se profile promjeni, osvježi formu
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -43,20 +41,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
     setError(null);
 
     try {
-      // FIX ZA 422 GREŠKU: Dodajemo FullName jer ga backend zahtijeva
       const dataToSave = {
         FirstName: formData.firstName,
         LastName: formData.lastName,
-        FullName: `${formData.firstName} ${formData.lastName}`.trim(), // <--- KLJUČNO
+        FullName: `${formData.firstName} ${formData.lastName}`.trim(),
         UserName: formData.email,
         Email: formData.email
       };
 
-      console.log("Šaljem na backend:", dataToSave);
-
       await updateUserProfile(profile.id, dataToSave);
 
-      // Ažuriramo lokalni UI sa novim podacima
       onUpdateProfile({
         ...profile,
         firstName: formData.firstName,
@@ -65,11 +59,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
       });
 
       setIsEditing(false);
-      alert("Profil uspješno ažuriran!");
     } catch (err: any) {
-      // Prikazujemo tačnu poruku greške sa backenda
       setError(err.message);
-      console.error("Validation Error:", err);
     } finally {
       setLoading(false);
     }
@@ -77,7 +68,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-      {/* Header */}
       <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
@@ -108,7 +98,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
         {isEditing ? (
           <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* First Name Input */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">First Name</label>
                 <input
@@ -120,8 +109,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
                 />
               </div>
-
-              {/* Last Name Input */}
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">Last Name</label>
                 <input
@@ -133,8 +120,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
                 />
               </div>
-
-              {/* Email (Read-only) */}
               <div className="space-y-2 md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700">Email Address</label>
                 <input
@@ -146,7 +131,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                 />
               </div>
             </div>
-
             <div className="flex gap-4 pt-4 border-t border-gray-100">
               <button
                 type="submit"
@@ -160,8 +144,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
             </div>
           </form>
         ) : (
-          <div className="max-w-3xl space-y-10">
-            {/* Pregled informacija */}
+          <div className="space-y-8">
             <section>
               <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,18 +152,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
                 </svg>
                 Personal Details
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gray-50 p-4 rounded-xl">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</p>
-                  <p className="text-gray-900 font-medium mt-1">
+                  <p className="text-gray-900 font-semibold mt-1">
                     {profile?.fullName || (profile?.firstName ? `${profile.firstName} ${profile.lastName}` : "Not provided")}
                   </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-xl">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                   <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</p>
-                  <p className="text-gray-900 font-medium mt-1">{profile?.email}</p>
+                  <p className="text-gray-900 font-semibold mt-1">{profile?.email}</p>
                 </div>
               </div>
+
+              
             </section>
           </div>
         )}

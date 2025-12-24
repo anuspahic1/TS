@@ -158,7 +158,7 @@ const ReservationPage: React.FC = () => {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-yellow-500/80">Total Price</p>
                 <p className="text-2xl font-black text-yellow-500">
-                  {totalPrice.toFixed(2)} <span className="text-xs uppercase ml-1">KM</span>
+                  {totalPrice.toFixed(2)} <span className="text-xs uppercase ml-1">USD</span>
                 </p>
               </div>
             </div>

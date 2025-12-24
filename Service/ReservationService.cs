@@ -50,10 +50,29 @@ namespace Service
             await CheckIfLocationExists(locationId, trackChanges);
             await CheckIfEventExists(locationId, eventId, trackChanges);
 
+            var user = await _repository.AppUser.GetUserAsync(reservation.UserId, trackChanges: true) 
+               ?? throw new UserNotFoundException(reservation.UserId);
+            
             var reservationEntity = _mapper.Map<Reservation>(reservation);
+    
             
             reservationEntity.EventId = eventId;
             reservationEntity.CreatedAt = DateTime.UtcNow;
+
+            if (reservation.UseLoyaltyPoints && user.LoyaltyPoints >= 10)
+                {
+                    // Primijeni 10% popusta na ukupnu cijenu
+                    reservationEntity.TotalPrice = reservationEntity.TotalPrice * 0.9m;
+                    
+                    // Oduzmi 10 "potrošenih" poena
+                    user.LoyaltyPoints -= 10;
+                }
+
+                // Dodaj poene za trenutnu kupovinu (svaka karta = 1 poen)
+                if (reservation.Tickets != null)
+                {
+                    user.LoyaltyPoints += reservation.Tickets.Count();
+                }
 
             if (reservationEntity.Tickets != null)
             {
