@@ -35,7 +35,7 @@ namespace Service
             _userManager = userManager;
             _configuration = configuration;
             //_jwtConfiguration = _configuration.Get("JwtSettings");
-            _jwtConfiguration = _configuration.Value;
+            _jwtConfiguration = _configuration.Value; //ilma
             _urlEncoder = urlEncoder;
             _repository = repository;
         }

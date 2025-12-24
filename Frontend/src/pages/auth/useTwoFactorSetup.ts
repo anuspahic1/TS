@@ -56,7 +56,7 @@ export const useTwoFactorSetup = () => {
     try {
       setLoading(true);
 
-      await authService.postTfaSetup(verificationCode, 'dzaferovici@gmail.com'); 
+      await authService.postTfaSetup(verificationCode, 'dzaferoviciilma@gmail.com'); 
       alert("2FA successfully enabled! Please login again.");
 
       navigate('/login', { state: location.state }); 

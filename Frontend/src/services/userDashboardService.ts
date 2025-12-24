@@ -45,7 +45,7 @@ export interface IDashboardResponse {
 
 
 export const getUserDashboardData = async (): Promise<IDashboardResponse> => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem('authToken');
 
   if (!token) {
     throw new Error('Session timed out. Please log in again.');
