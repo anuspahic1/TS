@@ -105,36 +105,35 @@ namespace EntrioX.Presentation.Controllers
         }
         
         [HttpGet("{userId}/dashboard")]
-        [Authorize]
-        public async Task<IActionResult> GetUserDashboard(Guid userId)
-        {
-            var currentUserId = GetCurrentUserId();
-            var isAdmin = User.IsInRole("Administrator");
-            
-            if (userId != currentUserId && !isAdmin)
-                return Forbid();
-            
-            var userTask = _service.AppUserService.GetUserAsync(userId, trackChanges: false);
-            var reservationsTask = _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
-            var ticketsTask = _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
-            
-            await Task.WhenAll(userTask, reservationsTask, ticketsTask);
-            
-            var dashboardData = new
+            [Authorize]
+            public async Task<IActionResult> GetUserDashboard(Guid userId)
             {
-                User = await userTask,
-                Reservations = await reservationsTask,
-                Tickets = await ticketsTask,
-                Stats = new
+                var currentUserId = GetCurrentUserId();
+                var isAdmin = User.IsInRole("Administrator");
+                
+                if (userId != currentUserId && !isAdmin)
+                    return Forbid();
+
+                // Izvršavaj upite sekvencijalno (jedan po jedan)
+                var user = await _service.AppUserService.GetUserAsync(userId, trackChanges: false);
+                var reservations = await _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
+                var tickets = await _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
+                
+                var dashboardData = new
                 {
-                    TotalReservations = (await reservationsTask).Count(),
-                    ActiveTickets = (await ticketsTask).Count(t => t.EventDate > DateTime.UtcNow),
-                    TotalSpent = (await reservationsTask).Sum(r => r.TotalPrice)
-                }
-            };
-            
-            return Ok(dashboardData);
-        }
+                    User = user,
+                    Reservations = reservations,
+                    Tickets = tickets,
+                    Stats = new
+                    {
+                        TotalReservations = reservations.Count(),
+                        ActiveTickets = tickets.Count(t => t.EventDate > DateTime.UtcNow),
+                        TotalSpent = reservations.Sum(r => r.TotalPrice)
+                    }
+                };
+                
+                return Ok(dashboardData);
+            }
         
         private Guid GetCurrentUserId()
         {

@@ -10,6 +10,9 @@ public record AppUserForUpdateDto
     [EmailAddress(ErrorMessage = "Invalid email format.")]
     [MaxLength(100)]
     public string Email { get; init; }
+    public string? FirstName { get; init; }
+    public string? LastName { get; init; }
+    public string? UserName { get; init; }
 
     [MaxLength(30, ErrorMessage = "Bank account number max length is 30.")]
     public string? BankAccountNumber { get; init; }

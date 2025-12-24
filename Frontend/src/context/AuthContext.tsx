@@ -20,7 +20,7 @@ type LoginResult = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
+  const [token, setToken] = useState<string | null>(localStorage.getItem("accessToken"));
   const [user, setUser] = useState<any | null>(null);
 
  const getUserFromToken = (t: string) => {
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   const updateToken = (newToken: string) => {
-  localStorage.setItem("authToken", newToken);
+  localStorage.setItem("accessToken", newToken);
   setToken(newToken);
   const userData = getUserFromToken(newToken);
   setUser(userData);

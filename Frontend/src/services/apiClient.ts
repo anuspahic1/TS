@@ -7,6 +7,12 @@ export const apiClient = {
   async post<T>(url: string, body?: unknown): Promise<T> {
     return request<T>(url, 'POST', body);
   },
+  async put<T>(url: string, body?: unknown): Promise<T> {
+    return request<T>(url, 'PUT', body);
+  },
+  async delete<T>(url: string): Promise<T> {
+    return request<T>(url, 'DELETE');
+  }
 };
 
 let isRefreshing = false;
@@ -16,7 +22,7 @@ async function request<T>(
   method: string,
   body?: unknown
 ): Promise<T> {
-  const token = sessionStorage.getItem('accessToken');
+  const token = localStorage.getItem('accessToken');
   //const token = localStorage.getItem('authToken'); 
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
@@ -56,6 +62,10 @@ if (response.status === 401 && !isRefreshing && !url.includes('/authentication/l
 
 if (!response.ok) {
   let errorMessage = "An error occurred";
+
+  if (response.status === 204) {
+  return {} as T;
+}
   
   try {
     const text = await response.text();
