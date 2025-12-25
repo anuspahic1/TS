@@ -65,23 +65,22 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
             location: "",
         },
     })
-
-    const onSubmit = (data: EventFormData) => {
-        onCreateEvent({
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            date: data.date,
-            eventSeatCapacity: Number(data.eventSeatCapacity),
-            location: data.location,
-        })
-        reset()
-    }
+   const onSubmit = (data: EventFormData) => {
+    onCreateEvent({
+        name: data.name,
+        description: data.description,
+        minTicketPrice: Number(data.price), 
+        eventDate: data.date,               
+        capacity: Number(data.eventSeatCapacity), 
+        locationId: data.location          
+    });
+    reset();
+    onOpenChange(false);
+}
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border-none shadow-2xl">
-                {/* Accent line at the top of the modal */}
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-500 via-black to-yellow-500" />
                 
                 <DialogHeader className="pt-4">

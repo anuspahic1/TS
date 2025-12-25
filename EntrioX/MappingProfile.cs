@@ -71,7 +71,6 @@ namespace EntrioX
             CreateMap<TicketForUpdateDto, Ticket>();
             CreateMap<TicketForUpdateDto, Ticket>().ReverseMap();
             CreateMap<UserForRegistrationDto, User>();
-            
 
         }
     }

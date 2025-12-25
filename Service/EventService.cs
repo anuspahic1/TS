@@ -43,23 +43,44 @@ namespace Service
         }
 
         public async Task<EventDto> CreateEventForLocationAsync(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges)
+{
+    const int MAX_CAPACITY = 100;
+
+    await CheckIfLocationExists(locationId, trackChanges);
+
+    if (eventForCreation.EventDate < DateTime.Now)
+        throw new Exception("Event date cannot be in the past.");
+
+    if (eventForCreation.Capacity > MAX_CAPACITY)
+        throw new Exception($"Capacity exceeds maximum limit of {MAX_CAPACITY}.");
+
+    var eventEntity = _mapper.Map<Event>(eventForCreation);
+
+    _repository.Event.CreateEventForLocation(locationId, eventEntity);
+    await _repository.SaveAsync();
+
+    int seatsPerRow = eventEntity.Capacity <= 100 ? 10 : 20;
+    
+    for (int i = 0; i < eventEntity.Capacity; i++)
+    {
+        char rowLetter = (char)('A' + (i / seatsPerRow));
+        int seatNumInRow = (i % seatsPerRow) + 1;
+
+        var ticket = new Ticket
         {
-            await CheckIfLocationExists(locationId, trackChanges);
+            EventId = eventEntity.Id,
+            SeatNumber = $"{rowLetter}{seatNumInRow}",
+            Price = eventEntity.MinTicketPrice, 
+            IsReserved = false
+        };
 
-            if (eventForCreation.EventDate < DateTime.Now)
-            {
-                throw new Exception("Event date cannot be in the past.");
-            }
+        _repository.Ticket.CreateTicketForEvent(eventEntity.Id, ticket);
+    }
 
-            var eventEntity = _mapper.Map<Event>(eventForCreation);
+    await _repository.SaveAsync();
 
-            _repository.Event.CreateEventForLocation(locationId, eventEntity);
-            await _repository.SaveAsync();
-
-            var eventToReturn = _mapper.Map<EventDto>(eventEntity);
-
-            return eventToReturn;
-        }
+    return _mapper.Map<EventDto>(eventEntity);
+}
 
         public async Task DeleteEventForLocationAsync(Guid locationId, Guid id, bool trackChanges)
         {
