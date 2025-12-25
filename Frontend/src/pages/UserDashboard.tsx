@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-import { 
-  getUserDashboardData, 
-  type IAppUser, 
-  type IReservation, 
-  type ITicket 
-} from '../services/userDashboardService'; 
+import {
+  getUserDashboardData,
+  type IAppUser,
+  type IReservation,
+  type ITicket
+} from '../services/userDashboardService';
 
 
 import ReservationHistory from '../components/dashboard/ReservationHistory';
@@ -20,12 +20,12 @@ const UserDashboard: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>(
+    const [activeTab, setActiveTab] = useState<'reservations' | 'tickets' | 'profile'>(
     location.state?.activeTab || 'reservations'
   );
 
 
-  const [reservations, setReservations] = useState<IReservation[]>([]);
+ const [reservations, setReservations] = useState<IReservation[]>([]);
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
   const [stats, setStats] = useState({
@@ -135,20 +135,20 @@ const UserDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StatCard 
-            title="Total Reservations" 
+          <StatCard
+            title="Total Reservations"
             value={stats.totalReservations}
-            color="bg-yellow-100 text-yellow-600" 
+            color="bg-yellow-100 text-yellow-600"
           />
-          <StatCard 
-            title="Active Tickets" 
+          <StatCard
+            title="Active Tickets"
             value={stats.activeTicketsCount}
-            color="bg-green-100 text-green-600" 
+            color="bg-green-100 text-green-600"
           />
-          <StatCard 
-            title="Total Spent" 
+          <StatCard
+            title="Total Spent"
             value={`$${stats.totalSpent.toFixed(2)}`}
-            color="bg-blue-100 text-blue-600" 
+            color="bg-blue-100 text-blue-600"
           />
         </div>
       </div>

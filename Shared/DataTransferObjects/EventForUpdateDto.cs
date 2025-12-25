@@ -13,8 +13,10 @@ namespace Shared.DataTransferObjects
 
         public Guid? LocationId { get; init; }
 
-        // CreatorId should not be changed via updates in most cases; keep optional and ignored by mapping.
-        public Guid? CreatorId { get; init; }
         public int Capacity { get; init; }
+        [Range(0, double.MaxValue, ErrorMessage = "Min ticket price must be >= 0.")]
+        public decimal MinTicketPrice { get; init; }
+        [Required(ErrorMessage = "Event date is required.")]
+        public DateTime EventDate { get; init; }
     }
 }

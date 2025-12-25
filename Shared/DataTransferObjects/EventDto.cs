@@ -10,6 +10,7 @@
         public decimal MinTicketPrice { get; set; }
         public DateTime EventDate { get; set; }
         public string LocationName { get; init; }
+        public Guid LocationId { get; init; }
         public int Capacity { get; init; }
     }
 }

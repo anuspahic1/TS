@@ -2,8 +2,8 @@ import React from 'react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-neutral-950 text-white py-16 px-6 mt-auto">
-      <div className="container mx-auto max-w-7xl">
+    <footer className="bg-neutral-950 text-white py-16 px-6 mt-auto relative left-1/2 -translate-x-1/2 w-screen">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center border-b border-white/10 pb-12 mb-12">
           <div className="text-center md:text-left">
             <span className="text-2xl font-black tracking-tighter uppercase italic">

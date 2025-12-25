@@ -113,5 +113,13 @@ namespace Service
 
             await _repository.SaveAsync();
         }
+        public async Task<IEnumerable<EventDto>> GetEventsForUserAsync(Guid userId, bool trackChanges)
+        {
+            var eventsFromDb = await _repository.Event.GetEventsForUserAsync(userId, trackChanges);
+
+            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsFromDb);
+
+            return eventsDto;
+        }
     }
 }

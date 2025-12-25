@@ -20,6 +20,7 @@ namespace Shared.DataTransferObjects
         // The Id of the user who created the event. If authentication is added,
         // this should be set from the authenticated user instead of the client payload.
         public Guid CreatorId { get; init; }
+        public Guid LocationId { get; init; }
 
         public IEnumerable<ReservationForCreationDto>? Reservations { get; init; }
         public IEnumerable<TicketForCreationDto>? Tickets { get; init; }

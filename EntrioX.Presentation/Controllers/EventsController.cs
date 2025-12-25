@@ -23,6 +23,7 @@ namespace EntrioX.Presentation.Controllers
             var events = await _service.EventService.GetEventsAsync(locationId, eventParameters, trackChanges: false);
             return Ok(events);
         }
+        
 
         [HttpGet("{id:guid}", Name = "GetEventForLocation")]
         public async Task<IActionResult> GetEventForLocation(Guid locationId, Guid id)

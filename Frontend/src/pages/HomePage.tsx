@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../services/apiClient"; 
+import { apiClient } from "../services/apiClient";
 import type { EventDto } from "../types/IEvent";
 import type { ILocation } from "../types/ILocation";
 import Header from "../components/layout/Header";
@@ -64,8 +64,8 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans">
       <Header />
-      
-      <HeroSection 
+
+      <HeroSection
         locations={locations}
         selectedLocationId={selectedLocationId}
         selectedLocationName={selectedLocationName}
@@ -93,8 +93,8 @@ const HomePage: React.FC = () => {
         ) : error ? (
           <div className="text-center py-20 bg-red-50 rounded-3xl border border-red-100">
             <p className="text-red-500 font-bold mb-4">{error}</p>
-            <button 
-              onClick={fetchEvents} 
+            <button
+              onClick={fetchEvents}
               className="px-8 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors"
             >
               Try Again
@@ -109,9 +109,9 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {events.map((event) => (
               <div key={event.id} className="hover:scale-[1.02] transition-transform duration-300">
-                <EventCard 
-                  event={event} 
-                  onDetailClick={() => handleEventClick(event.id)} 
+                <EventCard
+                  event={event}
+                  onDetailClick={() => handleEventClick(event.id)}
                 />
               </div>
             ))}

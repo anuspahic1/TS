@@ -6,8 +6,8 @@ import Swal from 'sweetalert2';
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
-    formattedKey: string;      
-    authenticatorKey: string;  
+    formattedKey: string;
+    authenticatorKey: string;
   } | null>(null);
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -17,7 +17,7 @@ export const useTwoFactorSetup = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   useEffect(() => {
     const loadSetup = async () => {
       try {
@@ -66,7 +66,7 @@ export const useTwoFactorSetup = () => {
       confirmButtonText: 'Back to Login'
     });
 
-      navigate('/login', { state: location.state }); 
+      navigate('/login', { state: location.state });
 
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');

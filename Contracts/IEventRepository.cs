@@ -8,5 +8,6 @@ namespace Contracts
         void CreateEventForLocation(Guid locationId, Event ev);
         void DeleteEvent(Event ev);
         Task<int> GetTotalEventsCountAsync(bool trackChanges);
+        Task<IEnumerable<Event>> GetEventsForUserAsync(Guid userId, bool trackChanges);
     }
 }
