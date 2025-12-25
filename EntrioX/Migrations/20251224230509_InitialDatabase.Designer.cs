@@ -12,8 +12,8 @@ using Repository;
 namespace EntrioX.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20251224201326_AddCreatorAndCapacity")]
-    partial class AddCreatorAndCapacity
+    [Migration("20251224230509_InitialDatabase")]
+    partial class InitialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,9 @@ namespace EntrioX.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<int>("LoyaltyPoints")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers");
@@ -56,13 +59,16 @@ namespace EntrioX.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             BankAccountNumber = "BA392004000012345678",
                             Email = "emin@example.com",
-                            FullName = "Emin Džanko"
+                            FullName = "Emin Džanko",
+                            LoyaltyPoints = 0
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            BankAccountNumber = "BA312004000012345679",
                             Email = "john.smith@example.com",
-                            FullName = "John Smith"
+                            FullName = "John Smith",
+                            LoyaltyPoints = 0
                         });
                 });
 
@@ -93,24 +99,6 @@ namespace EntrioX.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Rewards");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Description = "Early supporter reward",
-                            GrantedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/rewards/supporter.png",
-                            UserId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Description = "Top buyer of the month",
-                            GrantedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/rewards/topbuyer.png",
-                            UserId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>
@@ -190,6 +178,27 @@ namespace EntrioX.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "b74ddd14-6340-4840-95c2-db12554843e5",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "b326e934-4c4f-4eb8-94f5-077fc9a8e347",
+                            Email = "admin@entriox.com",
+                            EmailConfirmed = true,
+                            FirstName = "System",
+                            LastName = "Administrator",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@ENTRIOX.COM",
+                            NormalizedUserName = "ADMIN@ENTRIOX.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDheYJgeoNrEwfIX/KjDXWAb+ykCEyqI67aqMRGsNJX30rIYR0CIUu+en+ExMMOPdg==",
+                            PhoneNumberConfirmed = false,
+                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            SecurityStamp = "c5c3c0b1-d856-48bc-b48a-a685de17b0e4",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@entriox.com"
+                        });
                 });
 
             modelBuilder.Entity("Event", b =>
@@ -242,7 +251,7 @@ namespace EntrioX.Migrations
                             Description = "A night of indie rock excellence in the heart of Sarajevo.",
                             EventDate = new DateTime(2026, 6, 15, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             LocationId = new Guid("f1000000-0000-0000-0000-000000000001"),
-                            MinTicketPrice = 0m,
+                            MinTicketPrice = 55.00m,
                             Name = "Arctic Monkeys World Tour"
                         },
                         new
@@ -254,7 +263,7 @@ namespace EntrioX.Migrations
                             Description = "Join the biggest regional gathering of IT experts and innovators.",
                             EventDate = new DateTime(2026, 9, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             LocationId = new Guid("f2000000-0000-0000-0000-000000000002"),
-                            MinTicketPrice = 0m,
+                            MinTicketPrice = 25.50m,
                             Name = "Tech Conference 2026"
                         },
                         new
@@ -266,7 +275,7 @@ namespace EntrioX.Migrations
                             Description = "A classic festive performance by the Sarajevo Philharmonic Orchestra.",
                             EventDate = new DateTime(2026, 12, 24, 19, 30, 0, 0, DateTimeKind.Unspecified),
                             LocationId = new Guid("f3000000-0000-0000-0000-000000000003"),
-                            MinTicketPrice = 0m,
+                            MinTicketPrice = 30.00m,
                             Name = "The Nutcracker Ballet"
                         });
                 });
@@ -349,6 +358,26 @@ namespace EntrioX.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "11363362-56e9-438f-85a4-dc5483dcfe30",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = "720daf31-ee16-4555-ab3c-dda08c8c5fb9",
+                            Name = "Organizer",
+                            NormalizedName = "ORGANIZER"
+                        },
+                        new
+                        {
+                            Id = "9ee7f699-298b-4614-9783-addcbff01e6b",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -436,6 +465,13 @@ namespace EntrioX.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "b74ddd14-6340-4840-95c2-db12554843e5",
+                            RoleId = "11363362-56e9-438f-85a4-dc5483dcfe30"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -484,16 +520,6 @@ namespace EntrioX.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reservations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("d1000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
-                            TotalPrice = 50.00m,
-                            UserId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        });
                 });
 
             modelBuilder.Entity("Ticket", b =>
@@ -535,7 +561,7 @@ namespace EntrioX.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af16de97-711a-4a7c-bb64-36f6f6b12680"),
+                            Id = new Guid("c9ed9866-ed01-45d5-9f4c-6f0895fa8c32"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -543,7 +569,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bb216c13-b378-4012-9b4e-10fb2f2e1440"),
+                            Id = new Guid("17697116-1531-442c-ab0a-bb4ef9d7d4ad"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -551,7 +577,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("793534aa-a722-4b5f-a268-9447fa71e2e1"),
+                            Id = new Guid("0e8d8266-1c36-4a16-a0a2-63d41c005efc"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -559,7 +585,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("8fb7f081-6358-4faa-8c2a-dc5ac72314b2"),
+                            Id = new Guid("4d863a8e-109c-4e28-8863-c0ce8772d915"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -567,7 +593,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("10749759-a0f9-4135-aa40-d315099aad8d"),
+                            Id = new Guid("4c4f68ca-bb6a-440c-acf6-bae1c3a11bf9"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -575,7 +601,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2a11bbe2-3c78-414c-88d0-55fcaaf19af5"),
+                            Id = new Guid("14cad51c-ffa2-4016-a4fd-8b3c302b065a"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -583,7 +609,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("10ed45db-24ad-4a0f-9a67-b70e900d117e"),
+                            Id = new Guid("98f0c2cc-0432-4400-a5e3-0a0549e3380d"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -591,7 +617,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9e6f9ac2-b01a-4a50-afc2-09ba64771cf2"),
+                            Id = new Guid("aea451e9-a917-40c4-8ba1-e704f109e034"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -599,7 +625,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4afc339d-fa3b-4731-ad11-e8fcd320f172"),
+                            Id = new Guid("e4f0aadc-5df7-49aa-805d-1a2d7b23a7df"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -607,7 +633,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ea9a7ed1-390f-4f59-ad16-0d1b9d804438"),
+                            Id = new Guid("ba58ba1c-e46a-47fa-9d08-1773ecdfd967"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -615,7 +641,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0ed98450-0014-427c-953d-2d3b4b1faeb4"),
+                            Id = new Guid("e9f8b455-fc7b-4834-8e2c-2fdda872d238"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -623,7 +649,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("37c5fb53-8b83-4f3b-9fe5-850d33df5acb"),
+                            Id = new Guid("16658565-fd20-4062-9951-f2fac5eb19f4"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -631,7 +657,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("003ae424-9927-4661-be95-929a67f6f10a"),
+                            Id = new Guid("f47b1e44-ee4f-487d-be86-f0b7c3b77fda"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -639,7 +665,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ed63baab-f252-4ada-8c44-dc136bbe0f94"),
+                            Id = new Guid("70c635e0-15d7-4aae-86ee-784a9a36f8f2"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -647,7 +673,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f3a26f6f-3452-4464-82b6-b8b6d96ba25c"),
+                            Id = new Guid("d8ab084a-8ce4-4bc6-8d3e-56b788d26ea0"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -655,7 +681,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0cef4d27-1dad-46d1-a516-1471db4ed7ed"),
+                            Id = new Guid("8099725e-1c49-4c60-962c-37623eefac3f"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -663,7 +689,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4d7b2420-89a2-43b5-95bd-971059688839"),
+                            Id = new Guid("0d74cb19-fd26-4ade-a59a-8ef2cf7f7193"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -671,7 +697,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ed68812d-8fb0-45b0-9871-1b8d5ab02dc1"),
+                            Id = new Guid("c710936c-53cb-4bb1-9aad-e05e8746ba0d"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -679,7 +705,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a8647615-d589-446a-a98d-a92fa9c46d4e"),
+                            Id = new Guid("a7bd7f08-dfdb-427d-b0ef-fc7955a5ad0a"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -687,7 +713,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c78af718-ca28-45dd-a8db-b39c1041d908"),
+                            Id = new Guid("679ef8bc-06ba-4598-a8d6-4db64d6d1673"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -695,7 +721,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("cc0876a3-e379-4ed1-b05f-32917ec47ead"),
+                            Id = new Guid("2e18d142-9bcd-430a-8c6d-bb89c569a8f6"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -703,7 +729,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("12405edb-6d6c-49c9-b503-c9b62de79c3c"),
+                            Id = new Guid("9cba2b40-bd39-47ac-ab34-1db61e8db999"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -711,7 +737,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a1341ac7-d2ae-458c-9263-af97d317222f"),
+                            Id = new Guid("3ee65155-9f0e-4ef9-b31f-d91f65d78fb6"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -719,7 +745,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("63f5c55a-4be4-4ba6-bc46-cbfca5002bd6"),
+                            Id = new Guid("67006265-ece8-4162-963e-1642d31e84ff"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -727,7 +753,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("1141c161-3d82-4807-af68-2bff93251815"),
+                            Id = new Guid("f13537b1-de15-4a7e-94c1-abda909c4c1a"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -735,7 +761,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("402e852b-c918-4bd7-8394-dd1be3098086"),
+                            Id = new Guid("4d13b0cc-4d78-4359-ba39-8fbb5cc6fdc2"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -743,7 +769,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ce9bfcda-1e31-4919-b44a-75237d13cef9"),
+                            Id = new Guid("3ea2fa39-6e0d-4b6b-bb54-f6a14fffa43f"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -751,7 +777,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d373d582-ff09-4510-a1db-e70f5c368d0f"),
+                            Id = new Guid("a6127a1a-c5b3-453d-bc87-e09342ef9ac9"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -759,7 +785,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("927ccf22-a583-4694-ad6e-9a7781cb66fc"),
+                            Id = new Guid("442fa437-087d-46b4-a1ea-6fee330d7e49"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -767,7 +793,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9c11cce7-3f02-407c-a667-60415fec96e2"),
+                            Id = new Guid("9db97fa9-d87d-42d3-b187-8e592566a7e4"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
                             IsReserved = false,
                             Price = 55.00m,
@@ -775,7 +801,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("dbede25a-5bce-4759-ab65-82e135ceac99"),
+                            Id = new Guid("498d2399-3974-45d7-bd34-538d06a3bb90"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -783,7 +809,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("99b15123-62a0-4422-810c-d6e32d25d4cb"),
+                            Id = new Guid("47cebf12-2b0c-4117-bed6-35911bdcb90c"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -791,7 +817,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("d52bedae-6b08-4043-8420-585ac06500f3"),
+                            Id = new Guid("b8baf332-2b9d-4f11-ae6a-ca9f8a22d7c3"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -799,7 +825,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("16141baf-e5cf-473f-b44e-23eda8960ab0"),
+                            Id = new Guid("0fb487da-a88c-4825-a814-c660c87ed7a5"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -807,7 +833,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("dd6ba341-d3ab-4287-b379-1f1dbbe4c9bd"),
+                            Id = new Guid("a49c95a0-872d-4fdf-9a5d-f5c262beabeb"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -815,7 +841,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("b19e58ba-1cbc-4a6c-b737-5eac308b40f2"),
+                            Id = new Guid("4daa23fb-ad16-4c2b-8063-8c41f86fdc45"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -823,7 +849,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f6e02eb8-d181-4c2f-80c7-5f9260e8f219"),
+                            Id = new Guid("529602eb-e958-4170-b4b9-6482d0c15be3"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -831,7 +857,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2c264e8e-2036-4d0f-af1d-0c3f0113de46"),
+                            Id = new Guid("c82dade8-d47d-486a-b665-a61226f0cd7b"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -839,7 +865,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("87325c11-f7f3-49cf-94db-f06f4d873bf9"),
+                            Id = new Guid("ace3f070-c7fa-4a40-8668-adf925b05b24"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -847,7 +873,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9074351b-a8ac-4c40-bd6f-ec92003c2e5d"),
+                            Id = new Guid("2878e936-ca6b-4523-94c9-75b6d52e0b73"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -855,7 +881,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a3861c2b-826c-4bda-8b4f-4ea1331ddd6c"),
+                            Id = new Guid("679d4637-b8f8-4d45-ae42-1ba733fa5f70"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -863,7 +889,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("17b20926-eac9-47c7-9493-43d2f2596b81"),
+                            Id = new Guid("42a9867d-30ed-45ac-8bf0-07a3f86d6640"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -871,7 +897,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("88ef4547-5197-4d51-b552-23c551148b5c"),
+                            Id = new Guid("85e418b6-b1e5-4a32-9c6b-c1b9a83d2a71"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -879,7 +905,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("a6a18020-91d9-460b-b99a-d6e4035c997d"),
+                            Id = new Guid("9f579cfb-9d44-405b-87c7-21394400c767"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -887,7 +913,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4c2d01d7-cf9d-4987-b64a-56f447cdd96c"),
+                            Id = new Guid("ddf62be9-914e-4a0f-9505-b2f613f50bfd"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -895,7 +921,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e42511af-4fe8-424f-98c5-3639dc1bb05e"),
+                            Id = new Guid("ebbfb5fe-6b8c-434f-94a0-8531f2f6905a"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -903,7 +929,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7384f4e2-265b-4052-8764-a62fc1be8e4b"),
+                            Id = new Guid("dee3d191-5481-40b4-ad76-73cdfa095c6d"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -911,7 +937,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5b455ce6-3fee-4346-9135-4f26b707c4d6"),
+                            Id = new Guid("4bde3763-6530-4c7b-9e29-1701f4d518ca"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -919,7 +945,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9a2250ca-571d-4680-9aaa-1b3627be5cdc"),
+                            Id = new Guid("adb5da2b-1653-4c73-b859-a37d37c5cec9"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -927,7 +953,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("56381e11-45ad-4cbf-bd62-04bbecf58894"),
+                            Id = new Guid("31a7e58c-874b-4643-8e49-8227e9427d7a"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -935,7 +961,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2395d1f5-5f26-4c56-93f2-250a70d31e81"),
+                            Id = new Guid("23472e69-45c5-4356-a088-87108b42057c"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -943,7 +969,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9acd0d4e-8f20-4db2-be18-9c85c4416189"),
+                            Id = new Guid("feca4e4c-ab74-4f71-8c77-cfb8613ab8ac"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -951,7 +977,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7326a9e9-9daf-4420-bd36-2dfe0093ea1a"),
+                            Id = new Guid("52fe4be3-9c45-4522-9d7b-4da75340f18d"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -959,7 +985,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("423fb7a6-dbf0-4ccc-a599-eebd85842890"),
+                            Id = new Guid("b53d52de-8691-4329-b7cf-a1d015b31c8c"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -967,7 +993,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4e4a7020-a66e-4b0d-942d-4ce081fa55b6"),
+                            Id = new Guid("ce814e94-ab63-463d-a606-6f071a8dcb9d"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -975,7 +1001,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("b8c99849-387c-4495-8033-19a17ba563be"),
+                            Id = new Guid("0eadf084-cd88-4aa1-a57d-769bab6f815f"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -983,7 +1009,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("77e1d8bc-8b3a-45bf-8629-0be24af713b7"),
+                            Id = new Guid("2e768318-a944-48bf-b5a2-95e329590146"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -991,7 +1017,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("2467ad39-470c-4f7d-b02c-d75e2ba64de4"),
+                            Id = new Guid("7c19dad1-8f86-46fe-a96d-9c144601baec"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -999,7 +1025,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9f4ef672-f7ef-45bc-b368-4d7625793ff9"),
+                            Id = new Guid("7c085bda-5067-4c39-b9f5-029356184254"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1007,7 +1033,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7029fe56-3691-487d-a612-db7f8050dc33"),
+                            Id = new Guid("da38bcaa-16a4-49db-ac32-01b4cddda775"),
                             EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1015,7 +1041,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e6189d3d-28d9-4776-abd1-f56c730ea5d8"),
+                            Id = new Guid("5849d9d3-78d8-4d26-991d-e0d862934820"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1023,7 +1049,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("86d7b8c8-15b3-4150-a63f-ba88fbfc2398"),
+                            Id = new Guid("fe7ef0cc-e6b9-415c-95bc-8ffece272eb0"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1031,7 +1057,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7c9c8578-dca2-4cad-93e9-cb8eeb536399"),
+                            Id = new Guid("fb3ca82f-048a-4139-8759-de6c836931a0"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1039,7 +1065,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6b7023b5-9cb6-4de0-8681-564566ab70c2"),
+                            Id = new Guid("6f60a5e1-d2d9-4e2c-8def-4cd6316a5039"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1047,7 +1073,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("373534b7-5c5c-4cfb-a093-f74c61ca8194"),
+                            Id = new Guid("5fd4d675-7481-4021-a54c-c5120558b865"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1055,7 +1081,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("1ab55653-ef27-4dc5-971a-df420f13eef5"),
+                            Id = new Guid("e1ddd0d8-be0f-45ff-94eb-ca284ac9ada5"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1063,7 +1089,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0749bc3a-86c0-4756-a145-c48970a3f629"),
+                            Id = new Guid("964c59a5-e090-410a-b018-68a5f6946c6a"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1071,7 +1097,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("77d3dd2b-fee8-4aaf-a6da-2858e8fe7ad8"),
+                            Id = new Guid("e1397a0d-9f07-4a68-9f3d-4725361efce4"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1079,7 +1105,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5d7ea9b5-41c1-4e5f-8770-d13aa2f4577a"),
+                            Id = new Guid("1691de6a-85ae-408b-9d74-9e3bfb3f8986"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1087,7 +1113,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("afc9f5d4-752d-4412-902e-e8f577b92357"),
+                            Id = new Guid("3ed71b7e-a70c-4ed5-92c0-9e8abef1ba59"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1095,7 +1121,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0074c134-e219-4135-a4cb-1224a437084f"),
+                            Id = new Guid("defb9731-b867-4533-bea9-5ddb23ce36dd"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1103,7 +1129,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("96e838ce-1866-4d2d-b625-b3916a59cfba"),
+                            Id = new Guid("ef145492-f8da-428c-ad50-77db65d46571"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1111,7 +1137,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("eabecfe4-388d-4c79-9539-eee2871cf615"),
+                            Id = new Guid("9093a81f-83db-4b4b-8c2a-036e42e28573"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1119,7 +1145,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0b6caa6b-4c43-4ad0-9966-557920a983d9"),
+                            Id = new Guid("0488044a-3f77-4e72-beaa-79082354b8cb"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1127,7 +1153,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("579ef141-45a8-4d7b-8a98-feccf69fee3b"),
+                            Id = new Guid("8de29e7f-665c-424a-ab8d-25858862969e"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1135,7 +1161,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9139b7f4-0d50-4ea6-8bcf-3c6e1e2e18b7"),
+                            Id = new Guid("b8e81f3d-d47c-476d-9e63-90ffa742ef2a"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1143,7 +1169,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e01f4a14-e1e5-4d08-9f8c-d66df449cfd5"),
+                            Id = new Guid("b7066848-fb34-4cc8-aee3-54656ff23a38"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1151,7 +1177,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("80dc8746-c93b-4329-a043-2dc3a6884590"),
+                            Id = new Guid("5c7aabea-d063-4955-a33d-35b67aa44e2f"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1159,7 +1185,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("8532c985-fdc6-40a7-88de-988aa26cfb70"),
+                            Id = new Guid("e06fd6a9-caa4-47a3-8c9c-1c0577078337"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1167,7 +1193,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c34046fa-6c78-40e1-b752-37a32805638d"),
+                            Id = new Guid("f0712d97-05b9-4921-85f6-7f218c049f58"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1175,7 +1201,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("83fad28b-3585-43b9-bfd3-c83c065b93e8"),
+                            Id = new Guid("e1130ff6-335e-4fdc-bae6-9d4d4f2d8b51"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1183,7 +1209,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("26e7abf2-1169-4195-9e66-0d1bff76054a"),
+                            Id = new Guid("ca5de8c3-8485-444f-8af9-a5001ea06f46"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1191,7 +1217,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("25a40867-4210-47e5-8884-0f1e3deefcec"),
+                            Id = new Guid("77a09b32-8181-411e-ab6b-62a50758be7a"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1199,7 +1225,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("447ff861-0229-4664-aa6c-a51a3c8b78dc"),
+                            Id = new Guid("d7211352-f20e-47f2-8942-3e02603d3c84"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1207,7 +1233,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("afa08559-03fc-412a-a654-6108487e4ed4"),
+                            Id = new Guid("eff246cc-f9f4-4fa8-a80f-0a4c63e1ff8b"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1215,7 +1241,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e88a2a3e-a8af-4751-873d-8ba67b942bfc"),
+                            Id = new Guid("7ea58541-00b4-4ed0-9170-c27d922df865"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1223,7 +1249,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ef8389f2-4d2a-4193-be12-bb5022912631"),
+                            Id = new Guid("b5c4e261-a747-482c-88b3-334bf8c17108"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1231,7 +1257,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("761b776b-fe78-43ac-a726-5343ced4a57e"),
+                            Id = new Guid("330eb0ef-a92f-4974-8878-e86dddb801e3"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1239,7 +1265,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("81915b7c-2111-48d7-a1ab-fb59170d8ddc"),
+                            Id = new Guid("abc3c23e-f26e-47c2-98ce-aa53cf55e06e"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,
@@ -1247,7 +1273,7 @@ namespace EntrioX.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f09a66c3-d153-4e0a-9db3-dd4a5e7c8fc2"),
+                            Id = new Guid("c6e63764-8358-4c13-adb8-412b1e8d6fd1"),
                             EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
                             IsReserved = false,
                             Price = 25.50m,

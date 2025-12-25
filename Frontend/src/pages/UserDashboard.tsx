@@ -84,7 +84,7 @@ const UserDashboard: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <div className="w-12 h-12 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600 font-medium">Učitavanje vašeg Dashboard-a...</p>
+        <p className="text-gray-600 font-medium">Loading your Dashboard...</p>
       </div>
     );
   }
@@ -128,7 +128,7 @@ const UserDashboard: React.FC = () => {
               />
             ) : (
               <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-500">
-                Podaci o profilu nisu dostupni.
+                Profile data not available.
               </div>
             )
           )}

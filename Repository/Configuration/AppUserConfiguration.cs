@@ -20,7 +20,7 @@ namespace Repository.Configuration
                     Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                     FullName = "John Smith",
                     Email = "john.smith@example.com",
-                    BankAccountNumber = null
+                    BankAccountNumber = "BA312004000012345679"
                 }
             );
         }

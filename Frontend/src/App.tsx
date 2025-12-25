@@ -1,7 +1,7 @@
 import './styles/index.css';
 import './App.css';
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import AuthLayout from './layouts/AuthLayout';
 import AppLayout from './layouts/AppLayout';
@@ -21,6 +21,9 @@ import ProtectedRoute from './routes/ProtectedRoute';
 
 import HomePage from './pages/HomePage';
 import EventDetailsPage from './pages/EventDetailsPage';
+
+import AdminDashboard from './pages/AdminDashboard'; 
+import AdminUserManagement from './pages/AdminUserManagement';
 
 export default function App() {
   return (
@@ -49,6 +52,12 @@ export default function App() {
 
             <Route element={<ProtectedRoute allowedRoles={["Organizer"]} />}>
               <Route path="/organizer-dashboard" element={<OrganizerDashboard />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUserManagement />} />
+              <Route path="/admin/events" element={<div>Admin Event Management</div>} />
             </Route>
           </Route>
         </Route>

@@ -38,12 +38,14 @@ export const useTwoStepVerification = () => {
       const from = location.state?.from; 
 
       if (from) {
-        navigate(from, { replace: true });
-      } else if (roles.includes('Organizer')) {
-        navigate('/organizer-dashboard');
-      } else {
-        navigate('/user-dashboard');
-      }
+      navigate(from, { replace: true });
+    } else if (roles.includes('Administrator')) { 
+      navigate('/admin-dashboard', { replace: true });
+    } else if (roles.includes('Organizer')) {
+      navigate('/organizer-dashboard', { replace: true });
+    } else {
+      navigate('/user-dashboard', { replace: true });
+    }
     } catch (err: any) {
       setError(err.message || 'Invalid verification code.');
     } finally {

@@ -6,9 +6,17 @@ const Header = () => {
   const { token, logout, user } = useAuth();
   const location = useLocation();
 
-  const dashboardLink = user?.roles?.includes('Organizer') 
-    ? '/organizer-dashboard' 
+  const dashboardLink = user?.roles?.includes('Administrator')
+    ? '/admin-dashboard'
+    : user?.roles?.includes('Organizer')
+    ? '/organizer-dashboard'
     : '/user-dashboard';
+
+  const roleLabel = user?.roles?.includes('Administrator')
+    ? 'System Admin'
+    : user?.roles?.includes('Organizer')
+    ? 'Organizer'
+    : 'Welcome back';
 
   const displayName = user?.email ? user.email.split('@')[0] : 'User';
 
@@ -26,7 +34,7 @@ const Header = () => {
           {token && (
             <div className="hidden lg:block border-l border-neutral-200 pl-8">
               <p className="text-[10px] text-neutral-400 uppercase font-black tracking-[0.2em] leading-none mb-1">
-                Welcome back
+                {roleLabel}
               </p>
               <p className="text-sm font-black text-neutral-800 tracking-tight leading-none">
                 {displayName}
@@ -56,7 +64,7 @@ const Header = () => {
                 Dashboard
               </Link>
               
-              {!user?.roles?.includes('Organizer') && (
+              {user?.roles?.includes('User') && !user?.roles?.includes('Administrator') && !user?.roles?.includes('Organizer') && (
                 <Link 
                   to='/rewards' 
                   className={`text-xs font-bold uppercase tracking-[0.15em] transition-all hover:scale-105 ${

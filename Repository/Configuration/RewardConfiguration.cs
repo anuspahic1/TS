@@ -8,7 +8,7 @@ namespace Repository.Configuration
     {
         public void Configure(EntityTypeBuilder<Reward> builder)
         {
-            builder.HasData(
+           /* builder.HasData(
                 new Reward
                 {
                     Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
@@ -25,7 +25,7 @@ namespace Repository.Configuration
                     ImageUrl = "/images/rewards/topbuyer.png",
                     GrantedAt = new DateTime(2026, 1, 1)
                 }
-            );
+            );*/
         }
     }
 }

@@ -20,7 +20,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetUsers([FromQuery] UserParameters userParameters)
         {
             var users = await _service.AppUserService.GetAllUsersAsync(userParameters, trackChanges: false);
@@ -59,6 +59,17 @@ namespace EntrioX.Presentation.Controllers
             await _service.AppUserService.UpdateUserAsync(id, user, trackChanges: true);
             return NoContent();
         }
+
+        [HttpPost("{id:guid}/roles")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] string roleName)
+        {
+            await _service.AppUserService.UpdateUserRoleAsync(id, roleName);
+            
+            return NoContent();
+        }
+
+
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> PartiallyUpdateUser(Guid id, [FromBody] JsonPatchDocument
             <AppUserForUpdateDto> patchDoc)

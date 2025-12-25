@@ -14,5 +14,7 @@ namespace Service.Contracts
         GetUserForPatchAsync(Guid userId, bool trackChanges);
 
         Task SaveChangesForPatchAsync(AppUserForUpdateDto userToPatch, Guid userId, bool trackChanges);
+        Task UpdateUserRoleAsync(Guid userId, string roleName);
+
     }
 }

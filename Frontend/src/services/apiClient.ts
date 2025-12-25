@@ -50,13 +50,13 @@ if (response.status === 401 && !isRefreshing && !url.includes('/authentication/l
     isRefreshing = false;
 
     if (!refreshResponse.ok) {
-      sessionStorage.removeItem('accessToken');
+      localStorage.removeItem('accessToken');
       window.location.href = '/login';
       throw new Error('Session expired');
     }
 
     const { accessToken } = await refreshResponse.json();
-    sessionStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('accessToken', accessToken);
 
     return request<T>(url, method, body);
 }

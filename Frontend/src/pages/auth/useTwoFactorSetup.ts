@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import Swal from 'sweetalert2';
 
 
 export const useTwoFactorSetup = () => {
@@ -56,8 +57,14 @@ export const useTwoFactorSetup = () => {
     try {
       setLoading(true);
 
-      await authService.postTfaSetup(verificationCode, 'dzaferoviciilma@gmail.com'); 
-      alert("2FA successfully enabled! Please login again.");
+      await authService.postTfaSetup(verificationCode, 'admin@entriox.com'); 
+      await Swal.fire({
+      title: '2FA Activated!',
+      text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
+      icon: 'success',
+      confirmButtonColor: '#EAB308',
+      confirmButtonText: 'Back to Login'
+    });
 
       navigate('/login', { state: location.state }); 
 

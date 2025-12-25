@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import Swal from 'sweetalert2'; 
 
 
 type SignupFormState = {
@@ -80,7 +81,19 @@ const submit = async () => {
 
     try {
       await authService.signup(payload);
-      navigate('/login');
+      
+      Swal.fire({
+        title: 'Success!',
+        text: 'Successfully signed up. Please login and complete the verification process.',
+        icon: 'success',
+        confirmButtonColor: '#EAB308', 
+        confirmButtonText: 'Go to Login',
+        allowOutsideClick: false 
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login');
+        }
+      });
     } catch (err: any) {
       setError(err.message || 'Signup failed.');
     } finally {

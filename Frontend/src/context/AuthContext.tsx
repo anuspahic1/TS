@@ -19,14 +19,9 @@ type LoginResult = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
-  const [user, setUser] = useState<any | null>(null);
-
- const getUserFromToken = (t: string) => {
+const getUserFromToken = (t: string) => {
   try {
     const decoded: any = jwtDecode(t);
-    console.log("Sadržaj tokena:", decoded); 
     return {
       id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
       name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
@@ -40,6 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 };
 
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
+  
+  const [user, setUser] = useState<any | null>(() => {
+    const t = localStorage.getItem("authToken");
+    return t ? getUserFromToken(t) : null;
+  });
+
   useEffect(() => {
     if (token) {
       const userData = getUserFromToken(token);
@@ -48,15 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   const updateToken = (newToken: string) => {
-  localStorage.setItem("authToken", newToken);
-  setToken(newToken);
-  const userData = getUserFromToken(newToken);
-  setUser(userData);
-};
+    localStorage.setItem("authToken", newToken);
+    setToken(newToken);
+    const userData = getUserFromToken(newToken);
+    setUser(userData);
+  };
 
   const login = async (data: any): Promise<LoginResult> => {
     const res = await authService.login(data);
-
     if (!res.twoFactorEnabled && res.hasAuthenticatorKey) {
       updateToken(res.accessToken);
     } 

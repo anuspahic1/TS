@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Dodaj ovaj import
+import Swal from 'sweetalert2'; 
 import { apiClient } from "../services/apiClient"; 
 import type { EventDto } from "../types/IEvent";
 import { useAuth } from '../context/AuthContext'; 
@@ -42,10 +42,12 @@ const EventDetailsPage: React.FC = () => {
     return;
   }
 const isOrganizer = user?.roles?.includes('Organizer');
-  if (isOrganizer) {
+    const isAdmin = user?.roles?.includes('Administrator');
+
+    if (isOrganizer || isAdmin) {
     Swal.fire({
       title: 'Access Denied',
-      text: 'Organizers are not allowed to purchase tickets. Please use a User account.',
+      text: 'You are not allowed to purchase tickets. Please use a Customer account.',
       icon: 'warning',
       confirmButtonColor: '#000000', 
       confirmButtonText: 'Understood'
