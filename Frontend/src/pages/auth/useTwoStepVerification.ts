@@ -47,11 +47,37 @@ export const useTwoStepVerification = () => {
       navigate('/user-dashboard', { replace: true });
     }
     } catch (err: any) {
-      setError(err.message || 'Invalid verification code.');
-    } finally {
-      setLoading(false);
+  console.error('TFA verification error:', err);
+  
+  // Provjerite da li je greška sa statusom
+  if (err.isApiError) {
+    if (err.status === 400) {
+      setError("Invalid verification code. Please try again.");
+    } 
+    else if (err.status === 401) {
+      setError("Authentication failed. Please try again.");
     }
-  };
+    else if (err.status === 0 || err.status === undefined) {
+      setError("Network error. Please check your connection.");
+    }
+    else {
+      setError(err.message || "An error occurred. Please try again later.");
+    }
+  } 
+  else {
+    // Regular JavaScript error
+    if (err.message.includes("Network") || err.message.includes("Failed to fetch")) {
+      setError("Network error. Please check your connection.");
+    } else {
+      setError(err.message || "An unexpected error occurred.");
+    }
+  }
+
+  setCode('');
+} finally {
+    setLoading(false);
+  }
+};
 
   const reset = () => {
     setCode('');

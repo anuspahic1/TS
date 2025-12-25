@@ -8,10 +8,6 @@ interface DashboardSidebarProps {
 }
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, onTabChange }) => {
-  const { user } = useAuth();
-
-  const displayName = user?.email ? user.email.split('@')[0] : 'User';
-
   const tabs = [
     { id: 'reservations', label: 'My Reservations', icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' },
     { id: 'tickets', label: 'Active Tickets', icon: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z' },
@@ -21,11 +17,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, onTabCha
   return (
     <div className="lg:w-64">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden sticky top-8">
-        <div className="p-6 bg-yellow-500 text-white text-center">
-        <p className="text-lg font-bold truncate">
-          {displayName}'s Dashboard
-        </p>
-      </div>
+        <div className="p-6 bg-neutral-900 text-white">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-yellow-500 mb-1">
+            USER
+          </p>
+          <p className="text-xl font-bold italic tracking-tight">
+            DASHBOARD
+          </p>
+        </div>
 
         <nav className="p-4 space-y-2">
           {tabs.map((tab) => (

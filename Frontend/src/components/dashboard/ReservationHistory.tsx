@@ -44,80 +44,71 @@ const ReservationHistory: React.FC<ReservationHistoryProps> = ({ reservations })
     if (!status) return 'bg-gray-100 text-gray-800';
     
     switch (status.toLowerCase()) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'upcoming': return 'bg-yellow-100 text-yellow-800';
+      case 'completed': return 'bg-green-100 text-green-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
+      case 'upcoming': return 'bg-yellow-100 text-yellow-700';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   if (reservations.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 text-gray-400">
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 text-neutral-300">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
         </div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">No Reservations Yet</h3>
-        <p className="text-gray-500 mb-6">You haven't made any reservations yet.</p>
-        <button className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all">
-          Browse Events
-        </button>
+        <h3 className="text-lg font-black uppercase italic tracking-tighter text-neutral-800 mb-2">No Reservations Yet</h3>
+        <p className="text-gray-500">You haven't made any reservations yet.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Reservation History</h2>
-        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
+        <h2 className="text-xl font-black italic uppercase tracking-tighter text-neutral-900">Reservation History</h2>
+        <span className="px-3 py-1 bg-neutral-100 text-neutral-500 rounded-full text-xs font-black uppercase tracking-wider">
           {reservations.length} total
         </span>
       </div>
 
       <div className="space-y-4">
         {reservations.map((reservation) => (
-          <div key={reservation.id} className="p-4 border border-gray-200 rounded-xl hover:border-yellow-300 transition-colors">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-gray-900">{reservation.eventName || 'Event'}</h3>
-                  {reservation.status && (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(reservation.status)}`}>
-                      {reservation.status.charAt(0).toUpperCase() + reservation.status.slice(1)}
-                    </span>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Date</p>
-                    <p className="font-medium">
-                      {reservation.eventDate ? formatDate(reservation.eventDate) : formatDate(reservation.createdAt)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Tickets</p>
-                    <p className="font-medium">{reservation.ticketsCount || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Total</p>
-                    <p className="font-bold text-gray-900">${reservation.totalPrice.toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Booked</p>
-                    <p className="font-medium">{formatDateTime(reservation.createdAt)}</p>
-                  </div>
-                </div>
+          <div key={reservation.id} className="p-5 border border-neutral-200 rounded-2xl hover:border-yellow-500 transition-colors">
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-black text-neutral-900 uppercase italic tracking-tight leading-none">
+                  {reservation.eventName || 'Event'}
+                </h3>
+                {reservation.status && (
+                  <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-widest ${getStatusColor(reservation.status)}`}>
+                    {reservation.status}
+                  </span>
+                )}
               </div>
               
-              <button className="ml-4 p-2 text-gray-400 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest leading-none mb-2">Event Date</p>
+                  <p className="text-sm font-bold text-neutral-900">
+                    {reservation.eventDate ? formatDate(reservation.eventDate) : formatDate(reservation.createdAt)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest leading-none mb-2">Tickets</p>
+                  <p className="text-sm font-bold text-neutral-900">{reservation.ticketsCount || 0} Tickets</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest leading-none mb-2">Total Paid</p>
+                  <p className="text-sm font-black text-yellow-600 uppercase tracking-tight">${reservation.totalPrice.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest leading-none mb-2">Booked On</p>
+                  <p className="text-sm font-bold text-neutral-900">{formatDateTime(reservation.createdAt)}</p>
+                </div>
+              </div>
             </div>
           </div>
         ))}

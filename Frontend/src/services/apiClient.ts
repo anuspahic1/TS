@@ -63,15 +63,16 @@ if (response.status === 401 && !isRefreshing && !url.includes('/authentication/l
 
 if (!response.ok) {
   let errorMessage = "An error occurred";
+  let errorData: any = {};
 
   if (response.status === 204) {
-  return {} as T;
-}
+    return {} as T;
+  }
   
   try {
     const text = await response.text();
-    const errorData = text ? JSON.parse(text) : {};
-
+    errorData = text ? JSON.parse(text) : {};
+    
     if (errorData.title) {
       errorMessage = errorData.title === "Unauthorized" 
         ? "Invalid email or password" 
@@ -90,7 +91,13 @@ if (!response.ok) {
     errorMessage = `Error ${response.status}: ${response.statusText}`;
   }
 
-  throw new Error(errorMessage);
+  const error = new Error(errorMessage) as any;
+  error.status = response.status;
+  error.statusText = response.statusText;
+  error.data = errorData;
+  error.isApiError = true;
+  
+  throw error;
 }
   if (response.status === 201 || response.status === 204) {
     return undefined as T;

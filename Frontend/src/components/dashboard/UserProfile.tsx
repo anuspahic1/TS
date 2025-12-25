@@ -12,23 +12,53 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Inicijalizacija forme praznim stringovima
   const [formData, setFormData] = useState({
-    firstName: profile?.firstName || '',
-    lastName: profile?.lastName || '',
-    email: profile?.email || '',
-    username: profile?.username || ''
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: ''
   });
 
-  useEffect(() => {
-    if (profile) {
-      setFormData({
-        firstName: profile.firstName || '',
-        lastName: profile.lastName || '',
-        email: profile.email || '',
-        username: profile.username || ''
-      });
+  // Funkcija koja puni formu - dodana logika za splitovanje fullName-a ako zatreba
+  const syncFormData = () => {
+    if (!profile) return;
+
+    let fName = profile.firstName || '';
+    let lName = profile.lastName || '';
+
+    // Ako su firstName i lastName prazni, a imamo fullName, pokušaj ih razdvojiti
+    if (!fName && !lName && profile.fullName) {
+      const parts = profile.fullName.trim().split(' ');
+      fName = parts[0] || '';
+      lName = parts.slice(1).join(' ') || '';
     }
+
+    setFormData({
+      firstName: fName,
+      lastName: lName,
+      email: profile.email || '',
+      username: profile.username || ''
+    });
+  };
+
+  // 1. Sinhronizacija čim se komponenta učita ili se profile promijeni
+  useEffect(() => {
+    syncFormData();
   }, [profile]);
+
+  // 2. Kada korisnik klikne Edit, još jednom prisilno sinhronizujemo podatke
+  const handleEditClick = () => {
+    syncFormData();
+    setIsEditing(true);
+    setError(null);
+  };
+
+  const handleCancel = () => {
+    syncFormData(); // Vrati na staro
+    setIsEditing(false);
+    setError(null);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,7 +75,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
         FirstName: formData.firstName,
         LastName: formData.lastName,
         FullName: `${formData.firstName} ${formData.lastName}`.trim(),
-        UserName: formData.email,
+        UserName: formData.email, // Često backend zahtijeva email kao username
         Email: formData.email
       };
 
@@ -60,114 +90,120 @@ const UserProfile: React.FC<UserProfileProps> = ({ profile, onUpdateProfile }) =
 
       setIsEditing(false);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Neuspješno spremanje podataka.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-      <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
-        <div className="flex items-center justify-between">
+    <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+      <div className="bg-neutral-900 p-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-2xl font-bold">
-              {profile?.fullName || profile?.email || "User Profile"}
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-yellow-500 block mb-2">
+              Account Settings
+            </span>
+            <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white leading-none">
+              {profile?.fullName || `${formData.firstName} ${formData.lastName}` || "User Profile"}
             </h2>
-            <p className="text-yellow-100">Manage your personal information</p>
           </div>
+          
           <button
-            onClick={() => {
-              setIsEditing(!isEditing);
-              setError(null);
-            }}
-            className="px-5 py-2.5 bg-white text-yellow-600 font-semibold rounded-xl hover:bg-yellow-50 transition-colors shadow-sm"
+            onClick={isEditing ? handleCancel : handleEditClick}
+            className={`px-8 py-3 font-black uppercase italic tracking-widest text-[11px] transition-all rounded-full border-2 ${
+              isEditing 
+                ? 'border-neutral-700 text-neutral-500 hover:bg-neutral-800' 
+                : 'border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-neutral-900'
+            }`}
           >
-            {isEditing ? 'Cancel' : 'Edit Profile'}
+            {isEditing ? 'Cancel Edit' : 'Edit Profile'}
           </button>
         </div>
       </div>
 
       <div className="p-8">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md">
+          <div className="mb-8 p-4 bg-red-50 border-l-4 border-red-600 text-red-700 font-bold text-xs uppercase italic tracking-tight">
             {error}
           </div>
         )}
 
         {isEditing ? (
-          <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">First Name</label>
+                <label className="text-[10px] font-black uppercase text-neutral-400 tracking-[0.2em] ml-1">First Name</label>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
+                  placeholder="Unesite ime"
+                  className="w-full px-5 py-4 bg-neutral-50 border-2 border-neutral-100 rounded-xl focus:border-yellow-500 focus:bg-white outline-none transition-all font-bold text-neutral-900"
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-700">Last Name</label>
+                <label className="text-[10px] font-black uppercase text-neutral-400 tracking-[0.2em] ml-1">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
+                  placeholder="Unesite prezime"
+                  className="w-full px-5 py-4 bg-neutral-50 border-2 border-neutral-100 rounded-xl focus:border-yellow-500 focus:bg-white outline-none transition-all font-bold text-neutral-900"
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700">Email Address</label>
+                <label className="text-[10px] font-black uppercase text-neutral-400 tracking-[0.2em] ml-1">Email (Locked)</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   readOnly
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed outline-none"
+                  className="w-full px-5 py-4 bg-neutral-100 border-2 border-neutral-100 rounded-xl text-neutral-400 cursor-not-allowed font-bold"
                 />
               </div>
             </div>
-            <div className="flex gap-4 pt-4 border-t border-gray-100">
+            
+            <div className="pt-6 border-t border-neutral-100">
               <button
                 type="submit"
                 disabled={loading}
-                className={`px-8 py-3 rounded-xl font-bold text-white shadow-md transition-all ${
-                  loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-500 hover:bg-yellow-600 active:transform active:scale-95'
+                className={`px-12 py-4 rounded-xl font-black uppercase italic tracking-[0.2em] text-xs transition-all ${
+                  loading 
+                    ? 'bg-neutral-200 text-neutral-400' 
+                    : 'bg-yellow-500 text-neutral-900 hover:bg-neutral-400 active:scale-95'
                 }`}
               >
-                {loading ? 'Saving Changes...' : 'Save Changes'}
+                {loading ? 'Processing...' : 'Save Changes'}
               </button>
             </div>
           </form>
         ) : (
-          <div className="space-y-8">
-            <section>
-              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <svg className="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-                Personal Details
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Full Name</p>
-                  <p className="text-gray-900 font-semibold mt-1">
-                    {profile?.fullName || (profile?.firstName ? `${profile.firstName} ${profile.lastName}` : "Not provided")}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Email Address</p>
-                  <p className="text-gray-900 font-semibold mt-1">{profile?.email}</p>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="pb-4 border-b-2 border-neutral-50 group transition-all">
+              <p className="text-[9px] font-black uppercase text-neutral-400 tracking-[0.3em] mb-1">Full Name</p>
+              <p className="text-2xl font-black italic text-neutral-900 uppercase tracking-tighter">
+                {profile?.fullName || `${profile?.firstName} ${profile?.lastName}`}
+              </p>
+            </div>
 
-              
-            </section>
+            <div className="pb-4 border-b-2 border-neutral-50 group transition-all">
+              <p className="text-[9px] font-black uppercase text-neutral-400 tracking-[0.3em] mb-1">Email Address</p>
+              <p className="text-2xl font-black italic text-neutral-900 uppercase tracking-tighter">
+                {profile?.email}
+              </p>
+            </div>
+
+            <div className="md:col-span-2 pt-4">
+              <p className="text-[9px] font-black uppercase text-neutral-400 tracking-[0.3em] mb-1">Internal Username</p>
+              <p className="text-sm font-bold text-neutral-600">
+                @{profile?.username || profile?.email?.split('@')[0]}
+              </p>
+            </div>
           </div>
         )}
       </div>

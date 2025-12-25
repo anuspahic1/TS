@@ -22,55 +22,72 @@ export function useEvents() {
         }
     }
 
-    const createEvent = async (creatorId: string, data: any) => {
 
+const createEvent = async (creatorId: string, data: any) => {
 
-        console.log("Location ID in useEvents:", data.location);
-        console.log("PRDEKOKE", data);
-        console.log(data.price)
-        const newEvent = {
-            name: data.name,
-            description: data.description ?? "",
-            minTicketPrice: Number(data.price),
-            eventDate: new Date(data.date),
-            capacity: Number(data.eventSeatCapacity),
-            locationId: data.location,
-            creatorId: creatorId
+    const locId = data.locationId || data.location; 
+
+    console.log("Location ID in useEvents:", locId);
+    
+    const newEvent = {
+        name: data.name,
+        description: data.description ?? "",
+        minTicketPrice: Number(data.minTicketPrice || 0), 
+        eventDate: data.eventDate ? new Date(data.eventDate).toISOString() : new Date().toISOString(),
+        capacity: Number(data.capacity || 0),
+        locationId: locId,
+        creatorId: creatorId
+    };
+
+    console.log("Creating event object for API:", newEvent);
+
+    try {
+        if (!locId) {
+            throw new Error("Location ID is missing. Cannot create event.");
         }
 
-
-        console.log("Creating event:", newEvent);
-        try {
-            const response = await axios.post(`${import.meta.env.VITE_API_URL}/locations/${data.location}/events`, newEvent)
-            setEvents((prev) => [...prev, response.data])
-
-        }
-        catch (error) {
-            console.error("Error creating event:", error);
-        }
-
-        return newEvent
+        const response = await axios.post(
+            `${import.meta.env.VITE_API_URL}/locations/${locId}/events`, 
+            newEvent
+        );
+        setEvents((prev) => [...prev, response.data]);
+        return response.data;
+    } catch (error) {
+        console.error("Error creating event:", error);
+        throw error; 
     }
+};
 
+const updateEvent = async (locationId: string, eventId: string, updatedEvent: any) => {
+    try {
+        console.log("Data received in updateEvent:", updatedEvent);
 
-    const updateEvent = async (locationId: string, eventId: string, updatedEvent: any) => {
-        try {
-            console.log("Updating event: slanje u. fju", updatedEvent);
-            const response = await axios.put(`${import.meta.env.VITE_API_URL}/locations/${locationId}/events/${eventId}`, {
+        const rawDate = updatedEvent.eventDate || updatedEvent.date;
+        const dateObject = new Date(rawDate);
+
+        if (isNaN(dateObject.getTime())) {
+            throw new Error(`Invalid date provided: ${rawDate}`);
+        }
+
+        const response = await axios.put(
+            `${import.meta.env.VITE_API_URL}/locations/${locationId}/events/${eventId}`, 
+            {
                 name: updatedEvent.name,
                 description: updatedEvent.description,
-                minTicketPrice: Number(updatedEvent.price),
-                eventDate: new Date(updatedEvent.date),
-                capacity: Number(updatedEvent.eventSeatCapacity),
-                locationId: updatedEvent.locationId,
-            });
-            setEvents((prev) =>
-                prev.map((e) => (e.id === updatedEvent.id ? response.data : e))
-            );
-        } catch (error) {
-            console.error("Error updating event:", error);
-        }
+                minTicketPrice: Number(updatedEvent.minTicketPrice || updatedEvent.price || 0),
+                eventDate: dateObject.toISOString(), 
+                capacity: Number(updatedEvent.capacity || updatedEvent.eventSeatCapacity || 0),
+                locationId: locationId,
+            }
+        );
+
+        setEvents((prev) =>
+            prev.map((e) => (e.id === eventId ? response.data : e))
+        );
+    } catch (error) {
+        console.error("Error updating event:", error);
     }
+};
 
     const deleteEvent = async (eventId: string, location: string) => {
         try {

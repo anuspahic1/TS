@@ -57,7 +57,7 @@ export const useTwoFactorSetup = () => {
     try {
       setLoading(true);
 
-      await authService.postTfaSetup(verificationCode, 'adm@entriox.com'); 
+      await authService.postTfaSetup(verificationCode, 'admin@entriox.com');
       await Swal.fire({
       title: '2FA Activated!',
       text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
