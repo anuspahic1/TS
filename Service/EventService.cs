@@ -12,6 +12,7 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
 
+
         public EventService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
         {
             _repository = repository;
@@ -44,6 +45,11 @@ namespace Service
         public async Task<EventDto> CreateEventForLocationAsync(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges)
         {
             await CheckIfLocationExists(locationId, trackChanges);
+
+            if (eventForCreation.EventDate < DateTime.Now)
+            {
+                throw new Exception("Event date cannot be in the past.");
+            }
 
             var eventEntity = _mapper.Map<Event>(eventForCreation);
 
@@ -121,5 +127,13 @@ namespace Service
 
             return eventsDto;
         }
+        public async Task<IEnumerable<EventDto>> GetAllEventsAsync(EventParameters eventParameters, bool trackChanges)
+            {
+                var eventsWithMetaData = await _repository.Event.GetAllEventsAsync(eventParameters, trackChanges);
+
+                var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsWithMetaData);
+
+                return eventsDto;
+            }
     }
 }

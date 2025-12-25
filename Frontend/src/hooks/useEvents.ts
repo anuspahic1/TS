@@ -81,10 +81,21 @@ export function useEvents() {
         }
     }
 
-    return {
-        getUserEvents,
-        createEvent,
-        updateEvent,
-        deleteEvent
+    const getAllEvents = async () => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/events`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching all events:", error);
+        return [];
     }
+};
+
+return {
+    getAllEvents,
+    getUserEvents,
+    createEvent,
+    updateEvent,
+    deleteEvent
+}
 }

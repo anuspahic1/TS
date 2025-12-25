@@ -26,8 +26,13 @@ export const eventSchema = z.object({
     price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
         message: "Price must be a positive number",
     }),
-    date: z.string().min(1, "Date is required"),
-    eventSeatCapacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    date: z.string().min(1, "Date is required").refine((val) => {
+        const selectedDate = new Date(val);
+        const now = new Date();
+        return selectedDate >= now;
+    }, {
+        message: "Event date cannot be in the past",
+    }),    eventSeatCapacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
         message: "Seat capacity must be a positive number",
     }),
     location: z.string().min(3, "Location must be at least 3 characters"),
@@ -115,7 +120,7 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                             <label htmlFor="date" className="text-sm font-medium">
                                 Event Date
                             </label>
-                            <Input id="date" type="date" {...register("date")} />
+                            <Input id="date" type="datetime-local" min={new Date().toISOString().slice(0, 16)} {...register("date")} />
                             {errors.date && <p className="text-sm text-red-500">{errors.date.message}</p>}
                         </div>
 

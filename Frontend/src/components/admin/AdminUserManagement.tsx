@@ -1,6 +1,9 @@
+"use client"
+
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiClient } from '../services/apiClient';
+import { apiClient } from '../../services/apiClient';
 import Swal from 'sweetalert2';
 
 interface User {

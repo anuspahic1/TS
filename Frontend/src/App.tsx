@@ -23,7 +23,10 @@ import HomePage from './pages/HomePage';
 import EventDetailsPage from './pages/EventDetailsPage';
 
 import AdminDashboard from './pages/AdminDashboard'; 
-import AdminUserManagement from './pages/AdminUserManagement';
+import AdminUserManagement from './components/admin/AdminUserManagement';
+import AdminEventsPage from './components/admin/AdminEventsPage'; 
+import LocationsPage from './components/admin/LocationsPage'; 
+import AdminTicketsPage from './components/admin/AdminTicketsPage';
 
 export default function App() {
   return (
@@ -57,7 +60,10 @@ export default function App() {
             <Route element={<ProtectedRoute allowedRoles={["Administrator"]} />}>
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUserManagement />} />
-              <Route path="/admin/events" element={<div>Admin Event Management</div>} />
+              
+              <Route path="/admin/events" element={<AdminEventsPage />} />
+              <Route path="/admin/locations" element={<LocationsPage />} />
+              <Route path="/admin/tickets" element={<AdminTicketsPage />} />
             </Route>
           </Route>
         </Route>

@@ -56,5 +56,14 @@ namespace Repository
                 .OrderByDescending(t => t.Event.EventDate) 
                 .ToListAsync();
         }
-    }
+      public async Task<IEnumerable<Ticket>> GetAllTicketsAsync(bool trackChanges)
+                {
+                    return await FindAll(trackChanges)
+                        .Include(t => t.Event) 
+                        .Include(t => t.Reservation) 
+                        .OrderByDescending(t => t.Event.EventDate) 
+                        .ThenByDescending(t => t.Price)           
+                        .ToListAsync();
+                }
+}
 }

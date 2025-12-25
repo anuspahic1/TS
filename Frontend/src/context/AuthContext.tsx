@@ -22,7 +22,6 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const getUserFromToken = (t: string) => {
   try {
     const decoded: any = jwtDecode(t);
-    console.log("Sadržaj tokena:", decoded);
     return {
       id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
       name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
@@ -38,30 +37,20 @@ export const getUserFromToken = (t: string) => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
-  
-  const [user, setUser] = useState<any | null>(() => {
-    const t = localStorage.getItem("authToken");
-    return t ? getUserFromToken(t) : null;
-  });
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("authToken"));
   const [user, setUser] = useState<any | null>(null);
-
-
 
   useEffect(() => {
     if (token) {
       const userData = getUserFromToken(token);
       setUser(userData);
+    } else {
+      setUser(null);
     }
   }, [token]);
 
   const updateToken = (newToken: string) => {
     localStorage.setItem("authToken", newToken);
     setToken(newToken);
-    const userData = getUserFromToken(newToken);
-    setUser(userData);
   };
 
   const login = async (data: any): Promise<LoginResult> => {

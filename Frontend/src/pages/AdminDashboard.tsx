@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../services/apiClient';
@@ -100,6 +102,12 @@ const AdminDashboard: React.FC = () => {
               description="Review and approve platform events"
               icon="📅"
               onClick={() => navigate('/admin/events')}
+            />
+            <ActionCard 
+              title="Manage Locations"
+              description="Add and organize venues, clubs, and event spaces"
+              icon="📍"
+              onClick={() => navigate('/admin/locations')}
             />
           </div>
         </section>

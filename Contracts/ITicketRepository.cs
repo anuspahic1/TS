@@ -9,5 +9,6 @@
 
         Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges);
         Task<IEnumerable<Ticket>> GetTicketsByUserIdWithDetailsAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<Ticket>> GetAllTicketsAsync(bool trackChanges);
     }
 }

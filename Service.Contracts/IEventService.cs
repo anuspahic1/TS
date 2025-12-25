@@ -12,5 +12,8 @@ namespace Service.Contracts
         Task<(EventForUpdateDto eventToPatch, Guid eventId)> GetEventForPatchAsync(Guid locationId, Guid id, bool trackChanges);
         Task SaveChangesForPatchAsync(EventForUpdateDto eventToPatch, Guid locationId, Guid id, bool trackChanges);
         Task<IEnumerable<EventDto>> GetEventsForUserAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<EventDto>> GetAllEventsAsync(EventParameters eventParameters, bool trackChanges);
+        
+        
     }
 }

@@ -148,6 +148,26 @@ namespace Service
             
             return ticketsDto;
         }
+        public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync(bool trackChanges)
+        {
+            var ticketsFromDb = await _repository.Ticket.GetAllTicketsAsync(trackChanges);
+
+            var ticketsDto = ticketsFromDb.Select(t => new TicketDto
+            {
+                Id = t.Id,
+                Price = t.Price,
+                SeatNumber = t.SeatNumber,
+                IsReserved = t.IsReserved,
+                QRCode = t.QRCode,
+                EventId = t.EventId,
+                EventName = t.Event?.Name ?? "Unknown Event",
+                EventDate = t.Event?.EventDate ?? DateTime.MinValue,
+                ReservationId = t.ReservationId
+            });
+
+            return ticketsDto;
+        }
+        
 
     }
 }

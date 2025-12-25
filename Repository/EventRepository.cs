@@ -49,5 +49,16 @@ namespace Repository
                 .OrderBy(e => e.Name)
                 .ToListAsync();
         }
-    }
+
+        public async Task<IEnumerable<Event>> GetAllEventsAsync(EventParameters eventParameters, bool trackChanges)
+        {
+            return await FindAll(trackChanges)
+                .Include(e => e.Location) 
+                .Search(eventParameters.SearchTerm) 
+                .Sort(eventParameters.OrderBy)   
+                .Skip((eventParameters.PageNumber - 1) * eventParameters.PageSize)
+                .Take(eventParameters.PageSize)
+                .ToListAsync();
+        }
+}
 }
