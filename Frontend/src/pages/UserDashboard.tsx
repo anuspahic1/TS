@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+
 
 import { 
   getUserDashboardData, 
@@ -23,6 +23,10 @@ const UserDashboard: React.FC = () => {
     location.state?.activeTab || 'reservations'
   );
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 776b015c3249851e103eb67892ded6d64842df22
   const [reservations, setReservations] = useState<IReservation[]>([]);
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [userProfile, setUserProfile] = useState<IAppUser | null>(null);
@@ -39,6 +43,7 @@ const UserDashboard: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+<<<<<<< HEAD
       const data = await getUserDashboardData();
       if (data) {
         const allTickets = data.tickets || [];
@@ -55,16 +60,46 @@ const UserDashboard: React.FC = () => {
         setStats({
           totalReservations: data.stats?.totalReservations || (data.reservations?.length || 0),
           activeTicketsCount: activeTicketsOnly.length, 
+=======
+
+      const data = await getUserDashboardData();
+
+      if (data) {
+        const allTickets = data.tickets || [];
+
+        const activeTicketsOnly = allTickets.filter(ticket => {
+          const eventDate = new Date(ticket.eventDate);
+          const today = new Date();
+
+          today.setHours(0, 0, 0, 0);
+
+          return eventDate >= today;
+        });
+
+        setReservations(data.reservations || []);
+        setTickets(allTickets);
+        setUserProfile(data.user || null);
+
+        setStats({
+          totalReservations: data.stats?.totalReservations || (data.reservations?.length || 0),
+          activeTicketsCount: activeTicketsOnly.length,
+>>>>>>> 776b015c3249851e103eb67892ded6d64842df22
           totalSpent: data.stats?.totalSpent || 0
         });
       }
     } catch (err: any) {
+<<<<<<< HEAD
       setError("Neuspješno učitavanje podataka.");
+=======
+>>>>>>> 776b015c3249851e103eb67892ded6d64842df22
     } finally {
       setLoading(false);
     }
   };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 776b015c3249851e103eb67892ded6d64842df22
   useEffect(() => {
     fetchData();
   }, [navigate]);
@@ -85,6 +120,7 @@ const UserDashboard: React.FC = () => {
   const displayUsername = userProfile?.username || userProfile?.firstName || user?.email?.split('@')[0] || 'User';
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
         
@@ -113,6 +149,50 @@ const UserDashboard: React.FC = () => {
               color="bg-blue-100 text-blue-600" 
             />
           </div>
+=======
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row p-4 lg:p-8 gap-8">
+      <DashboardSidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        displayName={userProfile?.username || userProfile?.firstName || user?.email?.split('@')[0]}
+      />
+
+      <div className="flex-1 space-y-8">
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl">
+            <p className="text-red-700 font-medium">{error}</p>
+            <button
+              onClick={fetchData}
+              className="mt-2 text-sm text-red-600 underline hover:text-red-800"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        <div className="transition-all duration-300">
+          {activeTab === 'reservations' && (
+            <ReservationHistory reservations={reservations} />
+          )}
+
+          {activeTab === 'tickets' && (
+            <ActiveTickets tickets={tickets} />
+          )}
+
+          {activeTab === 'profile' && (
+            userProfile ? (
+              <UserProfile
+                profile={userProfile}
+                onUpdateProfile={handleUpdateProfile}
+              />
+            ) : (
+              <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-500">
+                Profile data not available.
+              </div>
+            )
+          )}
+>>>>>>> 776b015c3249851e103eb67892ded6d64842df22
         </div>
 
         {/* DESNA KOLONA: Sadržaj tabova */}
@@ -166,3 +246,7 @@ const StatCard = ({ title, value, color }: { title: string; value: string | numb
 );
 
 export default UserDashboard;
+
+function useAuth(): { user: any; } {
+  throw new Error('Function not implemented.');
+}

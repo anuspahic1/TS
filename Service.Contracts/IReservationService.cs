@@ -10,5 +10,6 @@ namespace Service.Contracts
         Task DeleteReservationForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
 
         Task<IEnumerable<ReservationDto>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(Guid locationId, Guid eventId, bool trackChanges);
     }
 }

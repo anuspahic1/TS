@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 
 
@@ -20,7 +20,7 @@ import type { Event as IEvent } from '../types/IEvent';
 
 const OrganizerDashboard = () => {
 
-  const { getUserEvents, createEvent, updateEvent, deleteEvent } = useEvents()
+  const { getUserEvents, createEvent, updateEvent, deleteEvent, getEventVisitors } = useEvents()
   const { getLocations } = useLocations();
   const [locations, setLocations] = useState<Location[]>([]);
   const [loadingLocations, setLoadingLocations] = useState(true);
@@ -36,6 +36,9 @@ const OrganizerDashboard = () => {
 
     fetchLocations();
   }, []);
+
+
+
 
 
 
@@ -74,6 +77,14 @@ const OrganizerDashboard = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<IEvent | null>(null)
   const [viewingVisitors, setViewingVisitors] = useState<IEvent | null>(null)
+  const [visitors, setVisitors] = useState<any[]>([]);
+
+  const handleViewVisitors = async (event: IEvent) => {
+    if (!event) return;
+    const visitorsData = await getEventVisitors(event.locationId, event.id);
+    setVisitors(visitorsData);
+    setViewingVisitors(event);
+  }
 
 
   const handleCreateEvent = (eventData: any) => {
@@ -102,6 +113,8 @@ const OrganizerDashboard = () => {
     await deleteEvent(eventId, locationId);
     setEventsRefreshKey(k => k + 1);
   };
+
+
 
 
   return (
@@ -135,7 +148,7 @@ const OrganizerDashboard = () => {
               events={events}
               onEdit={setEditingEvent}
               onDelete={handleDeleteEvent}
-              onViewVisitors={setViewingVisitors}
+              onViewVisitors={handleViewVisitors}
             />
           </CardContent>
         </Card>
@@ -159,13 +172,18 @@ const OrganizerDashboard = () => {
         />
       )}
 
-      {/* {viewingVisitors && (
+      {viewingVisitors && (
         <ViewVisitorsDialog
           open={!!viewingVisitors}
-          onOpenChange={(open) => !open && setViewingVisitors(null)}
-          event={viewingVisitors}
+          onOpenChange={(open) => {
+            if (!open) {
+              setViewingVisitors(null);
+              setVisitors([]);
+            }
+          }}
+          event={{ ...viewingVisitors, visitors }}
         />
-      )} */}
+      )}
       <Footer />
     </div>
 

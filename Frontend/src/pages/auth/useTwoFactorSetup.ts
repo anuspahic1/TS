@@ -57,14 +57,16 @@ export const useTwoFactorSetup = () => {
     try {
       setLoading(true);
 
+
       await authService.postTfaSetup(verificationCode, 'admin@entriox.com');
+
       await Swal.fire({
-      title: '2FA Activated!',
-      text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
-      icon: 'success',
-      confirmButtonColor: '#EAB308',
-      confirmButtonText: 'Back to Login'
-    });
+        title: '2FA Activated!',
+        text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
+        icon: 'success',
+        confirmButtonColor: '#EAB308',
+        confirmButtonText: 'Back to Login'
+      });
 
       navigate('/login', { state: location.state });
 

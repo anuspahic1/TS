@@ -1,11 +1,9 @@
 "use client"
 
-import type { Event } from "../../types/IEvent"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table"
-import { Badge } from "../ui/badge"
-import { format } from "date-fns"
-import { Users, Mail, Calendar } from "lucide-react"
+
+import { Users, Mail } from "lucide-react"
 
 interface ViewVisitorsDialogProps {
     open: boolean
@@ -14,7 +12,7 @@ interface ViewVisitorsDialogProps {
 }
 
 export function ViewVisitorsDialog({ open, onOpenChange, event }: ViewVisitorsDialogProps) {
-    const occupancyPercentage = (event.visitors.length / event.eventSeatCapacity) * 100
+
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -25,35 +23,6 @@ export function ViewVisitorsDialog({ open, onOpenChange, event }: ViewVisitorsDi
                 </DialogHeader>
 
                 <div className="space-y-6">
-                    {/* Event Stats */}
-                    <div className="grid gap-4 md:grid-cols-3">
-                        <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
-                            <Users className="h-8 w-8 text-primary" />
-                            <div>
-                                <p className="text-2xl font-bold text-black">{event.visitors.length}</p>
-                                <p className="text-sm text-gray-600">Total Visitors</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
-                            <Users className="h-8 w-8 text-gray-500" />
-                            <div>
-                                <p className="text-2xl font-bold text-black">{event.eventSeatCapacity}</p>
-                                <p className="text-sm text-gray-600">Total Capacity</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-4 rounded-lg bg-gray-50 border border-gray-200">
-                            <div className="flex-1">
-                                <p className="text-2xl font-bold text-black">{occupancyPercentage.toFixed(0)}%</p>
-                                <p className="text-sm text-gray-600">Occupancy</p>
-                            </div>
-                            <Badge
-                                variant={occupancyPercentage > 80 ? "default" : "secondary"}
-                                className={occupancyPercentage > 80 ? "bg-black text-white" : "bg-gray-200 text-gray-700"}
-                            >
-                                {occupancyPercentage > 80 ? "High" : "Available"}
-                            </Badge>
-                        </div>
-                    </div>
 
                     {/* Visitors Table */}
                     <div>
@@ -70,25 +39,19 @@ export function ViewVisitorsDialog({ open, onOpenChange, event }: ViewVisitorsDi
                                         <TableRow>
                                             <TableHead>Name</TableHead>
                                             <TableHead>Email</TableHead>
-                                            <TableHead>Registered Date</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {event.visitors.map((visitor: any) => (
                                             <TableRow key={visitor.id}>
-                                                <TableCell className="font-medium">{visitor.name}</TableCell>
+                                                <TableCell className="font-medium">{visitor.fullName}</TableCell>
                                                 <TableCell>
                                                     <div className="flex items-center gap-2">
                                                         <Mail className="h-4 w-4 text-muted-foreground" />
                                                         {visitor.email}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                                                        {format(new Date(visitor.registeredAt), "PPP")}
-                                                    </div>
-                                                </TableCell>
+
                                             </TableRow>
                                         ))}
                                     </TableBody>

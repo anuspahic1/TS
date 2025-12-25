@@ -98,6 +98,16 @@ const updateEvent = async (locationId: string, eventId: string, updatedEvent: an
         }
     }
 
+    const getEventVisitors = async (locationid: string, eventId: string) => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/locations/${locationid}/events/${eventId}/reservations/visitors`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching event visitors:", error);
+            return [];
+        }
+    }
+
     const getAllEvents = async () => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/admin/events`);
@@ -113,6 +123,7 @@ return {
     getUserEvents,
     createEvent,
     updateEvent,
-    deleteEvent
+    deleteEvent,
+        getEventVisitors,
 }
 }

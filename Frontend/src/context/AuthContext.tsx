@@ -1,6 +1,13 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { authService } from "../services/auth.service";
 import { jwtDecode } from "jwt-decode";
+
+type LoginResult = {
+  accessToken: string;
+  refreshToken: string;
+  twoFactorEnabled: boolean;
+  hasAuthenticatorKey: boolean;
+};
 
 type AuthContextType = {
   token: string | null;
@@ -10,25 +17,20 @@ type AuthContextType = {
   updateToken: (newToken: string) => void;
 };
 
-type LoginResult = {
-  accessToken: string;
-  refreshToken: string;
-  twoFactorEnabled: boolean;
-  hasAuthenticatorKey: boolean;
-};
-
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const getUserFromToken = (t: string) => {
+export const getUserFromToken = (token: string) => {
   try {
-    const decoded: any = jwtDecode(t);
+    const decoded: any = jwtDecode(token);
     return {
       id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
       name: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
       email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-      roles: Array.isArray(decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"])
+      roles: Array.isArray(
+        decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+      )
         ? decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
-        : [decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]]
+        : [decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]],
     };
   } catch {
     return null;
@@ -55,9 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (data: any): Promise<LoginResult> => {
     const res = await authService.login(data);
+
+    // token is stored only when 2FA is not required
     if (!res.twoFactorEnabled && res.hasAuthenticatorKey) {
       updateToken(res.accessToken);
     }
+
     return res;
   };
 
@@ -76,6 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  if (!ctx) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
   return ctx;
 };
