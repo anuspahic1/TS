@@ -46,5 +46,15 @@ namespace EntrioX.Presentation.Controllers
             await _service.ReservationService.DeleteReservationForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
+        [HttpGet("visitors")]
+        public async Task<IActionResult> GetEventVisitors(
+            Guid locationId,
+            Guid eventId)
+        {
+            var visitors = await _service.ReservationService
+                .GetEventVisitorsAsync(locationId, eventId, trackChanges: false);
+
+            return Ok(visitors);
+        }
     }
 }

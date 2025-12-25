@@ -28,7 +28,7 @@ interface EventsListProps {
     onViewVisitors: any
 }
 
-export function EventsList({ events, onEdit, onDelete }: EventsListProps) {
+export function EventsList({ events, onEdit, onDelete, onViewVisitors }: EventsListProps) {
     if (events.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -91,7 +91,7 @@ export function EventsList({ events, onEdit, onDelete }: EventsListProps) {
                                     variant="outline"
                                     size="sm"
                                     className="flex-1 border-gray-300 hover:bg-gray-50 bg-transparent"
-                                //onClick={() => onViewVisitors(event)}
+                                    onClick={() => onViewVisitors(event)}
                                 >
                                     <Eye className="mr-2 h-4 w-4" />
                                     View Visitors

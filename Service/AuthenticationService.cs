@@ -26,7 +26,7 @@ namespace Service
         private User? _user;
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private readonly UrlEncoder _urlEncoder;
-        private readonly IRepositoryManager _repository; 
+        private readonly IRepositoryManager _repository;
 
         public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder, IRepositoryManager repository)
         {
@@ -41,34 +41,34 @@ namespace Service
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
-{
-    var user = _mapper.Map<User>(userForRegistration);
-    var result = await _userManager.CreateAsync(user, userForRegistration.Password);
-
-    if (result.Succeeded)
-    {
-        if (userForRegistration.Roles != null && userForRegistration.Roles.Any())
         {
-            await _userManager.AddToRoleAsync(user, userForRegistration.Roles.First());
+            var user = _mapper.Map<User>(userForRegistration);
+            var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+
+            if (result.Succeeded)
+            {
+                if (userForRegistration.Roles != null && userForRegistration.Roles.Any())
+                {
+                    await _userManager.AddToRoleAsync(user, userForRegistration.Roles.First());
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+                }
+
+                var appUser = new AppUser
+                {
+                    Id = Guid.Parse(user.Id),
+                    FullName = $"{userForRegistration.FirstName} {userForRegistration.LastName}",
+                    Email = user.Email
+                };
+
+                _repository.AppUser.CreateUser(appUser);
+                await _repository.SaveAsync();
+            }
+
+            return result;
         }
-        else
-        {
-            await _userManager.AddToRoleAsync(user, "User");
-        }
-
-        var appUser = new AppUser
-        {
-            Id = Guid.Parse(user.Id), 
-            FullName = $"{userForRegistration.FirstName} {userForRegistration.LastName}",
-            Email = user.Email
-        };
-
-        _repository.AppUser.CreateUser(appUser);
-        await _repository.SaveAsync(); 
-    }
-
-    return result;
-}
 
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
         {
@@ -125,7 +125,7 @@ namespace Service
         public async Task<TfaSetupDto> GetTfaSetup(string email)
         {
             // refactor this email with var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByNameAsync(email);
+            var user = await _userManager.FindByEmailAsync(email);
 
             if (user is null)
                 throw new TfaBadRequest();
@@ -152,14 +152,14 @@ namespace Service
 
         public async Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel)
         {
-            var user = await _userManager.FindByNameAsync(tfaModel.Email);
+            var user = await _userManager.FindByEmailAsync(tfaModel.Email);
             var isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, tfaModel.Code);
             if (isValidCode)
             {
                 await _userManager.SetTwoFactorEnabledAsync(user, true);
-                return new TfaSetupDto 
-                { 
-                    IsTfaEnabled = true 
+                return new TfaSetupDto
+                {
+                    IsTfaEnabled = true
                 };
             }
             else
@@ -170,7 +170,7 @@ namespace Service
 
         public async Task<TokenDto> VerifyTfa(VerifyTfaDto dto, string email)
         {
-            var user = await _userManager.FindByNameAsync(email);
+            var user = await _userManager.FindByEmailAsync(email);
 
             var valid = await _userManager.VerifyTwoFactorTokenAsync(
                 user,
@@ -187,7 +187,7 @@ namespace Service
 
         public async Task<TfaSetupDto> DeleteTfaSetup(string email)
         {
-            var user = await _userManager.FindByNameAsync(email);
+            var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 throw new TfaBadRequest();
@@ -195,9 +195,9 @@ namespace Service
             else
             {
                 await _userManager.SetTwoFactorEnabledAsync(user, false);
-                return new TfaSetupDto 
-                { 
-                    IsTfaEnabled = false 
+                return new TfaSetupDto
+                {
+                    IsTfaEnabled = false
                 };
             }
         }
@@ -215,7 +215,7 @@ namespace Service
             {
                 new Claim(ClaimTypes.Name, _user.UserName),
                 new Claim(ClaimTypes.Email, _user.Email),
-                new Claim(ClaimTypes.NameIdentifier, _user.Id) 
+                new Claim(ClaimTypes.NameIdentifier, _user.Id)
             };
 
             var roles = await _userManager.GetRolesAsync(_user);
@@ -226,7 +226,7 @@ namespace Service
             }
 
             return claims;
-    }
+        }
 
         private JwtSecurityToken GenerateTokenOptions(SigningCredentials signingCredentials, List<Claim> claims)
         {

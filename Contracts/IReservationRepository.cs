@@ -10,5 +10,6 @@
 
         Task<IEnumerable<Reservation>> GetReservationsByUserIdAsync(Guid userId, bool trackChanges);
         Task<IEnumerable<Reservation>> GetReservationsByUserIdWithDetailsAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(Guid locationId, Guid eventId, bool trackChanges);
     }
 }
