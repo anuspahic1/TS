@@ -58,7 +58,7 @@ export const useTwoFactorSetup = () => {
       setLoading(true);
 
 
-      await authService.postTfaSetup(verificationCode, 'admin@entriox.com');
+      await authService.postTfaSetup(verificationCode, 'test@gmail.com');
 
       await Swal.fire({
         title: '2FA Activated!',

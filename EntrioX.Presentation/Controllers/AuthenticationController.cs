@@ -21,7 +21,7 @@ namespace EntrioX.Presentation.Controllers
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
             var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
-
+            
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
@@ -49,8 +49,7 @@ namespace EntrioX.Presentation.Controllers
         //[Authorize] 
         public async Task<IActionResult> GetTfaSetup()  //security issue, removing email from query param, should use authorize + user.identity
         {
-            var email = "admin@entriox.com";
-            //var email = "anuspahic1@etf.unsa.ba";
+            var email = "test@gmail.com";
             var tfaSetup = await _service.AuthenticationService.GetTfaSetup(email);
             return Ok(tfaSetup);
         }
@@ -67,8 +66,7 @@ namespace EntrioX.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> VerifyTfa([FromBody] VerifyTfaDto dto)
         {
-            var email = "admin@entriox.com";
-            //var email = "anuspahic1@etf.unsa.ba";
+            var email = "test@gmail.com";
             var token = await _service.AuthenticationService.VerifyTfa(dto, email); // should be used really identity mail, hardcoded for now
             return Ok(token);
         }

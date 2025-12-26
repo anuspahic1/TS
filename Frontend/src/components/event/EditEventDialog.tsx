@@ -1,176 +1,200 @@
 "use client"
 
 import { useEffect } from "react"
-import type { Event } from "../../types/IEvent"
+import { useForm, Controller } from "react-hook-form"
+import type { SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Calendar, DollarSign, Users, MapPin, Save, AlertCircle } from "lucide-react"
+
 import { Button } from "../ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { Controller, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "../ui/select"
 import { eventSchema, type EventFormData } from "./CreateEventDialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 interface EditEventDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    event: Event
-    onUpdateEvent: any,
+    event: any 
+    onUpdateEvent: (locationId: string, eventId: string, data: any) => void
     locations: any[]
 }
 
-function formatForDateInput(dateStr?: string) {
-    if (!dateStr) return ""
-    const tIndex = dateStr.indexOf("T")
-    if (tIndex === -1) return dateStr
-    return dateStr.slice(0, tIndex)
-}
-
 export function EditEventDialog({ locations, open, onOpenChange, event, onUpdateEvent }: EditEventDialogProps) {
+    
+    const formatForInput = (dateString: string) => {
+        if (!dateString) return "";
+        const d = new Date(dateString);
+        // Osigurava da format bude YYYY-MM-DDTHH:mm za datetime-local input
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+
     const {
         register,
         handleSubmit,
         control,
         reset,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<EventFormData>({
-        resolver: zodResolver(eventSchema),
-        defaultValues: {
-            name: event.name,
-            description: event.description,
-            price: event.price.toString(),
-            date: formatForDateInput(event.date),
-            eventSeatCapacity: event.eventSeatCapacity.toString(),
-            location: event.locationId ?? event.location,
-        },
+        resolver: zodResolver(eventSchema) as any,
+        mode: "onChange",
     })
 
     useEffect(() => {
-        reset({
-            name: event.name,
-            description: event.description,
-            price: event.price.toString(),
-            date: formatForDateInput(event.date),
-            eventSeatCapacity: event.eventSeatCapacity.toString(),
-            location: event.locationId,
-        })
-    }, [event, reset])
-
-    const onSubmit = (data: EventFormData) => {
-
-        const updated = {
-            id: event.id,
-            name: data.name,
-            description: data.description,
-            price: Number(data.price),
-            date: data.date,
-            eventSeatCapacity: Number(data.eventSeatCapacity),
-            location: event.locationId ?? data.location,
-            locationId: data.location,
+        if (event && open) {
+            reset({
+                name: event.name || "",
+                description: event.description || "",
+                // Usklađeno sa novom šemom (minTicketPrice, eventDate, capacity, locationId)
+                minTicketPrice: event.minTicketPrice ?? event.price ?? 0,
+                eventDate: formatForInput(event.eventDate || event.date || ""),
+                capacity: event.capacity ?? event.eventSeatCapacity ?? 0,
+                locationId: typeof event.locationId === 'string' ? event.locationId : (event.location?.id || ""),
+            });
         }
+    }, [event, open, reset]);
 
-        onUpdateEvent(event.id, event.locationId ?? data.location, updated)
-
-        console.log("Updated event data:", updated)
+    const processUpdate: SubmitHandler<EventFormData> = async (data) => {
+        // Redosled argumenata mora pratiti tvoj hook: updateEvent(locationId, eventId, updatedEvent)
+        await onUpdateEvent(data.locationId, event.id, data);
+        onOpenChange(false);
     }
+
+    const ErrorMessage = ({ message }: { message?: string }) => (
+        message ? (
+            <p className="text-[10px] font-black text-red-500 uppercase mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {message}
+            </p>
+        ) : null
+    );
+
+    if (!event) return null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Edit Event</DialogTitle>
-                    <DialogDescription>Update the event details below. All fields are required.</DialogDescription>
+            <DialogContent className="max-w-2xl bg-white rounded-3xl border-none shadow-2xl p-0 overflow-hidden outline-none">
+                <DialogHeader className="bg-neutral-900 p-8 text-left border-none">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-500 block mb-2">
+                        Configuration Mode
+                    </span>
+                    <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter text-white">
+                        Update Deployment
+                    </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid gap-2">
-                        <label htmlFor="name" className="text-sm font-medium">
-                            Event Name
-                        </label>
-                        <Input id="name" placeholder="Summer Music Festival 2025" {...register("name")} />
-                        {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-                    </div>
-
-                    <div className="grid gap-2">
-                        <label htmlFor="description" className="text-sm font-medium">
-                            Description
-                        </label>
-                        <Textarea
-                            id="description"
-                            placeholder="Describe your event..."
-                            className="min-h-24"
-                            {...register("description")}
+                <form onSubmit={handleSubmit(processUpdate)} className="p-8 space-y-6">
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
+                        <Input 
+                            {...register("name")}
+                            className={`rounded-xl border-2 h-12 transition-all ${errors.name ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
                         />
-                        {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                        <ErrorMessage message={errors.name?.message} />
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label htmlFor="date" className="text-sm font-medium">
-                                Event Date
-                            </label>
-                            <Input id="date" type="date" {...register("date")} />
-                            {errors.date && <p className="text-sm text-red-500">{errors.date.message}</p>}
-                        </div>
+                    {/* Description */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Mission Description</label>
+                        <Textarea
+                            {...register("description")}
+                            className={`min-h-[100px] rounded-xl border-2 transition-all ${errors.description ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
+                        />
+                        <ErrorMessage message={errors.description?.message} />
+                    </div>
 
-                        <div className="grid gap-2">
-                            <label htmlFor="price" className="text-sm font-medium">
-                                Ticket Price ($)
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Date */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-yellow-500" /> New Date
                             </label>
-                            <Input id="price" type="number" step="0.01" placeholder="99.99" {...register("price")} />
-                            {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}
+                            <Input 
+                                type="datetime-local" 
+                                {...register("eventDate")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.eventDate?.message} />
+                        </div>
+                        {/* Price */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3 text-yellow-500" /> Ticket Price
+                            </label>
+                            <Input 
+                                type="number" 
+                                step="0.01" 
+                                {...register("minTicketPrice")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.minTicketPrice ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.minTicketPrice?.message} />
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label htmlFor="eventSeatCapacity" className="text-sm font-medium">
-                                Seat Capacity
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Capacity */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
                             </label>
-                            <Input id="eventSeatCapacity" type="number" placeholder="1000" {...register("eventSeatCapacity")} />
-                            {errors.eventSeatCapacity && <p className="text-sm text-red-500">{errors.eventSeatCapacity.message}</p>}
+                            <Input 
+                                type="number" 
+                                {...register("capacity")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.capacity ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.capacity?.message} />
                         </div>
-
-                        <div className="grid gap-2">
-                            <label htmlFor="location" className="text-sm font-medium">
-                                Location
+                        {/* Location */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-yellow-500" /> Target Venue
                             </label>
                             <Controller
-                                name="location"
+                                name="locationId"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select location" />
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <SelectTrigger className={`rounded-xl border-2 h-12 transition-all ${errors.locationId ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`}>
+                                            <SelectValue placeholder="Select venue" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {locations.map((location) => (
-                                                <SelectItem key={location.id} value={location.id}>
-                                                    {location.name}
-                                                </SelectItem>
+                                            {locations.map((loc) => (
+                                                <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 )}
                             />
-
-                            {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
+                            <ErrorMessage message={errors.locationId?.message} />
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-gray-300">
-                            Cancel
+                    <DialogFooter className="pt-6 border-t border-neutral-50 gap-2">
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            onClick={() => onOpenChange(false)} 
+                            className="font-bold uppercase tracking-widest text-[10px] hover:bg-neutral-50"
+                        >
+                            Cancel Changes
                         </Button>
-                        <Button type="submit" className="bg-black text-white hover:bg-black/90">
-                            Update Event
+                        <Button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="bg-neutral-900 text-white hover:bg-yellow-500 hover:text-neutral-900 px-10 rounded-full font-black uppercase italic tracking-widest text-[11px] h-14 transition-all shadow-xl active:scale-95"
+                        >
+                            {isSubmitting ? "Syncing..." : (
+                                <span className="flex items-center gap-2">
+                                    <Save className="w-5 h-5" /> Commit Changes
+                                </span>
+                            )}
                         </Button>
                     </DialogFooter>
                 </form>

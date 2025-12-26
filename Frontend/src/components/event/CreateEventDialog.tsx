@@ -1,183 +1,211 @@
 "use client"
 
-import type { Event } from "../../types/IEvent"
+import { useForm, Controller } from "react-hook-form"
+import type { SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Calendar, DollarSign, Users, MapPin, PlusCircle, AlertCircle } from "lucide-react"
+
 import { Button } from "../ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
 } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { Controller, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "../ui/select"
 
-
-import * as z from "zod"
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-
+// 1. ŠEMA
 export const eventSchema = z.object({
-    name: z.string().min(3, "Event name must be at least 3 characters"),
-    description: z.string().min(10, "Description must be at least 10 characters"),
-    price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-        message: "Price must be a positive number",
-    }),
-    date: z.string().min(1, "Date is required").refine((val) => {
-        const selectedDate = new Date(val);
-        const now = new Date();
-        return selectedDate >= now;
-    }, {
-        message: "Event date cannot be in the past",
-    }),    eventSeatCapacity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-        message: "Seat capacity must be a positive number",
-    }),
-    location: z.string().min(3, "Location must be at least 3 characters"),
+    name: z.string()
+        .min(3, "Title must be at least 3 characters")
+        .max(50, "Title too long"),
+    description: z.string()
+        .min(11, "Description must be longer than 10 characters"),
+    minTicketPrice: z.coerce.number()
+        .min(0, "Price cannot be negative"),
+    eventDate: z.string()
+        .min(1, "Date and time are required")
+        .refine((val) => {
+            const selectedDate = new Date(val);
+            const now = new Date();
+            return selectedDate > now;
+        }, { message: "Event date must be in the future" }),
+    capacity: z.coerce.number()
+        .int("Must be a whole number")
+        .positive("Capacity must be at least 1"),
+    locationId: z.string()
+        .min(1, "Please select a venue"),
 })
 
 export type EventFormData = z.infer<typeof eventSchema>
 
-
-
 interface CreateEventDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onCreateEvent: any
+    onCreateEvent: (data: EventFormData) => void
     locations: any[]
 }
 
 export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent }: CreateEventDialogProps) {
+    // FIX: Dodat 'as any' na zodResolver rešava Error 2322 (Type mismatch zbog z.coerce)
     const {
         register,
         handleSubmit,
         control,
         reset,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<EventFormData>({
-        resolver: zodResolver(eventSchema),
+        resolver: zodResolver(eventSchema) as any,
+        mode: "onChange", 
         defaultValues: {
             name: "",
             description: "",
-            price: "",
-            date: "",
-            eventSeatCapacity: "",
-            location: "",
+            minTicketPrice: 0,
+            eventDate: "",
+            capacity: 0,
+            locationId: "",
         },
     })
 
-    const onSubmit = (data: EventFormData) => {
-        onCreateEvent({
-            name: data.name,
-            description: data.description,
-            price: data.price,
-            date: data.date,
-            eventSeatCapacity: Number(data.eventSeatCapacity),
-            location: data.location,
-
-
-        })
-        console.log("Form submitted with data:", data);
-        reset()
+    // FIX: Eksplicitno definisan SubmitHandler sa EventFormData rešava Error 2345
+    const processData: SubmitHandler<EventFormData> = (data) => {
+        onCreateEvent(data);
+        reset();
+        onOpenChange(false);
     }
+
+    const ErrorMessage = ({ message }: { message?: string }) => (
+        message ? (
+            <p className="text-[10px] font-bold text-red-500 uppercase mt-1 flex items-center gap-1 animate-in fade-in slide-in-from-top-1">
+                <AlertCircle className="w-3 h-3" /> {message}
+            </p>
+        ) : null
+    );
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Create New Event</DialogTitle>
-                    <DialogDescription>
-                        Fill in the details below to create a new event. All fields are required.
-                    </DialogDescription>
+            <DialogContent className="max-w-2xl bg-white rounded-3xl border-none shadow-2xl p-0 overflow-hidden outline-none">
+                <DialogHeader className="bg-neutral-900 p-8 text-left border-none">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-500 block mb-2">
+                        System Terminal
+                    </span>
+                    <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter text-white">
+                        Deploy New Event
+                    </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="grid gap-2">
-                        <label htmlFor="name" className="text-sm font-medium">
-                            Event Name
-                        </label>
-                        <Input id="name" placeholder="Summer Music Festival 2025" {...register("name")} />
-                        {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
-                    </div>
-
-                    <div className="grid gap-2">
-                        <label htmlFor="description" className="text-sm font-medium">
-                            Description
-                        </label>
-                        <Textarea
-                            id="description"
-                            placeholder="Describe your event..."
-                            className="min-h-24"
-                            {...register("description")}
+                <form onSubmit={handleSubmit(processData)} className="p-8 space-y-6">
+                    {/* Title */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
+                        <Input 
+                            {...register("name")}
+                            placeholder="Enter catchy name..."
+                            className={`rounded-xl border-2 h-12 transition-all ${errors.name ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
                         />
-                        {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                        <ErrorMessage message={errors.name?.message} />
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label htmlFor="date" className="text-sm font-medium">
-                                Event Date
-                            </label>
-                            <Input id="date" type="datetime-local" min={new Date().toISOString().slice(0, 16)} {...register("date")} />
-                            {errors.date && <p className="text-sm text-red-500">{errors.date.message}</p>}
-                        </div>
+                    {/* Description */}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Description</label>
+                        <Textarea
+                            {...register("description")}
+                            placeholder="Must be longer than 10 characters..."
+                            className={`min-h-[100px] rounded-xl border-2 transition-all ${errors.description ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
+                        />
+                        <ErrorMessage message={errors.description?.message} />
+                    </div>
 
-                        <div className="grid gap-2">
-                            <label htmlFor="price" className="text-sm font-medium">
-                                Ticket Price ($)
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Date */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-yellow-500" /> Future Date
                             </label>
-                            <Input id="price" type="number" step="0.01" placeholder="99.99" {...register("price")} />
-                            {errors.price && <p className="text-sm text-red-500">{errors.price.message}</p>}
+                            <Input 
+                                type="datetime-local" 
+                                {...register("eventDate")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.eventDate?.message} />
+                        </div>
+                        {/* Price */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3 text-yellow-500" /> Price ($)
+                            </label>
+                            <Input 
+                                type="number" 
+                                step="0.01" 
+                                {...register("minTicketPrice")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.minTicketPrice ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.minTicketPrice?.message} />
                         </div>
                     </div>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label htmlFor="eventSeatCapacity" className="text-sm font-medium">
-                                Seat Capacity
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Capacity */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
                             </label>
-                            <Input id="eventSeatCapacity" type="number" placeholder="1000" {...register("eventSeatCapacity")} />
-                            {errors.eventSeatCapacity && <p className="text-sm text-red-500">{errors.eventSeatCapacity.message}</p>}
+                            <Input 
+                                type="number" 
+                                {...register("capacity")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.capacity ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
+                            />
+                            <ErrorMessage message={errors.capacity?.message} />
                         </div>
-
-                        <div className="grid gap-2">
-                            <label htmlFor="location" className="text-sm font-medium">
-                                Location
+                        {/* Location */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-yellow-500" /> Venue
                             </label>
                             <Controller
-                                name="location"
+                                name="locationId"
                                 control={control}
                                 render={({ field }) => (
                                     <Select onValueChange={field.onChange} value={field.value}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select location" />
+                                        <SelectTrigger className={`rounded-xl border-2 h-12 transition-all ${errors.locationId ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`}>
+                                            <SelectValue placeholder="Select venue" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {locations.map((location) => (
-                                                <SelectItem key={location.id} value={location.id}>
-                                                    {location.name}
-                                                </SelectItem>
+                                            {locations.map((loc) => (
+                                                <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 )}
                             />
-
-
-
-
-                            {errors.location && <p className="text-sm text-red-500">{errors.location.message}</p>}
+                            <ErrorMessage message={errors.locationId?.message} />
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-gray-300">
-                            Cancel
+                    <DialogFooter className="pt-6 border-t border-neutral-50 gap-2">
+                        <Button 
+                            type="button" 
+                            variant="ghost" 
+                            onClick={() => onOpenChange(false)} 
+                            className="font-bold uppercase tracking-widest text-[10px] hover:bg-neutral-50"
+                        >
+                            Abort
                         </Button>
-                        <Button type="submit" className="bg-black text-white hover:bg-black/90">
-                            Create Event
+                        <Button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="bg-neutral-900 text-white hover:bg-yellow-500 hover:text-neutral-900 px-10 rounded-full font-black uppercase italic tracking-widest text-[11px] h-14 transition-all shadow-xl active:scale-95"
+                        >
+                            {isSubmitting ? "Processing..." : (
+                                <span className="flex items-center gap-2">
+                                    <PlusCircle className="w-5 h-5" /> Launch Event
+                                </span>
+                            )}
                         </Button>
                     </DialogFooter>
                 </form>
