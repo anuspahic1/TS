@@ -4,6 +4,7 @@ import { authService } from "../services/auth.service";
 type AuthContextType = {
   token: string | null;
   login: (data: any) => Promise<LoginResult>;
+  completeLogin: (token: string) => void;
   logout: () => void;
 };
 
@@ -23,11 +24,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (data: any): Promise<LoginResult> => {
     const res = await authService.login(data);
-
-    // localStorage.setItem("authToken", res.accessToken);
-    // setToken(res.accessToken);
-
     return res;
+  };
+
+  const completeLogin = (token: string) => {
+    localStorage.setItem("authToken", token);
+    setToken(token);
   };
 
   const logout = () => {
@@ -36,7 +38,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, login, completeLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import { useAuth } from '../../context/AuthContext';
 
 export const useTwoStepVerification = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { completeLogin } = useAuth();
 
   const navigate = useNavigate();
 
@@ -25,7 +28,7 @@ export const useTwoStepVerification = () => {
 
       const result = await authService.verifyTfa(code);
 
-      localStorage.setItem('authToken', result.accessToken);
+      completeLogin(result.accessToken);
 
       navigate('/rewards');
     } catch (err: any) {

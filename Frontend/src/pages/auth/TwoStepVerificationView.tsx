@@ -21,8 +21,15 @@ const TwoStepVerificationView = ({
   onReset,
   onBack,
 }: Props) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit();
+  };
+
   return (
-    <div className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <button type="submit" hidden />
+
       <Input
         name="verificationCode"
         value={code}
@@ -34,22 +41,22 @@ const TwoStepVerificationView = ({
       {error && <FormError message={error} />}
 
       <Button
-        onClick={onSubmit}
+        type="submit"
         disabled={loading || code.length !== 6}
       >
         {loading ? 'Verifying…' : 'Verify & Continue'}
       </Button>
 
       <div className="flex gap-4">
-        <Button variant="secondary" onClick={onBack}>
+        <Button type="button" variant="secondary" onClick={onBack}>
           Back to login
         </Button>
 
-        <Button variant="ghost" onClick={onReset}>
+        <Button type="button" variant="ghost" onClick={onReset}>
           Clear code
         </Button>
       </div>
-    </div>
+    </form>
   );
 };
 
