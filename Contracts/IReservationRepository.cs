@@ -6,5 +6,6 @@
         Task<Reservation> GetReservationAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
         void CreateReservationForEvent(Guid eventId, Reservation reservation);
         void DeleteReservation(Reservation reservation);
+        Task<int> GetTotalBookingsCountAsync(bool trackChanges);
     }
 }

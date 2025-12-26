@@ -3,6 +3,7 @@ import LoginForm from './LoginForm';
 import { useLogin } from './useLogin';
 import { AuthCard } from '../../components/auth/AuthCard';
 import { AuthHeader } from '../../components/auth/AuthHeader';
+import { FormError } from '../../components/common/FormError'; 
 
 const LoginPage = () => {
   const login = useLogin();
@@ -14,12 +15,8 @@ const LoginPage = () => {
         subtitle="Sign in to your account" 
       />
 
-      {login.error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-700 border-l-4 border-red-500 text-sm">
-          {login.error}
-        </div>
-      )}
-
+      <FormError message={login.error} />
+      
       <LoginForm
         formData={login.formData}
         loading={login.loading}

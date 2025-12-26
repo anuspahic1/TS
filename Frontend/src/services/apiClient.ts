@@ -28,7 +28,7 @@ async function request<T>(
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401 && !isRefreshing) {
+if (response.status === 401 && !isRefreshing && !url.includes('/authentication/login')) {
     isRefreshing = true;
 
     const refreshResponse = await fetch(
@@ -51,21 +51,35 @@ async function request<T>(
     sessionStorage.setItem('accessToken', accessToken);
 
     return request<T>(url, method, body);
-  }
+}
 
-  if (!response.ok) {
+if (!response.ok) {
+  let errorMessage = "An error occurred";
+  
+  try {
     const text = await response.text();
-    let error: any = {};
+    const errorData = text ? JSON.parse(text) : {};
 
-    try {
-      error = text ? JSON.parse(text) : {};
-    } catch {}
-
-    throw new Error(
-      error.message || `Request failed (${response.status})`
-    );
+    if (errorData.title) {
+      errorMessage = errorData.title === "Unauthorized" 
+        ? "Invalid email or password" 
+        : errorData.title;
+    } 
+    else if (typeof errorData === 'object' && errorData !== null && !Array.isArray(errorData)) {
+      const messages = Object.values(errorData).flat();
+      if (messages.length > 0) {
+        errorMessage = messages.join(". ");
+      }
+    }
+    else if (errorData.message) {
+      errorMessage = errorData.message;
+    }
+  } catch (e) {
+    errorMessage = `Error ${response.status}: ${response.statusText}`;
   }
 
+  throw new Error(errorMessage);
+}
   if (response.status === 201 || response.status === 204) {
     return undefined as T;
   }

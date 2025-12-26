@@ -56,7 +56,11 @@ public static class IQueryableExtensions
         foreach (var property in properties)
         {
             var propertyAccess = Expression.Property(parameter, property);
-            var toLowerCall = Expression.Call(propertyAccess, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)!);
+
+            // Coalesce null string properties to empty string before calling ToLower()
+            var coalesced = Expression.Coalesce(propertyAccess, Expression.Constant(string.Empty, typeof(string)));
+            var toLowerCall = Expression.Call(coalesced, typeof(string).GetMethod("ToLower", System.Type.EmptyTypes)!);
+
             var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
             var searchTermExpression = Expression.Constant(lowerCaseTerm, typeof(string));
             var containsCall = Expression.Call(toLowerCall, containsMethod!, searchTermExpression);
