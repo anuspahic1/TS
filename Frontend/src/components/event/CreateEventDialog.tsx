@@ -18,7 +18,6 @@ import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "../ui/select"
 
-// 1. ŠEMA
 export const eventSchema = z.object({
     name: z.string()
         .min(3, "Title must be at least 3 characters")
@@ -51,7 +50,6 @@ interface CreateEventDialogProps {
 }
 
 export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent }: CreateEventDialogProps) {
-    // FIX: Dodat 'as any' na zodResolver rešava Error 2322 (Type mismatch zbog z.coerce)
     const {
         register,
         handleSubmit,
@@ -71,12 +69,11 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
         },
     })
 
-    // FIX: Eksplicitno definisan SubmitHandler sa EventFormData rešava Error 2345
-    const processData: SubmitHandler<EventFormData> = (data) => {
-        onCreateEvent(data);
-        reset();
-        onOpenChange(false);
-    }
+   const processData: SubmitHandler<EventFormData> = async (data) => { 
+    await onCreateEvent(data); 
+    reset();
+    onOpenChange(false); 
+}
 
     const ErrorMessage = ({ message }: { message?: string }) => (
         message ? (
@@ -99,7 +96,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(processData)} className="p-8 space-y-6">
-                    {/* Title */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
                         <Input 
@@ -110,7 +106,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                         <ErrorMessage message={errors.name?.message} />
                     </div>
 
-                    {/* Description */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Description</label>
                         <Textarea
@@ -122,7 +117,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Date */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-yellow-500" /> Future Date
@@ -134,7 +128,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                             />
                             <ErrorMessage message={errors.eventDate?.message} />
                         </div>
-                        {/* Price */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <DollarSign className="w-3 h-3 text-yellow-500" /> Price ($)
@@ -150,7 +143,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Capacity */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
@@ -162,7 +154,6 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                             />
                             <ErrorMessage message={errors.capacity?.message} />
                         </div>
-                        {/* Location */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-yellow-500" /> Venue

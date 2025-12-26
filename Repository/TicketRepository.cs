@@ -41,7 +41,7 @@ namespace Repository
         public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges)
         {
             return await FindByCondition(t => 
-                t.Reservation != null && t.Reservation.UserId == userId, // Convert Guid to string
+                t.Reservation != null && t.Reservation.UserId == userId, 
                 trackChanges)
                 .ToListAsync();
         }
@@ -49,7 +49,7 @@ namespace Repository
         public async Task<IEnumerable<Ticket>> GetTicketsByUserIdWithDetailsAsync(Guid userId, bool trackChanges)
         {
             return await FindByCondition(t => 
-                t.Reservation != null && t.Reservation.UserId == userId, // Convert Guid to string
+                t.Reservation != null && t.Reservation.UserId == userId, 
                 trackChanges)
                 .Include(t => t.Event) 
                 .Include(t => t.Reservation) 
@@ -63,6 +63,12 @@ namespace Repository
                         .Include(t => t.Reservation) 
                         .OrderByDescending(t => t.Event.EventDate) 
                         .ThenByDescending(t => t.Price)           
+                        .ToListAsync();
+                }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
+                {
+                    return await FindByCondition(t => ids.Contains(t.Id), trackChanges)
                         .ToListAsync();
                 }
 }

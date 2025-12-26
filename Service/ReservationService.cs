@@ -45,49 +45,47 @@ namespace Service
             return reservationDto;
         }
 
-        public async Task<ReservationDto> CreateReservationForEventAsync(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
+       public async Task<ReservationDto> CreateReservationForEventAsync(Guid locationId, Guid eventId, ReservationForCreationDto reservation, bool trackChanges)
         {
             await CheckIfLocationExists(locationId, trackChanges);
             await CheckIfEventExists(locationId, eventId, trackChanges);
 
-            var user = await _repository.AppUser.GetUserAsync(reservation.UserId, trackChanges: true)
-               ?? throw new UserNotFoundException(reservation.UserId);
-
+            var user = await _repository.AppUser.GetUserAsync(reservation.UserId, trackChanges: true) 
+                        ?? throw new UserNotFoundException(reservation.UserId);
+            
             var reservationEntity = _mapper.Map<Reservation>(reservation);
-
-
             reservationEntity.EventId = eventId;
             reservationEntity.CreatedAt = DateTime.UtcNow;
 
-            if (reservation.UseLoyaltyPoints && user.LoyaltyPoints >= 10)
-            {
-                // Primijeni 10% popusta na ukupnu cijenu
-                reservationEntity.TotalPrice = reservationEntity.TotalPrice * 0.9m;
+            reservationEntity.Tickets.Clear(); 
 
-                // Oduzmi 10 "potrošenih" poena
-                user.LoyaltyPoints -= 10;
-            }
-
-            // Dodaj poene za trenutnu kupovinu (svaka karta = 1 poen)
             if (reservation.Tickets != null)
             {
-                user.LoyaltyPoints += reservation.Tickets.Count();
-            }
+                var ticketIds = reservation.Tickets.Select(t => t.Id).ToList();
+                var existingTickets = await _repository.Ticket.GetTicketsByIdsAsync(ticketIds, trackChanges: true);
 
-            if (reservationEntity.Tickets != null)
-            {
-                foreach (var ticket in reservationEntity.Tickets)
+                foreach (var ticket in existingTickets)
                 {
-                    ticket.EventId = eventId;
+                    if (ticket.ReservationId != null || ticket.IsReserved) 
+                        throw new Exception($"Seat {ticket.SeatNumber} is already taken.");
+                    ticket.EventId = eventId; 
+                    ticket.IsReserved = true;
+                    reservationEntity.Tickets.Add(ticket); 
                 }
             }
 
+            if (reservation.UseLoyaltyPoints && user.LoyaltyPoints >= 10)
+            {
+                reservationEntity.TotalPrice *= 0.9m;
+                user.LoyaltyPoints -= 10;
+            }
+            user.LoyaltyPoints += reservation.Tickets?.Count() ?? 0;
+
             _repository.Reservation.CreateReservationForEvent(eventId, reservationEntity);
-            await _repository.SaveAsync();
+            await _repository.SaveAsync(); 
 
             return _mapper.Map<ReservationDto>(reservationEntity);
         }
-
         public async Task DeleteReservationForEventAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
             await CheckIfLocationExists(locationId, trackChanges);
@@ -156,7 +154,7 @@ namespace Service
                 return "upcoming";
         }
         public async Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(
-    Guid locationId, Guid eventId, bool trackChanges)
+             Guid locationId, Guid eventId, bool trackChanges)
         {
 
             await CheckIfLocationExists(locationId, trackChanges);

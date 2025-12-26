@@ -123,7 +123,7 @@ const ReservationPage: React.FC = () => {
               <div key={rowName} className="flex items-center gap-6">
                 <span className="w-6 text-[10px] font-black text-neutral-300">{rowName}</span>
                 <div className="flex gap-3">
-                  {rowTickets.sort((a,b) => a.seatNumber.localeCompare(b.seatNumber)).map(ticket => {
+                  {rowTickets.sort((a,b) => a.seatNumber.localeCompare(b.seatNumber, undefined, {numeric: true, sensitivity: 'base'})).map(ticket => {
                     const isSelected = selectedTickets.some(t => t.id === ticket.id);
                     return (
                       <button

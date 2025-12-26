@@ -56,6 +56,7 @@ const CheckoutPage: React.FC = () => {
       totalPrice: totalPrice, 
       useLoyaltyPoints: usePoints,
       tickets: selectedTickets.map((t: any) => ({
+        id: t.id, 
         price: t.price, 
         seatNumber: t.seatNumber
       }))
@@ -64,7 +65,7 @@ const CheckoutPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
-      
+      console.log("Event ID:", eventId)
       await apiClient.post(`/locations/${locationId}/events/${eventId}/reservations`, reservationData);
       
       Swal.fire({

@@ -36,7 +36,9 @@ const createEvent = async (creatorId: string, data: any) => {
         eventDate: data.eventDate ? new Date(data.eventDate).toISOString() : new Date().toISOString(),
         capacity: Number(data.capacity || 0),
         locationId: locId,
-        creatorId: creatorId
+        creatorId: creatorId,
+        reservations: null,
+        tickets: null
     };
 
     console.log("Creating event object for API:", newEvent);
@@ -124,6 +126,6 @@ return {
     createEvent,
     updateEvent,
     deleteEvent,
-        getEventVisitors,
+    getEventVisitors,
 }
 }

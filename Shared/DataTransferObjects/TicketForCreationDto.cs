@@ -4,6 +4,8 @@ namespace Shared.DataTransferObjects
 {
     public record TicketForCreationDto
     {
+        public Guid Id { get; init; }
+        
         [Required(ErrorMessage = "Ticket price is required.")]
         [Range(0.01, 10000, ErrorMessage = "Ticket price must be greater than 0.")]
         public decimal Price { get; init; }

@@ -23,7 +23,6 @@ const OrganizerDashboard = () => {
   const { user } = useAuth();
   const userId = user?.id;
 
-  // Ime za naslov - ista logika kao na User Dashboardu
   const organizerName = user?.firstName || user?.email?.split('@')[0] || 'Organizer';
 
   useEffect(() => {
@@ -67,18 +66,27 @@ const OrganizerDashboard = () => {
     setViewingVisitors(event);
   }
 
-  const handleCreateEvent = (eventData: any) => {
-    if (!userId) return;
-    createEvent(userId, eventData)
+ const handleCreateEvent = async (eventData: any) => { 
+  if (!userId) return;
+  
+  try {
+    await createEvent(userId, eventData); 
     setEventsRefreshKey(k => k + 1);
-    setIsCreateDialogOpen(false)
+    setIsCreateDialogOpen(false);
+  } catch (error) {
+    console.error("Failed to create event:", error);
   }
+};
 
-  const handleUpdateEvent = (eventId: string, locationId: string, updatedEvent: IEvent) => {
-    updateEvent(locationId, eventId, updatedEvent)
+const handleUpdateEvent = async (eventId: string, locationId: string, updatedEvent: IEvent) => { 
+  try {
+    await updateEvent(locationId, eventId, updatedEvent);
     setEventsRefreshKey(k => k + 1);
-    setEditingEvent(null)
+    setEditingEvent(null);
+  } catch (error) {
+    console.error("Failed to update event:", error);
   }
+};
 
   const handleDeleteEvent = async (eventId: string, locationId: string) => {
     await deleteEvent(eventId, locationId);
@@ -88,7 +96,6 @@ const OrganizerDashboard = () => {
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col font-sans">
       
-      {/* HEADER SEKCIJA: Branding kao na User Dashboardu */}
       <div className="bg-neutral-900 pt-16 pb-24 px-6">
         <div className="container mx-auto max-w-7xl">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -118,7 +125,6 @@ const OrganizerDashboard = () => {
         </div>
       </div>
 
-      {/* MAIN SADRŽAJ: Kartice s eventima */}
       <main className="container mx-auto max-w-7xl px-6 -mt-12 flex-grow pb-20">
         <div className="bg-white rounded-3xl shadow-xl shadow-neutral-200/50 border border-neutral-100 overflow-hidden">
           
@@ -133,7 +139,6 @@ const OrganizerDashboard = () => {
             </div>
             
             <div className="flex gap-2">
-               {/* Ovdje možeš dodati search ili filter kasnije */}
                <div className="h-1 w-12 bg-yellow-500 rounded-full"></div>
             </div>
           </div>
@@ -151,7 +156,6 @@ const OrganizerDashboard = () => {
         </div>
       </main>
 
-      {/* DIALOZI */}
       <CreateEventDialog
         locations={locations}
         open={isCreateDialogOpen}
