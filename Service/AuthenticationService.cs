@@ -34,7 +34,7 @@ namespace Service
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
-            _jwtConfiguration = _configuration.Get("JwtSettings");
+            _jwtConfiguration = _configuration.Value;
             _urlEncoder = urlEncoder;
         }
 
@@ -58,12 +58,15 @@ namespace Service
 
             if (twoFactorEnabled)
             {
+                var preAuthToken = CreatePreAuthToken(_user);
+
                 return new TokenDto(
                     AccessToken: null,
                     RefreshToken: null,
                     TwoFactorEnabled: true,
                     HasAuthenticatorKey: hasAuthenticator,
-                    RequiresTwoFactor: true
+                    RequiresTwoFactor: true,
+                    PreAuthToken: preAuthToken
                 );
             }
 
@@ -74,7 +77,8 @@ namespace Service
                 token.RefreshToken,
                 false,
                 hasAuthenticator,
-                false
+                false,
+                null
             );
         }
 
@@ -114,7 +118,8 @@ namespace Service
                 refreshToken,
                 twoFactorEnabled,
                 hasAuthenticatorKey,
-                false
+                false,
+                null
             );
         }
 
@@ -129,34 +134,6 @@ namespace Service
             _user = user;
 
             return await CreateToken(populateExp: false);
-        }
-
-        public async Task<TfaSetupDto> GetTfaSetup(string email)
-        {
-            // refactor this email with var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByNameAsync(email);
-
-            if (user is null)
-                throw new TfaBadRequest();
-
-            //var isTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
-            var isTfaEnabled = true; // hardcoded for now
-
-            var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
-            if (authenticatorKey is null)
-            {
-                await _userManager.ResetAuthenticatorKeyAsync(user);
-                authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
-            }
-
-            var formattedKey = GenerateQRCode(email, authenticatorKey);
-
-            return new TfaSetupDto
-            {
-                IsTfaEnabled = isTfaEnabled,
-                AuthenticatorKey = authenticatorKey,
-                FormattedKey = formattedKey
-            };
         }
 
         public async Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel)
@@ -177,9 +154,49 @@ namespace Service
             }
         }
 
-        public async Task<TokenDto> VerifyTfa(VerifyTfaDto dto, string email)
+        public async Task<TfaSetupDto> DeleteTfaSetup(string email)
         {
             var user = await _userManager.FindByNameAsync(email);
+            if (user is null)
+            {
+                throw new TfaBadRequest();
+            }
+            else
+            {
+                await _userManager.SetTwoFactorEnabledAsync(user, false);
+                return new TfaSetupDto 
+                { 
+                    IsTfaEnabled = false 
+                };
+            }
+        }
+
+        public async Task<TfaSetupDto> GetTfaSetupByUserId(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new TfaBadRequest();
+
+            var authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            if (authenticatorKey is null)
+            {
+                await _userManager.ResetAuthenticatorKeyAsync(user);
+                authenticatorKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            }
+
+            return new TfaSetupDto
+            {
+                IsTfaEnabled = await _userManager.GetTwoFactorEnabledAsync(user),
+                AuthenticatorKey = authenticatorKey,
+                FormattedKey = GenerateQRCode(user.Email, authenticatorKey)
+            };
+        }
+
+        public async Task<TokenDto> VerifyTfaByUserId(VerifyTfaDto dto, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new TfaBadRequest();
+
+            //var stage = User.FindFirst("auth_stage")?.Value;
+            //if (stage != "2fa_pending")
+            //    return Unauthorized();
 
             var valid = await _userManager.VerifyTwoFactorTokenAsync(
                 user,
@@ -194,23 +211,6 @@ namespace Service
             return await CreateToken(populateExp: true);
         }
 
-        public async Task<TfaSetupDto> DeleteTfaSetup(string email)
-        {
-            var user = await _userManager.FindByNameAsync(email);
-            if (user == null)
-            {
-                throw new TfaBadRequest();
-            }
-            else
-            {
-                await _userManager.SetTwoFactorEnabledAsync(user, false);
-                return new TfaSetupDto 
-                { 
-                    IsTfaEnabled = false 
-                };
-            }
-        }
-
         private SigningCredentials GetSigningCredentials()
         {
             var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
@@ -222,8 +222,8 @@ namespace Service
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, _user.UserName),
-                new Claim(ClaimTypes.Email, _user.Email),
+                new(ClaimTypes.Name, _user.UserName),
+                new(ClaimTypes.Email, _user.Email),
             };
 
             var roles = await _userManager.GetRolesAsync(_user);
@@ -273,9 +273,8 @@ namespace Service
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            SecurityToken securityToken;
 
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
 
             var jwtSecurityToken = securityToken as JwtSecurityToken;
 
@@ -290,5 +289,25 @@ namespace Service
         {
             return string.Format(AuthenticatorUriFormat, _urlEncoder.Encode("EntrioX Two-Factor Auth"), _urlEncoder.Encode(email), unformattedKey);
         }
+
+        private string CreatePreAuthToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new("auth_stage", "2fa_pending")
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtConfiguration.ValidIssuer,
+                audience: _jwtConfiguration.ValidAudience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(3),
+                signingCredentials: GetSigningCredentials()
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
     }
 }

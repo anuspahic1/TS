@@ -29,6 +29,7 @@ export const useTwoStepVerification = () => {
       const result = await authService.verifyTfa(code);
 
       completeLogin(result.accessToken);
+      localStorage.removeItem("preAuthToken");
 
       navigate('/rewards');
     } catch (err: any) {

@@ -6,7 +6,6 @@ export const useLogin = () => {
   const [formData, setFormData] = useState({
     userName: '',
     password: '',
-   // totpCode: '',
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -35,10 +34,9 @@ export const useLogin = () => {
     try {
       const result = await login(formData);
       if (!result.hasAuthenticatorKey) {
-        console.log('Navigating to 2FA setup');
         navigate('/2fa-setup');
       } else if (result.twoFactorEnabled) {
-        console.log('Navigating to two-step verification');
+        localStorage.setItem("preAuthToken", result.preAuthToken || '');
         navigate('/two-step-verification');
       } else {
         navigate('/rewards');

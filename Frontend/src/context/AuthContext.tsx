@@ -13,6 +13,8 @@ type LoginResult = {
   refreshToken: string;
   twoFactorEnabled: boolean;
   hasAuthenticatorKey: boolean;
+  requiresTwoFactor: boolean;
+  preAuthToken?: string;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);

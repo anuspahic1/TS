@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.Security.Claims;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -45,12 +46,11 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet("tfa-setup")]
-        //[ServiceFilter(typeof(ValidationFilterAttribute))] // remove this when we dont have parameters
-        //[Authorize] 
-        public async Task<IActionResult> GetTfaSetup()  //security issue, removing email from query param, should use authorize + user.identity
+        [Authorize(AuthenticationSchemes = "PreAuth")]
+        public async Task<IActionResult> GetTfaSetup()
         {
-            var email = "edzanko1@etf.unsa.ba";
-            var tfaSetup = await _service.AuthenticationService.GetTfaSetup(email);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var tfaSetup = await _service.AuthenticationService.GetTfaSetupByUserId(userId);
             return Ok(tfaSetup);
         }
 
@@ -63,11 +63,14 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost("verify-tfa")]
+        [Authorize(AuthenticationSchemes = "PreAuth")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> VerifyTfa([FromBody] VerifyTfaDto dto)
         {
-            var email = "edzanko1@etf.unsa.ba";
-            var token = await _service.AuthenticationService.VerifyTfa(dto, email); // should be used really identity mail, hardcoded for now
+            var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var token = await _service.AuthenticationService.VerifyTfaByUserId(dto, userId);
             return Ok(token);
         }
     }

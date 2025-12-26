@@ -4,8 +4,8 @@ export const apiClient = {
   async get<T>(url: string): Promise<T> {
     return request<T>(url, 'GET');
   },
-  async post<T>(url: string, body?: unknown): Promise<T> {
-    return request<T>(url, 'POST', body);
+  async post<T>(url: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
+    return request<T>(url, 'POST', body, headers);
   },
 };
 
@@ -14,21 +14,35 @@ let isRefreshing = false;
 async function request<T>(
   url: string,
   method: string,
-  body?: unknown
+  body?: unknown,
+  headers: Record<string, string> = {}
 ): Promise<T> {
-  const token = sessionStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem('accessToken');
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     method,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
+
+      ...(headers.Authorization
+        ? { Authorization: headers.Authorization }
+        : accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : {}
+      ),
+
+      ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
   });
 
-if (response.status === 401 && !isRefreshing && !url.includes('/authentication/login')) {
+  if (
+    response.status === 401 &&
+    !isRefreshing &&
+    !url.includes('/authentication/login') &&
+    !headers.Authorization
+  ) {
     isRefreshing = true;
 
     const refreshResponse = await fetch(
@@ -42,44 +56,48 @@ if (response.status === 401 && !isRefreshing && !url.includes('/authentication/l
     isRefreshing = false;
 
     if (!refreshResponse.ok) {
-      sessionStorage.removeItem('accessToken');
+      localStorage.removeItem('accessToken');
       window.location.href = '/login';
       throw new Error('Session expired');
     }
 
-    const { accessToken } = await refreshResponse.json();
-    sessionStorage.setItem('accessToken', accessToken);
+    const { accessToken: newAccessToken } = await refreshResponse.json();
+    localStorage.setItem('accessToken', newAccessToken);
 
     return request<T>(url, method, body);
-}
-
-if (!response.ok) {
-  let errorMessage = "An error occurred";
-  
-  try {
-    const text = await response.text();
-    const errorData = text ? JSON.parse(text) : {};
-
-    if (errorData.title) {
-      errorMessage = errorData.title === "Unauthorized" 
-        ? "Invalid email or password" 
-        : errorData.title;
-    } 
-    else if (typeof errorData === 'object' && errorData !== null && !Array.isArray(errorData)) {
-      const messages = Object.values(errorData).flat();
-      if (messages.length > 0) {
-        errorMessage = messages.join(". ");
-      }
-    }
-    else if (errorData.message) {
-      errorMessage = errorData.message;
-    }
-  } catch (e) {
-    errorMessage = `Error ${response.status}: ${response.statusText}`;
   }
 
-  throw new Error(errorMessage);
-}
+  if (!response.ok) {
+    let errorMessage = 'An error occurred';
+
+    try {
+      const text = await response.text();
+      const errorData = text ? JSON.parse(text) : {};
+
+      if (errorData.title) {
+        errorMessage =
+          errorData.title === 'Unauthorized'
+            ? 'Invalid credentials'
+            : errorData.title;
+      } else if (
+        typeof errorData === 'object' &&
+        errorData !== null &&
+        !Array.isArray(errorData)
+      ) {
+        const messages = Object.values(errorData).flat();
+        if (messages.length > 0) {
+          errorMessage = messages.join('. ');
+        }
+      } else if (errorData.message) {
+        errorMessage = errorData.message;
+      }
+    } catch {
+      errorMessage = `Error ${response.status}: ${response.statusText}`;
+    }
+
+    throw new Error(errorMessage);
+  }
+
   if (response.status === 201 || response.status === 204) {
     return undefined as T;
   }

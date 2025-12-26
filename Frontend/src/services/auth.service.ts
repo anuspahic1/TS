@@ -19,6 +19,8 @@ export interface IAuthResponse {
   refreshToken: string;
   twoFactorEnabled: boolean;
   hasAuthenticatorKey: boolean;
+  requiresTwoFactor: boolean;
+  preAuthToken?: string;
 }
 
 export interface ITwoFactorSetupInfo {
@@ -55,7 +57,15 @@ async function postTfaSetup(code: string, email: string): Promise<void> {
 }
 
 async function verifyTfa(code: string): Promise<IAuthResponse> {
-  return apiClient.post('/authentication/verify-tfa', { code });
+  const preAuthToken = localStorage.getItem("preAuthToken");
+
+  return apiClient.post(
+    "/authentication/verify-tfa",
+    { code },
+    {
+      Authorization: `Bearer ${preAuthToken}`,
+    }
+  );
 }
 
 async function refresh(): Promise<IAuthResponse> {
