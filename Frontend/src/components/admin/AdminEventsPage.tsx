@@ -17,7 +17,8 @@ import Swal from 'sweetalert2';
 
 const AdminEventsPage = () => {
   const { user } = useAuth();
-  const { getAllEvents, createEvent, updateEvent, deleteEvent } = useEvents(); 
+  // Dodano getEventVisitors iz hook-a
+  const { getAllEvents, createEvent, updateEvent, deleteEvent, getEventVisitors } = useEvents(); 
   const { getLocations } = useLocations();
   
   const [locations, setLocations] = useState<any[]>([]);
@@ -27,14 +28,18 @@ const AdminEventsPage = () => {
   const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // State za dijaloge i posjetitelje
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<IEvent | null>(null);
   const [viewingVisitors, setViewingVisitors] = useState<IEvent | null>(null);
+  const [visitors, setVisitors] = useState<any[]>([]);
 
+  // 1. Učitavanje lokacija
   useEffect(() => {
     getLocations().then(setLocations);
   }, []);
 
+  // 2. Učitavanje svih evenata
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
@@ -63,6 +68,7 @@ const AdminEventsPage = () => {
     fetchAll();
   }, [eventsRefreshKey]);
 
+  // 3. Pretraga (Filter)
   useEffect(() => {
     const filtered = events.filter(e => 
       e.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -71,9 +77,29 @@ const AdminEventsPage = () => {
     setFilteredEvents(filtered);
   }, [searchTerm, events]);
 
+  // 4. Funkcija za dohvaćanje posjetitelja
+  const handleViewVisitors = async (event: IEvent) => {
+    if (!event) return;
+    try {
+      // Pozivamo API preko hook-a
+      const visitorsData = await getEventVisitors(event.locationId, event.id);
+      setVisitors(visitorsData);
+      setViewingVisitors(event);
+    } catch (error) {
+      console.error("Failed to fetch visitors:", error);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Could not load visitors for this event.',
+        icon: 'error',
+        confirmButtonColor: '#000000'
+      });
+    }
+  };
+
   return (
     <div className="p-6 space-y-8 bg-gray-50/50 min-h-screen">
       
+      {/* Header Sekcija */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
         <div>
           <h1 className="text-4xl font-black uppercase italic tracking-tighter">
@@ -92,6 +118,7 @@ const AdminEventsPage = () => {
         </Button>
       </div>
 
+      {/* Search Bar */}
       <div className="relative group max-w-2xl">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-yellow-500">
           <Search className="h-5 w-5 text-gray-400 group-focus-within:text-yellow-500" />
@@ -117,7 +144,7 @@ const AdminEventsPage = () => {
               <EventsList
                 events={filteredEvents}
                 onEdit={setEditingEvent}
-                onViewVisitors={setViewingVisitors}
+                onViewVisitors={handleViewVisitors} // Ovdje koristimo novu funkciju
                 onDelete={async (id: string, locId: string) => {
                   Swal.fire({
                     title: 'Are you sure?',
@@ -128,7 +155,6 @@ const AdminEventsPage = () => {
                     cancelButtonColor: '#ef4444',  
                     confirmButtonText: 'Yes, delete it!',
                     cancelButtonText: 'No, keep it',
-                    target: 'body'
                   }).then(async (result) => {
                     if (result.isConfirmed) {
                       try {
@@ -136,16 +162,12 @@ const AdminEventsPage = () => {
                         setEventsRefreshKey(k => k + 1);
                         Swal.fire({
                           title: 'Deleted!',
-                          text: 'Event successfully removed from the hub.',
+                          text: 'Event successfully removed.',
                           icon: 'success',
                           confirmButtonColor: '#EAB308' 
                         });
                       } catch (error) {
-                        Swal.fire({
-                          title: 'Error!',
-                          text: 'Critical error during deletion.',
-                          icon: 'error'
-                        });
+                        Swal.fire({ title: 'Error!', text: 'Critical error during deletion.', icon: 'error' });
                       }
                     }
                   });
@@ -155,13 +177,14 @@ const AdminEventsPage = () => {
             {filteredEvents.length === 0 && (
               <div className="py-20 text-center">
                 <Globe className="h-12 w-12 text-gray-200 mx-auto mb-4" />
-                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs font-mono">No matching events found in the database.</p>
+                <p className="text-gray-400 font-bold uppercase tracking-widest text-xs font-mono">No matching events found.</p>
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
+      {/* Dialog: Create Event */}
       <CreateEventDialog
         locations={locations}
         open={isCreateDialogOpen}
@@ -172,13 +195,7 @@ const AdminEventsPage = () => {
               await createEvent(user.id, data);
               setEventsRefreshKey((k: number) => k + 1);
               setIsCreateDialogOpen(false);
-              Swal.fire({
-                title: 'Event Created!',
-                text: 'The new event has been successfully broadcasted.',
-                icon: 'success',
-                confirmButtonColor: '#EAB308', 
-                confirmButtonText: 'Perfect'
-              });
+              Swal.fire({ title: 'Created!', text: 'Event broadcasted successfully.', icon: 'success', confirmButtonColor: '#EAB308' });
             } catch (error) {
               Swal.fire({ title: 'Error!', text: 'Failed to create event.', icon: 'error' });
             }
@@ -186,23 +203,19 @@ const AdminEventsPage = () => {
         }}
       />
 
+      {/* Dialog: Edit Event */}
       {editingEvent && (
         <EditEventDialog
           locations={locations}
           open={!!editingEvent}
           onOpenChange={(open) => !open && setEditingEvent(null)}
           event={editingEvent}
-          onUpdateEvent={async (id: string, locId: string, updated: any) => {
+          onUpdateEvent={async (locationId: string, eventId: string, updated: any) => {
             try {
-              await updateEvent(locId, id, updated);
+              await updateEvent(locationId, eventId, updated);
               setEventsRefreshKey(k => k + 1);
               setEditingEvent(null);
-              Swal.fire({
-                title: 'Updated!',
-                text: 'Event metrics and data refreshed.',
-                icon: 'success',
-                confirmButtonColor: '#EAB308'
-              });
+              Swal.fire({ title: 'Updated!', text: 'Event metrics refreshed.', icon: 'success', confirmButtonColor: '#EAB308' });
             } catch (error) {
               Swal.fire({ title: 'Failed!', text: 'Update failed. Check date constraints.', icon: 'error' });
             }
@@ -210,11 +223,18 @@ const AdminEventsPage = () => {
         />
       )}
 
+      {/* Dialog: View Visitors (Sada s učitanim podacima) */}
       {viewingVisitors && (
         <ViewVisitorsDialog
           open={!!viewingVisitors}
-          onOpenChange={(open) => !open && setViewingVisitors(null)}
-          event={viewingVisitors}
+          onOpenChange={(open) => {
+            if (!open) {
+              setViewingVisitors(null);
+              setVisitors([]); // Čistimo state pri zatvaranju
+            }
+          }}
+          // Ovdje spajamo podatke o eventu sa listom posjetitelja koju smo dohvatili
+          event={{ ...viewingVisitors, visitors }}
         />
       )}
     </div>

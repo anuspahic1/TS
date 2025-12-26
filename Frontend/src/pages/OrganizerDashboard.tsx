@@ -78,8 +78,9 @@ const OrganizerDashboard = () => {
   }
 };
 
-const handleUpdateEvent = async (eventId: string, locationId: string, updatedEvent: IEvent) => { 
+const handleUpdateEvent = async (locationId: string, eventId: string, updatedEvent: IEvent) => { 
   try {
+    // Now locationId is actually the locationId, and eventId is the eventId
     await updateEvent(locationId, eventId, updatedEvent);
     setEventsRefreshKey(k => k + 1);
     setEditingEvent(null);

@@ -60,34 +60,28 @@ const createEvent = async (creatorId: string, data: any) => {
     }
 };
 
-const updateEvent = async (locationId: string, eventId: string, updatedEvent: any) => {
+// useEvents.ts
+
+const updateEvent = async (locationId: string, eventId: string, data: any) => {
     try {
-        console.log("Data received in updateEvent:", updatedEvent);
-
-        const rawDate = updatedEvent.eventDate || updatedEvent.date;
-        const dateObject = new Date(rawDate);
-
-        if (isNaN(dateObject.getTime())) {
-            throw new Error(`Invalid date provided: ${rawDate}`);
-        }
-
+        // This matches your confirmed PUT /api/locations/{locationId}/events/{id}
         const response = await axios.put(
             `${import.meta.env.VITE_API_URL}/locations/${locationId}/events/${eventId}`, 
-            {
-                name: updatedEvent.name,
-                description: updatedEvent.description,
-                minTicketPrice: Number(updatedEvent.minTicketPrice || updatedEvent.price || 0),
-                eventDate: dateObject.toISOString(), 
-                capacity: Number(updatedEvent.capacity || updatedEvent.eventSeatCapacity || 0),
-                locationId: locationId,
-            }
+            data
         );
 
         setEvents((prev) =>
-            prev.map((e) => (e.id === eventId ? response.data : e))
+            prev.map((e: any) => {
+                // Check against both possible ID names to be safe
+                const isMatch = e.id === eventId || e.eventId === eventId;
+                return isMatch ? response.data : e;
+            })
         );
+        
+        return response.data;
     } catch (error) {
         console.error("Error updating event:", error);
+        throw error; // Re-throw so the component knows it failed
     }
 };
 

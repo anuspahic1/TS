@@ -13,6 +13,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogDescription, 
 } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
@@ -29,7 +30,6 @@ interface EditEventDialogProps {
 
 export function EditEventDialog({ locations, open, onOpenChange, event, onUpdateEvent }: EditEventDialogProps) {
     
-    // Funkcija koja vraća trenutno vrijeme za 'min' atribut inputa
     const getMinDateTime = () => {
         const now = new Date();
         now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -50,36 +50,51 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
         formState: { errors, isSubmitting },
     } = useForm<EventFormData>({
         resolver: zodResolver(eventSchema) as any,
-        mode: "onChange",
+        mode: "onSubmit", 
     })
 
     useEffect(() => {
-        if (event && open) {
-            reset({
-                name: event.name || "",
-                description: event.description || "",
-                minTicketPrice: (event.minTicketPrice ?? event.price) || 0.01,
-                eventDate: formatForInput(event.eventDate || event.date || ""),
-                capacity: event.capacity ?? event.eventSeatCapacity ?? 1,
-                locationId: typeof event.locationId === 'string' 
-                    ? event.locationId 
-                    : (event.location?.id || ""),
-            });
-        }
-    }, [event, open, reset]);
+    if (open && event) {
+        reset({
+            name: event.name || "",
+            description: event.description || "",
+            minTicketPrice: Number((event.minTicketPrice ?? event.price) || 0),
+            eventDate: formatForInput(event.eventDate || event.date || ""),
+            capacity: Number((event.capacity ?? event.eventSeatCapacity) ?? 1),
+            locationId: typeof event.locationId === 'string' 
+                ? event.locationId 
+                : (event.location?.id || ""),
+        });
+    }
+}, [open, event, reset]);
 
-    const processUpdate: SubmitHandler<EventFormData> = async (data) => {
-        await onUpdateEvent(data.locationId, event.id, data);
-        onOpenChange(false);
+
+const processUpdate: SubmitHandler<EventFormData> = async (formData) => {
+    const eventId = event.id || event.eventId;
+
+    const originalLocationId = event.locationId || event.location?.id || event.location?.locationId;
+
+    console.log(" URL Params -> Location:", originalLocationId, "Event:", eventId);
+
+    if (!eventId || !originalLocationId) {
+        console.error("Missing IDs. Check the 'event' object structure.");
+        return;
     }
 
-    const ErrorMessage = ({ message }: { message?: string }) => (
-        message ? (
-            <p className="text-[10px] font-black text-red-500 uppercase mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" /> {message}
-            </p>
-        ) : null
-    );
+    try {
+        await onUpdateEvent(originalLocationId, eventId, formData);
+        onOpenChange(false);
+    } catch (err) {
+    }
+};
+
+const ErrorMessage = ({ message }: { message?: string }) => (
+    message ? (
+        <p className="text-[10px] font-black text-red-500 uppercase mt-1 flex items-center gap-1">
+            <AlertCircle className="w-3 h-3" /> {message}
+        </p>
+    ) : null
+);
 
     if (!event) return null;
 
@@ -93,6 +108,9 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                     <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter text-white">
                         Update Deployment
                     </DialogTitle>
+                    <DialogDescription className="text-neutral-400 text-xs">
+                        Adjust parameters for existing event deployment.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(processUpdate)} className="p-8 space-y-6">
@@ -121,7 +139,7 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                             </label>
                             <Input 
                                 type="datetime-local" 
-                                min={getMinDateTime()} // BLOKIRA PROŠLE DATUME I VRIJEME
+                                min={getMinDateTime()}
                                 {...register("eventDate")} 
                                 className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
