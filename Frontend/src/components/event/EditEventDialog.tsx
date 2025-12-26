@@ -29,10 +29,16 @@ interface EditEventDialogProps {
 
 export function EditEventDialog({ locations, open, onOpenChange, event, onUpdateEvent }: EditEventDialogProps) {
     
+    // Funkcija koja vraća trenutno vrijeme za 'min' atribut inputa
+    const getMinDateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 16);
+    };
+
     const formatForInput = (dateString: string) => {
         if (!dateString) return "";
         const d = new Date(dateString);
-        // Osigurava da format bude YYYY-MM-DDTHH:mm za datetime-local input
         return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     }
 
@@ -52,17 +58,17 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
             reset({
                 name: event.name || "",
                 description: event.description || "",
-                // Usklađeno sa novom šemom (minTicketPrice, eventDate, capacity, locationId)
-                minTicketPrice: event.minTicketPrice ?? event.price ?? 0,
+                minTicketPrice: (event.minTicketPrice ?? event.price) || 0.01,
                 eventDate: formatForInput(event.eventDate || event.date || ""),
-                capacity: event.capacity ?? event.eventSeatCapacity ?? 0,
-                locationId: typeof event.locationId === 'string' ? event.locationId : (event.location?.id || ""),
+                capacity: event.capacity ?? event.eventSeatCapacity ?? 1,
+                locationId: typeof event.locationId === 'string' 
+                    ? event.locationId 
+                    : (event.location?.id || ""),
             });
         }
     }, [event, open, reset]);
 
     const processUpdate: SubmitHandler<EventFormData> = async (data) => {
-        // Redosled argumenata mora pratiti tvoj hook: updateEvent(locationId, eventId, updatedEvent)
         await onUpdateEvent(data.locationId, event.id, data);
         onOpenChange(false);
     }
@@ -90,7 +96,6 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(processUpdate)} className="p-8 space-y-6">
-                    {/* Title */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
                         <Input 
@@ -100,7 +105,6 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                         <ErrorMessage message={errors.name?.message} />
                     </div>
 
-                    {/* Description */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Mission Description</label>
                         <Textarea
@@ -111,19 +115,18 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Date */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-yellow-500" /> New Date
                             </label>
                             <Input 
                                 type="datetime-local" 
+                                min={getMinDateTime()} // BLOKIRA PROŠLE DATUME I VRIJEME
                                 {...register("eventDate")} 
                                 className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
                             <ErrorMessage message={errors.eventDate?.message} />
                         </div>
-                        {/* Price */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <DollarSign className="w-3 h-3 text-yellow-500" /> Ticket Price
@@ -139,7 +142,6 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                        {/* Capacity */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
@@ -151,7 +153,6 @@ export function EditEventDialog({ locations, open, onOpenChange, event, onUpdate
                             />
                             <ErrorMessage message={errors.capacity?.message} />
                         </div>
-                        {/* Location */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-yellow-500" /> Target Venue

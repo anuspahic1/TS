@@ -30,6 +30,7 @@ namespace Repository
                          r.Event.LocationId == locationId &&
                          r.Id == id,
                     trackChanges)
+                    .Include(r => r.Tickets) 
                 .SingleOrDefaultAsync();
         }
 
@@ -65,24 +66,25 @@ namespace Repository
                 .Include(r => r.Tickets)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
-        }
-        public async Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(
+        }public async Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(
     Guid locationId, Guid eventId, bool trackChanges)
+{
+    return await FindByCondition(
+            r => r.EventId == eventId &&
+                 r.Event.LocationId == locationId,
+            trackChanges)
+        .Include(r => r.User)
+        .Include(r => r.Tickets)
+        .Select(r => new EventVisitorDto
         {
-            return await FindByCondition(
-                    r => r.EventId == eventId &&
-                         r.Event.LocationId == locationId,
-                    trackChanges)
-                .Include(r => r.User)
-                .GroupBy(r => r.User)
-                .Select(g => new EventVisitorDto
-                {
-                    UserId = g.Key.Id,
-                    Email = g.Key.Email!,
-                    FullName = g.Key.FullName!
-                })
-                .ToListAsync();
-        }
+            ReservationId = r.Id, 
+            UserId = r.UserId,
+            Email = r.User.Email!,
+            FullName = r.User.FullName!,
+            TicketsCount = r.Tickets.Count 
+        })
+        .ToListAsync();
+}
 
 
 

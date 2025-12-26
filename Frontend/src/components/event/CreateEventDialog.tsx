@@ -21,21 +21,23 @@ import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from ".
 export const eventSchema = z.object({
     name: z.string()
         .min(3, "Title must be at least 3 characters")
-        .max(50, "Title too long"),
+        .max(100, "Event name max length is 100"), 
     description: z.string()
-        .min(11, "Description must be longer than 10 characters"),
+        .min(11, "Description must be longer than 10 characters")
+        .max(500, "Description max length is 500"), 
     minTicketPrice: z.coerce.number()
-        .min(0, "Price cannot be negative"),
+        .min(0.01, "Min ticket price must be >= 0.01"), 
     eventDate: z.string()
-        .min(1, "Date and time are required")
+        .min(1, "Event date is required")
         .refine((val) => {
             const selectedDate = new Date(val);
             const now = new Date();
             return selectedDate > now;
-        }, { message: "Event date must be in the future" }),
+        }, { message: "Event date cannot be in the past" }), 
     capacity: z.coerce.number()
         .int("Must be a whole number")
-        .positive("Capacity must be at least 1"),
+        .min(1, "Capacity must be at least 1")
+        .max(100, "Capacity exceeds maximum limit of 100"), 
     locationId: z.string()
         .min(1, "Please select a venue"),
 })
@@ -50,6 +52,15 @@ interface CreateEventDialogProps {
 }
 
 export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent }: CreateEventDialogProps) {
+    
+    // Pomoćna funkcija za blokiranje prošlih datuma u UI kalendaru
+    const getMinDateTime = () => {
+        const now = new Date();
+        // Podešavanje za vremensku zonu kako bi ISO string bio tačan za input
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 16);
+    };
+
     const {
         register,
         handleSubmit,
@@ -96,6 +107,7 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit(processData)} className="p-8 space-y-6">
+                    {/* Event Title */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
                         <Input 
@@ -106,6 +118,7 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                         <ErrorMessage message={errors.name?.message} />
                     </div>
 
+                    {/* Description */}
                     <div className="space-y-1.5">
                         <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Description</label>
                         <Textarea
@@ -117,17 +130,21 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
+                        {/* Event Date s min atributom */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-yellow-500" /> Future Date
                             </label>
                             <Input 
                                 type="datetime-local" 
+                                min={getMinDateTime()} // ONEMOGUĆAVA PROŠLOST U UI-u
                                 {...register("eventDate")} 
                                 className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
                             <ErrorMessage message={errors.eventDate?.message} />
                         </div>
+
+                        {/* Price */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <DollarSign className="w-3 h-3 text-yellow-500" /> Price ($)
@@ -143,6 +160,7 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
+                        {/* Capacity */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
@@ -154,6 +172,8 @@ export function CreateEventDialog({ locations, open, onOpenChange, onCreateEvent
                             />
                             <ErrorMessage message={errors.capacity?.message} />
                         </div>
+
+                        {/* Venue Selection */}
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
                                 <MapPin className="w-3 h-3 text-yellow-500" /> Venue

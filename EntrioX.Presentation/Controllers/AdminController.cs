@@ -6,6 +6,7 @@ using Service.Contracts;
 
 namespace EntrioX.Presentation.Controllers
 {
+   // [Authorize(Roles = "Administrator")]
     [Route("api/admin")]
     [ApiController]
     public class AdminController : ControllerBase

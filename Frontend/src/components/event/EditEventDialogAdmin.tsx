@@ -1,200 +1,201 @@
 "use client"
 
 import { useEffect } from "react"
-import type { Event } from "../../types/IEvent"
+import { useForm, Controller } from "react-hook-form"
+import type { SubmitHandler } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Calendar, DollarSign, Users, MapPin, Save, AlertCircle } from "lucide-react"
+
 import { Button } from "../ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Textarea } from "../ui/textarea"
-import { Controller, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from "../ui/select"
 import { eventSchema, type EventFormData } from "./CreateEventDialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Calendar, DollarSign, Users, MapPin, Type, AlignLeft, RefreshCcw } from "lucide-react"
 
 interface EditEventDialogProps {
     open: boolean
     onOpenChange: (open: boolean) => void
-    event: Event
-    onUpdateEvent: any,
+    event: any 
+    onUpdateEvent: (locationId: string, eventId: string, data: any) => void
     locations: any[]
 }
 
-function formatForDateInput(dateStr?: string) {
-    if (!dateStr) return ""
-    const tIndex = dateStr.indexOf("T")
-    if (tIndex === -1) return dateStr
-    return dateStr.slice(0, tIndex)
-}
-
 export function EditEventDialog({ locations, open, onOpenChange, event, onUpdateEvent }: EditEventDialogProps) {
+    
+    // Funkcija koja vraća trenutno vrijeme za 'min' atribut inputa
+    const getMinDateTime = () => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        return now.toISOString().slice(0, 16);
+    };
+
+    const formatForInput = (dateString: string) => {
+        if (!dateString) return "";
+        const d = new Date(dateString);
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    }
+
     const {
         register,
         handleSubmit,
         control,
         reset,
-        formState: { errors },
+        formState: { errors, isSubmitting },
     } = useForm<EventFormData>({
-        resolver: zodResolver(eventSchema),
-        defaultValues: {
-            name: event.name,
-            description: event.description,
-            price: event.price.toString(),
-            date: formatForDateInput(event.date),
-            eventSeatCapacity: event.eventSeatCapacity.toString(),
-            location: event.locationId ?? event.location,
-        },
+        resolver: zodResolver(eventSchema) as any,
+        mode: "onChange",
     })
 
     useEffect(() => {
-        reset({
-            name: event.name,
-            description: event.description,
-            price: event.price.toString(),
-            date: formatForDateInput(event.date),
-            eventSeatCapacity: event.eventSeatCapacity.toString(),
-            location: event.locationId,
-        })
-    }, [event, reset])
-
-    const onSubmit = (data: EventFormData) => {
-        const updated = {
-            id: event.id,
-            name: data.name,
-            description: data.description,
-            price: Number(data.price),
-            date: data.date,
-            eventSeatCapacity: Number(data.eventSeatCapacity),
-            location: event.locationId ?? data.location,
-            locationId: data.location,
+        if (event && open) {
+            reset({
+                name: event.name || "",
+                description: event.description || "",
+                minTicketPrice: (event.minTicketPrice ?? event.price) || 0.01,
+                eventDate: formatForInput(event.eventDate || event.date || ""),
+                capacity: event.capacity ?? event.eventSeatCapacity ?? 1,
+                locationId: typeof event.locationId === 'string' 
+                    ? event.locationId 
+                    : (event.location?.id || ""),
+            });
         }
-        onUpdateEvent(event.id, event.locationId ?? data.location, updated)
+    }, [event, open, reset]);
+
+    const processUpdate: SubmitHandler<EventFormData> = async (data) => {
+        await onUpdateEvent(data.locationId, event.id, data);
+        onOpenChange(false);
     }
+
+    const ErrorMessage = ({ message }: { message?: string }) => (
+        message ? (
+            <p className="text-[10px] font-black text-red-500 uppercase mt-1 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" /> {message}
+            </p>
+        ) : null
+    );
+
+    if (!event) return null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border-none shadow-2xl">
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-yellow-500 via-black to-yellow-500" />
-                
-                <DialogHeader className="pt-4">
-                    <DialogTitle className="text-3xl font-black uppercase italic tracking-tighter">
-                        Edit <span className="text-yellow-500">Event Details</span>
+            <DialogContent className="max-w-2xl bg-white rounded-3xl border-none shadow-2xl p-0 overflow-hidden outline-none">
+                <DialogHeader className="bg-neutral-900 p-8 text-left border-none">
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-500 block mb-2">
+                        Configuration Mode
+                    </span>
+                    <DialogTitle className="text-3xl font-black italic uppercase tracking-tighter text-white">
+                        Update Deployment
                     </DialogTitle>
-                    <DialogDescription className="font-medium text-gray-500">
-                        Modify existing parameters for <span className="text-black font-bold">"{event.name}"</span>.
-                    </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
-                    <div className="grid gap-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                            <Type className="h-3 w-3 mr-2 text-yellow-500" /> Event Name
-                        </label>
+                <form onSubmit={handleSubmit(processUpdate)} className="p-8 space-y-6">
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Event Title</label>
                         <Input 
-                            className="rounded-xl border-gray-200 focus:ring-yellow-500 py-6 font-semibold"
-                            {...register("name")} 
+                            {...register("name")}
+                            className={`rounded-xl border-2 h-12 transition-all ${errors.name ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
                         />
-                        {errors.name && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.name.message}</p>}
+                        <ErrorMessage message={errors.name?.message} />
                     </div>
 
-                    <div className="grid gap-2">
-                        <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                            <AlignLeft className="h-3 w-3 mr-2 text-yellow-500" /> Description
-                        </label>
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1">Mission Description</label>
                         <Textarea
-                            className="min-h-24 rounded-xl border-gray-200 focus:ring-yellow-500"
                             {...register("description")}
+                            className={`min-h-[100px] rounded-xl border-2 transition-all ${errors.description ? 'border-red-500 bg-red-50' : 'border-neutral-100 bg-neutral-50 focus:border-yellow-500'}`}
                         />
-                        {errors.description && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.description.message}</p>}
+                        <ErrorMessage message={errors.description?.message} />
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                                <Calendar className="h-3 w-3 mr-2 text-yellow-500" /> Event Date
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-yellow-500" /> New Date
                             </label>
                             <Input 
-                                type="date" 
-                                className="rounded-xl border-gray-200 py-6 font-medium"
-                                {...register("date")} 
+                                type="datetime-local" 
+                                min={getMinDateTime()} // BLOKIRA PROŠLE DATUME I VRIJEME
+                                {...register("eventDate")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.eventDate ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
-                            {errors.date && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.date.message}</p>}
+                            <ErrorMessage message={errors.eventDate?.message} />
                         </div>
-
-                        <div className="grid gap-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                                <DollarSign className="h-3 w-3 mr-2 text-yellow-500" /> Ticket Price ($)
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3 text-yellow-500" /> Ticket Price
                             </label>
                             <Input 
                                 type="number" 
                                 step="0.01" 
-                                className="rounded-xl border-gray-200 py-6 font-medium"
-                                {...register("price")} 
+                                {...register("minTicketPrice")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.minTicketPrice ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
-                            {errors.price && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.price.message}</p>}
+                            <ErrorMessage message={errors.minTicketPrice?.message} />
                         </div>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="grid gap-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                                <Users className="h-3 w-3 mr-2 text-yellow-500" /> Seat Capacity
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <Users className="w-3 h-3 text-yellow-500" /> Max Capacity
                             </label>
                             <Input 
                                 type="number" 
-                                className="rounded-xl border-gray-200 py-6 font-medium"
-                                {...register("eventSeatCapacity")} 
+                                {...register("capacity")} 
+                                className={`rounded-xl border-2 h-12 transition-all ${errors.capacity ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`} 
                             />
-                            {errors.eventSeatCapacity && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.eventSeatCapacity.message}</p>}
+                            <ErrorMessage message={errors.capacity?.message} />
                         </div>
-
-                        <div className="grid gap-2">
-                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 flex items-center">
-                                <MapPin className="h-3 w-3 mr-2 text-yellow-500" /> Location Hub
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-neutral-400 ml-1 flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-yellow-500" /> Target Venue
                             </label>
                             <Controller
-                                name="location"
+                                name="locationId"
                                 control={control}
                                 render={({ field }) => (
-                                    <Select value={field.value} onValueChange={field.onChange}>
-                                        <SelectTrigger className="rounded-xl border-gray-200 py-6">
-                                            <SelectValue placeholder="Select location" />
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <SelectTrigger className={`rounded-xl border-2 h-12 transition-all ${errors.locationId ? 'border-red-500 bg-red-50' : 'bg-neutral-50 border-neutral-100'}`}>
+                                            <SelectValue placeholder="Select venue" />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-xl">
-                                            {locations.map((location) => (
-                                                <SelectItem key={location.id} value={location.id}>
-                                                    {location.name}
-                                                </SelectItem>
+                                        <SelectContent>
+                                            {locations.map((loc) => (
+                                                <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 )}
                             />
-                            {errors.location && <p className="text-[10px] font-bold text-red-500 uppercase italic">{errors.location.message}</p>}
+                            <ErrorMessage message={errors.locationId?.message} />
                         </div>
                     </div>
 
-                    <DialogFooter className="pt-4 gap-2">
+                    <DialogFooter className="pt-6 border-t border-neutral-50 gap-2">
                         <Button 
                             type="button" 
                             variant="ghost" 
                             onClick={() => onOpenChange(false)} 
-                            className="font-bold hover:bg-gray-100 rounded-xl"
+                            className="font-bold uppercase tracking-widest text-[10px] hover:bg-neutral-50"
                         >
-                            Discard Changes
+                            Cancel Changes
                         </Button>
                         <Button 
                             type="submit" 
-                            className="bg-black text-white hover:bg-yellow-500 hover:text-black font-black uppercase tracking-widest px-8 py-6 rounded-xl transition-all shadow-lg shadow-black/10"
+                            disabled={isSubmitting}
+                            className="bg-neutral-900 text-white hover:bg-yellow-500 hover:text-neutral-900 px-10 rounded-full font-black uppercase italic tracking-widest text-[11px] h-14 transition-all shadow-xl active:scale-95"
                         >
-                            <RefreshCcw className="mr-2 h-4 w-4" /> Sync Updates
+                            {isSubmitting ? "Syncing..." : (
+                                <span className="flex items-center gap-2">
+                                    <Save className="w-5 h-5" /> Commit Changes
+                                </span>
+                            )}
                         </Button>
                     </DialogFooter>
                 </form>

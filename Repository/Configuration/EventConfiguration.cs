@@ -17,7 +17,7 @@ namespace Repository.Configuration
                 EventDate = new DateTime(2026, 6, 15, 20, 0, 0),
                 LocationId = Guid.Parse("f1000000-0000-0000-0000-000000000001"),
                 CreatorId = Guid.Parse("c1000000-0000-0000-0000-000000000001"),
-                Capacity = 5000,
+                Capacity = 30,
                 MinTicketPrice = 55.00m 
 
             },
@@ -30,7 +30,7 @@ namespace Repository.Configuration
                 EventDate = new DateTime(2026, 9, 20, 09, 0, 0),
                 LocationId = Guid.Parse("f2000000-0000-0000-0000-000000000002"),
                 CreatorId = Guid.Parse("c2000000-0000-0000-0000-000000000002"),
-                Capacity = 1200,
+                Capacity = 30,
                 MinTicketPrice = 25.50m 
 
             },
@@ -43,7 +43,7 @@ namespace Repository.Configuration
                 EventDate = new DateTime(2026, 12, 24, 19, 30, 0),
                 LocationId = Guid.Parse("f3000000-0000-0000-0000-000000000003"),
                 CreatorId = Guid.Parse("c3000000-0000-0000-0000-000000000003"),
-                Capacity = 800,
+                Capacity = 30,
                 MinTicketPrice = 30.00m
             }
         );

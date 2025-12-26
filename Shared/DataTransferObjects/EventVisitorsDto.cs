@@ -4,4 +4,6 @@ public class EventVisitorDto
     public string Email { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public int TicketsCount { get; set; }
+
+    public Guid ReservationId { get; set; } 
 }

@@ -27,6 +27,7 @@ import AdminUserManagement from './components/admin/AdminUserManagement';
 import AdminEventsPage from './components/admin/AdminEventsPage'; 
 import LocationsPage from './components/admin/LocationsPage'; 
 import AdminTicketsPage from './components/admin/AdminTicketsPage';
+import ManageReservations from './components/admin/ManageReservations'; 
 
 export default function App() {
   return (
@@ -64,6 +65,7 @@ export default function App() {
               <Route path="/admin/events" element={<AdminEventsPage />} />
               <Route path="/admin/locations" element={<LocationsPage />} />
               <Route path="/admin/tickets" element={<AdminTicketsPage />} />
+              <Route path="/admin/reservations" element={<ManageReservations />} />
             </Route>
           </Route>
         </Route>

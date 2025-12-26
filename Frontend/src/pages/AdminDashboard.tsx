@@ -109,6 +109,12 @@ const AdminDashboard: React.FC = () => {
               icon="📍"
               onClick={() => navigate('/admin/locations')}
             />
+            <ActionCard 
+              title="Manage Reservations"
+              description="Cancel bookings and view attendee lists for events"
+              icon="🎟️"
+              onClick={() => navigate('/admin/reservations')}
+            />
           </div>
         </section>
 
