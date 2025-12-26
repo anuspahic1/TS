@@ -25,7 +25,7 @@ export const useTwoStepVerification = () => {
 
       const result = await authService.verifyTfa(code);
 
-      // localStorage.setItem('authToken', result.accessToken);
+      localStorage.setItem('authToken', result.accessToken);
 
       navigate('/rewards');
     } catch (err: any) {

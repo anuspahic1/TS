@@ -17,6 +17,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ formData, loading, onChange, on
 
     return (
         <form onSubmit={handleFormSubmit} className="space-y-5">
+            <button type="submit" hidden />
             <Input
                 label="Full Name"
                 name="fullName"

@@ -55,7 +55,6 @@ async function postTfaSetup(code: string, email: string): Promise<void> {
 }
 
 async function verifyTfa(code: string): Promise<IAuthResponse> {
-  console.log('Verifying TFA with code:', code);
   return apiClient.post('/authentication/verify-tfa', { code });
 }
 

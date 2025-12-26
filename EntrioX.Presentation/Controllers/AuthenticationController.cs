@@ -40,8 +40,8 @@ namespace EntrioX.Presentation.Controllers
             if (!await _service.AuthenticationService.ValidateUser(user))
                 return Unauthorized();
 
-            var tokenDto = await _service.AuthenticationService.CreateToken(populateExp: true);
-            return Ok(tokenDto);
+            var result = await _service.AuthenticationService.Authenticate(user);
+            return Ok(result);
         }
 
         [HttpGet("tfa-setup")]

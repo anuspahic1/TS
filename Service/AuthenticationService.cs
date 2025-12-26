@@ -49,6 +49,35 @@ namespace Service
             return result;
         }
 
+        public async Task<TokenDto> Authenticate(UserForAuthenticationDto dto)
+        {
+            _user = await _userManager.FindByNameAsync(dto.UserName);
+
+            var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
+            var hasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
+
+            if (twoFactorEnabled)
+            {
+                return new TokenDto(
+                    AccessToken: null,
+                    RefreshToken: null,
+                    TwoFactorEnabled: true,
+                    HasAuthenticatorKey: hasAuthenticator,
+                    RequiresTwoFactor: true
+                );
+            }
+
+            var token = await CreateToken(populateExp: true);
+
+            return new TokenDto(
+                token.AccessToken,
+                token.RefreshToken,
+                false,
+                hasAuthenticator,
+                false
+            );
+        }
+
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
         {
             _user = await _userManager.FindByNameAsync(userForAuth.UserName);
@@ -84,7 +113,8 @@ namespace Service
                 accessToken,
                 refreshToken,
                 twoFactorEnabled,
-                hasAuthenticatorKey
+                hasAuthenticatorKey,
+                false
             );
         }
 
