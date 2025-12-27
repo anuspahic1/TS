@@ -68,7 +68,7 @@ const EventInfo: React.FC<EventInfoProps> = ({
           : "bg-black text-white hover:bg-neutral-800 shadow-neutral-900/20"
         }`}
       >
-        {token ? "Book Your Tickets Now" : "Login to Book"}
+        {token ? "Book Your Tickets Now" : "Log in to continue booking"}
       </button>
       
       {!token && (

@@ -7,6 +7,8 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import HeroSection from "../components/home/Hero";
 import EventCard from "../components/common/EventCard";
+import { locationService } from "../services/location.service";
+import { eventService } from "../services/event.service";
 
 const HomePage: React.FC = () => {
   const [locations, setLocations] = useState<ILocation[]>([]);
@@ -20,10 +22,10 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const data = await apiClient.get<ILocation[]>("/locations");
-        setLocations(data);
-        if (data.length > 0) {
-          setSelectedLocationId(data[0].id);
+        const locations = await locationService.getAll();
+        setLocations(locations);
+        if (locations.length > 0) {
+          setSelectedLocationId(locations[0].id);
         }
       } catch (err: any) {
         setError("Unable to load locations. Please check your connection.");
@@ -38,7 +40,7 @@ const HomePage: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiClient.get<EventDto[]>(`/locations/${selectedLocationId}/events`);
+      const data = await eventService.getByLocation(selectedLocationId);
       setEvents(data);
     } catch (err: any) {
       setError(err.message || "Failed to load events.");

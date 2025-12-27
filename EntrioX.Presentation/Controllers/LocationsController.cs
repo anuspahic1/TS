@@ -48,6 +48,7 @@ namespace EntrioX.Presentation.Controllers
             await _service.LocationService.DeleteLocationAsync(id, trackChanges: false);
             return NoContent();
         }
+
         [HttpPut("{id:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateLocation(Guid id, [FromBody] LocationForUpdateDto location)
@@ -57,6 +58,7 @@ namespace EntrioX.Presentation.Controllers
             await _service.LocationService.UpdateLocationAsync(id, location, trackChanges: true);
             return NoContent();
         }
+
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> PartiallyUpdateLocation(Guid id, [FromBody] JsonPatchDocument
             <LocationForUpdateDto> patchDoc)

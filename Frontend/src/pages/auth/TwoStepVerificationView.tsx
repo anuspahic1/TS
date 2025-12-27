@@ -27,9 +27,11 @@ const TwoStepVerificationView = ({
   };
 
   return (
-    <div className="space-y-8">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-8"
+    >
       <div className="space-y-4">
-
         <Input
           name="verificationCode"
           value={code}
@@ -50,14 +52,18 @@ const TwoStepVerificationView = ({
       </Button>
 
       <div className="flex items-center gap-3 pt-4">
-        <button 
+        <button
+          type="button"
           onClick={onBack}
           className="flex-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-black transition-colors py-2"
         >
           ← Cancel
         </button>
+
         <div className="w-1 h-1 bg-gray-200 rounded-full"></div>
-        <button 
+
+        <button
+          type="button"
           onClick={onReset}
           className="flex-1 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-red-500 transition-colors py-2"
         >

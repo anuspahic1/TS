@@ -3,8 +3,8 @@ import  { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
-import { apiClient } from '../../services/apiClient';
 import type{ TicketDto } from '../../types/TicketDto';
+import { adminTicketService } from '../../services/admin-ticket.service';
 
 const AdminTicketsPage = () => {
   const [tickets, setTickets] = useState<TicketDto[]>([]);
@@ -13,7 +13,7 @@ const AdminTicketsPage = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const data = await apiClient.get<TicketDto[]>('/admin/tickets');
+        const data = await adminTicketService.getAll();
         setTickets(data);
       } catch (err) {
         console.error("Error fetching tickets:", err);

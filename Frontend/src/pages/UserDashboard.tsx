@@ -59,7 +59,7 @@ const UserDashboard: React.FC = () => {
         });
       }
     } catch (err: any) {
-      setError("Neuspješno učitavanje podataka.");
+      setError("Failed to load data.");
     } finally {
       setLoading(false);
     }
@@ -141,7 +141,7 @@ const UserDashboard: React.FC = () => {
                 />
               ) : (
                 <div className="bg-white p-8 rounded-2xl shadow text-center text-gray-500 font-medium">
-                  Podaci o profilu nisu dostupni.
+                  Profile data is not available.
                 </div>
               )
             )}

@@ -41,9 +41,10 @@ export const useLogin = () => {
         localStorage.setItem('preAuthToken', result.preAuthToken || '');
         navigate('/2fa-setup');
         return; 
-        localStorage.setItem('preAuthToken', result.preAuthToken || '');
+      }
 
       if (result.twoFactorEnabled) {
+        localStorage.setItem('preAuthToken', result.preAuthToken || '');
         navigate('/two-step-verification', { state: location.state });
         return; 
       } 

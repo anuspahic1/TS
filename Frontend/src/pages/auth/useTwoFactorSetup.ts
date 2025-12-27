@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
-import Swal from 'sweetalert2';
-
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
@@ -61,12 +59,6 @@ export const useTwoFactorSetup = () => {
       localStorage.setItem('accessToken', result.accessToken);
       localStorage.setItem('refreshToken', result.refreshToken);
       localStorage.removeItem('preAuthToken');
-
-        text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
-        icon: 'success',
-        confirmButtonColor: '#EAB308',
-        confirmButtonText: 'Back to Login'
-      });
 
       navigate('/login', { state: location.state });
 

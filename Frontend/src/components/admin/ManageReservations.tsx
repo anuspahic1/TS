@@ -1,6 +1,6 @@
-"use client"
+"use client" // zasto
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trash2, Search, UserCheck, Calendar, Ticket, Mail, Loader2, Globe } from 'lucide-react';
 import { apiClient } from '../../services/apiClient';
 import { Input } from "../ui/input";

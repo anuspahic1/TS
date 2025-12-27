@@ -41,6 +41,13 @@ namespace EntrioX
                     FormatCsv(buffer, e);
             }
 
+            if (context.Object is IEnumerable<LocationDto> locations)
+            {
+                foreach (var l in locations)
+                    buffer.AppendLine($"{l.Id},\"{l.Name}\"");
+            }
+
+
             await response.WriteAsync(buffer.ToString());
         }
 
@@ -48,6 +55,8 @@ namespace EntrioX
         {
             buffer.AppendLine($"{e.Id},\"{e.Name}\",\"{e.LocationName}\",{e.CreatorId},{e.Capacity}");
         }
+
+        //to do rest
     }
 
 }

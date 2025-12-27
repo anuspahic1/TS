@@ -18,7 +18,7 @@ const Header = () => {
     ? 'Organizer'
     : 'Welcome back';
 
-  const displayName = user?.email ? user.email.split('@')[0] : 'User';
+  const displayName = user?.email ? user.email.split('@')[0] : 'User'; // to do
 
   return (
     <header className='bg-white border-b border-neutral-100 sticky top-0 z-50 backdrop-blur-md bg-white/90'>
