@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState(
-    localStorage.getItem("authToken")
+    localStorage.getItem("accessToken")
   );
 
   const login = async (data: any): Promise<LoginResult> => {
@@ -30,12 +30,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const completeLogin = (token: string) => {
-    localStorage.setItem("authToken", token);
+    localStorage.setItem("accessToken", token);
     setToken(token);
   };
 
   const logout = () => {
-    localStorage.removeItem("authToken");
+    localStorage.removeItem("accessToken");
     setToken(null);
   };
 

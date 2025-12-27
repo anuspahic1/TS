@@ -46,21 +46,29 @@ async function signup(data: ISignupRequest): Promise<void> {
 }
 
 async function getTfaSetup(): Promise<ITwoFactorSetupInfo> {
-  return apiClient.get('/authentication/tfa-setup');
-}
-
-async function postTfaSetup(code: string, email: string): Promise<void> {
-  return apiClient.post('/authentication/tfa-setup', {
-    email,
-    code,
+  const preAuthToken = localStorage.getItem('preAuthToken');
+  return apiClient.get('/authentication/tfa-setup', {
+    Authorization: `Bearer ${preAuthToken}`,
   });
 }
 
-async function verifyTfa(code: string): Promise<IAuthResponse> {
-  const preAuthToken = localStorage.getItem("preAuthToken");
+async function postTfaSetup(code: string): Promise<IAuthResponse> {
+  const preAuthToken = localStorage.getItem('preAuthToken');
 
   return apiClient.post(
-    "/authentication/verify-tfa",
+    '/authentication/tfa-setup',
+    { code },
+    {
+      Authorization: `Bearer ${preAuthToken}`,
+    }
+  );
+}
+
+async function verifyTfa(code: string): Promise<IAuthResponse> {
+  const preAuthToken = localStorage.getItem('preAuthToken');
+
+  return apiClient.post(
+    '/authentication/verify-tfa',
     { code },
     {
       Authorization: `Bearer ${preAuthToken}`,

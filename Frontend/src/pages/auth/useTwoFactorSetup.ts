@@ -4,8 +4,8 @@ import { authService } from '../../services/auth.service';
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
-    formattedKey: string;      
-    authenticatorKey: string;  
+    formattedKey: string;
+    authenticatorKey: string;
   } | null>(null);
 
   const [verificationCode, setVerificationCode] = useState('');
@@ -54,7 +54,12 @@ export const useTwoFactorSetup = () => {
 
     try {
       setLoading(true);
-      await authService.postTfaSetup(verificationCode, 'edzanko1@etf.unsa.ba'); // should be  setupInfo?.email ||
+      const result = await authService.postTfaSetup(verificationCode);
+
+      localStorage.setItem('accessToken', result.accessToken);
+      localStorage.setItem('refreshToken', result.refreshToken);
+      localStorage.removeItem('preAuthToken');
+
       navigate('/rewards');
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');

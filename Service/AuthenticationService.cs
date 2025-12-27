@@ -55,30 +55,16 @@ namespace Service
 
             var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
             var hasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
-
-            if (twoFactorEnabled)
-            {
-                var preAuthToken = CreatePreAuthToken(_user);
-
-                return new TokenDto(
-                    AccessToken: null,
-                    RefreshToken: null,
-                    TwoFactorEnabled: true,
-                    HasAuthenticatorKey: hasAuthenticator,
-                    RequiresTwoFactor: true,
-                    PreAuthToken: preAuthToken
-                );
-            }
-
-            var token = await CreateToken(populateExp: true);
+            
+            var preAuthToken = CreatePreAuthToken(_user);
 
             return new TokenDto(
-                token.AccessToken,
-                token.RefreshToken,
-                false,
-                hasAuthenticator,
-                false,
-                null
+                AccessToken: null,
+                RefreshToken: null,
+                TwoFactorEnabled: true,
+                HasAuthenticatorKey: hasAuthenticator,
+                RequiresTwoFactor: true,
+                PreAuthToken: preAuthToken
             );
         }
 
@@ -136,22 +122,25 @@ namespace Service
             return await CreateToken(populateExp: false);
         }
 
-        public async Task<TfaSetupDto> PostTfaSetup(TfaSetupDto tfaModel)
+        public async Task<TokenDto> PostTfaSetup(TfaSetupDto dto, string userId)
         {
-            var user = await _userManager.FindByNameAsync(tfaModel.Email);
-            var isValidCode = await _userManager.VerifyTwoFactorTokenAsync(user, _userManager.Options.Tokens.AuthenticatorTokenProvider, tfaModel.Code);
-            if (isValidCode)
-            {
-                await _userManager.SetTwoFactorEnabledAsync(user, true);
-                return new TfaSetupDto 
-                { 
-                    IsTfaEnabled = true 
-                };
-            }
-            else
-            {
+            var user = await _userManager.FindByIdAsync(userId)
+                ?? throw new TfaBadRequest();
+
+            var isValidCode = await _userManager.VerifyTwoFactorTokenAsync(
+                user,
+                _userManager.Options.Tokens.AuthenticatorTokenProvider,
+                dto.Code
+            );
+
+            if (!isValidCode)
                 throw new TfaBadRequest();
-            }
+
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+
+            _user = user;
+
+            return await CreateToken(populateExp: false);
         }
 
         public async Task<TfaSetupDto> DeleteTfaSetup(string email)
@@ -190,13 +179,12 @@ namespace Service
             };
         }
 
-        public async Task<TokenDto> VerifyTfaByUserId(VerifyTfaDto dto, string userId)
+        public async Task<TokenDto> VerifyTfaByUserId(VerifyTfaDto dto, string userId, string authStage)
         {
-            var user = await _userManager.FindByIdAsync(userId) ?? throw new TfaBadRequest();
+            if (authStage != "2fa_pending")
+                throw new UnauthorizedAccessException();
 
-            //var stage = User.FindFirst("auth_stage")?.Value;
-            //if (stage != "2fa_pending")
-            //    return Unauthorized();
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new TfaBadRequest();
 
             var valid = await _userManager.VerifyTwoFactorTokenAsync(
                 user,
@@ -267,7 +255,7 @@ namespace Service
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
-                ValidateLifetime = true,
+                ValidateLifetime = false, //
                 ValidIssuer = _jwtConfiguration.ValidIssuer,
                 ValidAudience = _jwtConfiguration.ValidAudience
             };

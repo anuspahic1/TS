@@ -2,7 +2,7 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { FormError } from '../../components/common/FormError';
 import { Spinner } from '../../components/common/Spinner';
-import QRCode from "react-qr-code";
+import QRCode from 'react-qr-code';
 
 type Props = {
   setupInfo: {
@@ -31,52 +31,45 @@ const TwoFactorSetupView = ({
   onSubmit,
 }: Props) => {
   if (pageLoading) {
-    return <Spinner label="Preparing your 2FA setup..." />;
+    return <Spinner label='Preparing your 2FA setup...' />;
   }
 
   if (!setupInfo) {
-    return <FormError message="2FA setup data not available." />;
+    return <FormError message='2FA setup data not available.' />;
   }
 
   return (
-    <div className="space-y-8">
-      <QRCode
-        value={setupInfo.formattedKey}
-        size={224}
-        // alt="2FA QR Code"
-        className="mx-auto w-56 h-56"
-      />  
+    <form
+      className='space-y-8'
+      onSubmit={e => {
+        e.preventDefault();
+        onSubmit();
+      }}
+    >
+      <QRCode value={setupInfo.formattedKey} size={224} className='mx-auto w-56 h-56' />
 
-      <div className="text-center">
-        <code className="block font-mono text-lg mb-2">
-          {setupInfo.authenticatorKey}
-        </code>
+      <div className='text-center'>
+        <code className='block font-mono text-lg mb-2'>{setupInfo.authenticatorKey}</code>
 
-        <Button
-          variant="secondary"
-          onClick={() => onCopy(setupInfo.authenticatorKey)}
-        >
+        <Button type='button' variant='secondary' onClick={() => onCopy(setupInfo.authenticatorKey)}>
           {copied ? 'Copied!' : 'Copy key'}
         </Button>
       </div>
 
       <Input
-        name="verificationCode"
+        name='verificationCode'
         value={verificationCode}
-        onChange={(e: { target: { value: string; }; }) => onCodeChange(e.target.value)}
-        placeholder="000000"
-        className="text-center text-2xl tracking-widest"
+        onChange={(e: { target: { value: string } }) => onCodeChange(e.target.value)}
+        placeholder='000000'
+        className='text-center text-2xl tracking-widest'
       />
 
       {error && <FormError message={error} />}
 
-      <Button
-        onClick={onSubmit}
-        disabled={loading || verificationCode.length !== 6}
-      >
+      <Button type='submit' disabled={loading || verificationCode.length !== 6}>
         {loading ? 'Verifying…' : 'Complete setup'}
       </Button>
-    </div>
+    </form>
   );
 };
 

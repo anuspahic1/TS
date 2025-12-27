@@ -4,7 +4,7 @@ export async function apiFetch<T>(
   url: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("accessToken");
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,

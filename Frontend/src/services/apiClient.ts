@@ -1,9 +1,10 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const apiClient = {
-  async get<T>(url: string): Promise<T> {
-    return request<T>(url, 'GET');
+  async get<T>(url: string, headers?: Record<string, string>): Promise<T> {
+    return request<T>(url, 'GET', undefined, headers);
   },
+
   async post<T>(url: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
     return request<T>(url, 'POST', body, headers);
   },
@@ -28,30 +29,27 @@ async function request<T>(
       ...(headers.Authorization
         ? { Authorization: headers.Authorization }
         : accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : {}
-      ),
+        ? { Authorization: `Bearer ${accessToken}` }
+        : {}),
 
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  if (
-    response.status === 401 &&
-    !isRefreshing &&
-    !url.includes('/authentication/login') &&
-    !headers.Authorization
-  ) {
+  if (response.status === 401 && !isRefreshing && !url.includes('/authentication/login') && !headers.Authorization) {
     isRefreshing = true;
 
-    const refreshResponse = await fetch(
-      `${API_BASE_URL}/authentication/refresh`,
-      {
-        method: 'POST',
-        credentials: 'include',
-      }
-    );
+    const refreshResponse = await fetch(`${API_BASE_URL}/token/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        accessToken: localStorage.getItem('accessToken'),
+        refreshToken: localStorage.getItem('refreshToken'),
+      }),
+    });
 
     isRefreshing = false;
 
@@ -75,15 +73,8 @@ async function request<T>(
       const errorData = text ? JSON.parse(text) : {};
 
       if (errorData.title) {
-        errorMessage =
-          errorData.title === 'Unauthorized'
-            ? 'Invalid credentials'
-            : errorData.title;
-      } else if (
-        typeof errorData === 'object' &&
-        errorData !== null &&
-        !Array.isArray(errorData)
-      ) {
+        errorMessage = errorData.title === 'Unauthorized' ? 'Invalid credentials' : errorData.title;
+      } else if (typeof errorData === 'object' && errorData !== null && !Array.isArray(errorData)) {
         const messages = Object.values(errorData).flat();
         if (messages.length > 0) {
           errorMessage = messages.join('. ');
@@ -105,4 +96,3 @@ async function request<T>(
   const text = await response.text();
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
-

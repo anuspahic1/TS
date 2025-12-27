@@ -55,11 +55,13 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost("tfa-setup")]
+        [Authorize(AuthenticationSchemes = "PreAuth")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> PostTfaSetup([FromBody] TfaSetupDto tfaModel)
+        public async Task<IActionResult> PostTfaSetup([FromBody] TfaSetupDto dto)
         {
-            var tfaSetup = await _service.AuthenticationService.PostTfaSetup(tfaModel);
-            return Ok(tfaSetup);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _service.AuthenticationService.PostTfaSetup(dto, userId);
+            return Ok(result);
         }
 
         [HttpPost("verify-tfa")]
@@ -67,10 +69,12 @@ namespace EntrioX.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> VerifyTfa([FromBody] VerifyTfaDto dto)
         {
-            var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
-
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var token = await _service.AuthenticationService.VerifyTfaByUserId(dto, userId);
+            var stage = User.FindFirst("auth_stage")?.Value;
+
+            var token = await _service.AuthenticationService
+                .VerifyTfaByUserId(dto, userId, stage);
+
             return Ok(token);
         }
     }
