@@ -8,6 +8,12 @@ export const apiClient = {
   async post<T>(url: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
     return request<T>(url, 'POST', body, headers);
   },
+  async put<T>(url: string, body?: unknown): Promise<T> {
+    return request<T>(url, 'PUT', body);
+  },
+  async delete<T>(url: string): Promise<T> {
+    return request<T>(url, 'DELETE');
+  }
 };
 
 let isRefreshing = false;
@@ -19,6 +25,8 @@ async function request<T>(
   headers: Record<string, string> = {}
 ): Promise<T> {
   const accessToken = localStorage.getItem('accessToken');
+
+    const token = localStorage.getItem('authToken');  
 
   const response = await fetch(`${API_BASE_URL}${url}`, {
     method,
@@ -67,11 +75,16 @@ async function request<T>(
 
   if (!response.ok) {
     let errorMessage = 'An error occurred';
+  let errorData: any = {};
+
+  if (response.status === 204) {
+    return {} as T;
+  }
 
     try {
       const text = await response.text();
       const errorData = text ? JSON.parse(text) : {};
-
+    
       if (errorData.title) {
         errorMessage = errorData.title === 'Unauthorized' ? 'Invalid credentials' : errorData.title;
       } else if (typeof errorData === 'object' && errorData !== null && !Array.isArray(errorData)) {
@@ -87,6 +100,12 @@ async function request<T>(
     }
 
     throw new Error(errorMessage);
+  error.status = response.status;
+  error.statusText = response.statusText;
+  error.data = errorData;
+  error.isApiError = true;
+  
+  throw error;
   }
 
   if (response.status === 201 || response.status === 204) {

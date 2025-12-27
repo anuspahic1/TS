@@ -3,6 +3,8 @@ using Contracts;
 using Entities.Exceptions;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using Microsoft.AspNetCore.Identity; 
+using Entities.Models;
 
 namespace Service
 {
@@ -11,19 +13,36 @@ namespace Service
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
 
-        public AppUserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
+        public AppUserService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager)
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
-        public async Task<IEnumerable<AppUserDto>> GetAllUsersAsync(UserParameters userParameters, bool trackChanges)
+         public async Task<IEnumerable<AppUserDto>> GetAllUsersAsync(UserParameters userParameters, bool trackChanges)
         {
             var users = await _repository.AppUser.GetAllUsersAsync(userParameters, trackChanges);
+            
+            var usersDto = new List<AppUserDto>();
 
-            var usersDto = _mapper.Map<IEnumerable<AppUserDto>>(users);
+            foreach (var user in users)
+            {
+                var userDto = _mapper.Map<AppUserDto>(user);
+                
+                var identityUser = await _userManager.FindByIdAsync(user.Id.ToString());
+                if (identityUser != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(identityUser);
+                    
+                    userDto = userDto with { Roles = roles };
+                }
+                
+                usersDto.Add(userDto);
+            }
 
             return usersDto;
         }
@@ -31,8 +50,15 @@ namespace Service
         public async Task<AppUserDto> GetUserAsync(Guid userId, bool trackChanges)
         {
             var user = await GetUserAndCheckIfItExist(userId, trackChanges);
-
             var userDto = _mapper.Map<AppUserDto>(user);
+
+            var identityUser = await _userManager.FindByIdAsync(userId.ToString());
+            if (identityUser != null)
+            {
+                var roles = await _userManager.GetRolesAsync(identityUser);
+                userDto = userDto with { Roles = roles };
+            }
+
             return userDto;
         }
 
@@ -64,10 +90,27 @@ namespace Service
 
         public async Task UpdateUserAsync(Guid userId, AppUserForUpdateDto userForUpdate, bool trackChanges)
         {
-            var userEntity = await GetUserAndCheckIfItExist(userId, trackChanges) ?? throw new UserNotFoundException(userId);
+            var identityUser = await _userManager.FindByIdAsync(userId.ToString());
+            if (identityUser == null) throw new UserNotFoundException(userId);
+
+            identityUser.FirstName = userForUpdate.FirstName;
+            identityUser.LastName = userForUpdate.LastName;
+            identityUser.UserName = userForUpdate.UserName;
+            identityUser.Email = userForUpdate.Email;
+
+            var result = await _userManager.UpdateAsync(identityUser);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Identity error: {errors}");
+            }
+
+            var userEntity = await GetUserAndCheckIfItExist(userId, trackChanges);
             _mapper.Map(userForUpdate, userEntity);
+
             await _repository.SaveAsync();
         }
+
 
         public async Task<(AppUserForUpdateDto userToPatch, Guid userId)> GetUserForPatchAsync(Guid userId, bool trackChanges)
         {
@@ -86,6 +129,15 @@ namespace Service
             _mapper.Map(userToPatch, userEntity);
 
             await _repository.SaveAsync();
+        }
+        public async Task UpdateUserRoleAsync(Guid userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null) throw new UserNotFoundException(userId);
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await _userManager.RemoveFromRolesAsync(user, currentRoles);
+            await _userManager.AddToRoleAsync(user, roleName);
         }
 
 

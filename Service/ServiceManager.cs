@@ -21,13 +21,13 @@ namespace Service
 
         public ServiceManager(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
         {
-            _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper));
+            _appUserService = new Lazy<IAppUserService>(() => new AppUserService(repository, logger, mapper, userManager));
             _eventService = new Lazy<IEventService>(() => new EventService(repository, logger, mapper));
             _locationService = new Lazy<ILocationService>(() => new LocationService(repository, logger, mapper));
             _reservationService = new Lazy<IReservationService>(() => new ReservationService(repository, logger, mapper));
             _rewardService = new Lazy<IRewardService>(() => new RewardService(repository, logger, mapper));
             _ticketService = new Lazy<ITicketService>(() => new TicketService(repository, logger, mapper));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, urlEncoder));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, urlEncoder, repository));
         }
         public IAppUserService AppUserService
         {

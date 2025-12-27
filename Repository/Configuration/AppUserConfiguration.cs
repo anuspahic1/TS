@@ -7,7 +7,7 @@ namespace Repository.Configuration
     {
         public void Configure(EntityTypeBuilder<AppUser> builder)
         {
-            builder.HasData(
+           /* builder.HasData(
                 new AppUser
                 {
                     Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -20,9 +20,9 @@ namespace Repository.Configuration
                     Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                     FullName = "John Smith",
                     Email = "john.smith@example.com",
-                    BankAccountNumber = null
+                    BankAccountNumber = "BA312004000012345679"
                 }
-            );
+            );*/
         }
     }
 }

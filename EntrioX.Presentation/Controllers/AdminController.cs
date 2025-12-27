@@ -6,6 +6,7 @@ using Service.Contracts;
 
 namespace EntrioX.Presentation.Controllers
 {
+   // [Authorize(Roles = "Administrator")]
     [Route("api/admin")]
     [ApiController]
     public class AdminController : ControllerBase
@@ -13,10 +14,13 @@ namespace EntrioX.Presentation.Controllers
         private readonly ILogger<AdminController> _logger;
         private readonly IAppStatisticService _appStatisticService;
 
-        public AdminController(ILogger<AdminController> logger, IAppStatisticService appStatisticService)
+        private readonly IServiceManager _service; 
+
+        public AdminController(ILogger<AdminController> logger, IAppStatisticService appStatisticService, IServiceManager service)
         {
             _logger = logger;
             _appStatisticService = appStatisticService;
+            _service = service;
         }
 
         [HttpGet("statistics")]
@@ -24,6 +28,20 @@ namespace EntrioX.Presentation.Controllers
         {
             var statistics = await _appStatisticService.GetAdminStatisticsAsync(trackChanges: false);
             return Ok(statistics);
+        }
+
+        [HttpGet("events")]
+        public async Task<IActionResult> GetAllEvents([FromQuery] EventParameters eventParameters)
+        {
+            var events = await _service.EventService.GetAllEventsAsync(eventParameters, trackChanges: false);
+            return Ok(events);
+        }
+
+        [HttpGet("tickets")]
+        public async Task<IActionResult> GetAllTickets()
+        {
+            var tickets = await _service.TicketService.GetAllTicketsAsync(trackChanges: false);
+            return Ok(tickets);
         }
     }
 }

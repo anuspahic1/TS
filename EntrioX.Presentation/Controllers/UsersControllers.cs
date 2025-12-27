@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.Security.Claims;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -19,7 +20,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetUsers([FromQuery] UserParameters userParameters)
         {
             var users = await _service.AppUserService.GetAllUsersAsync(userParameters, trackChanges: false);
@@ -58,6 +59,17 @@ namespace EntrioX.Presentation.Controllers
             await _service.AppUserService.UpdateUserAsync(id, user, trackChanges: true);
             return NoContent();
         }
+
+        [HttpPost("{id:guid}/roles")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] string roleName)
+        {
+            await _service.AppUserService.UpdateUserRoleAsync(id, roleName);
+            
+            return NoContent();
+        }
+
+
         [HttpPatch("{id:guid}")]
         public async Task<IActionResult> PartiallyUpdateUser(Guid id, [FromBody] JsonPatchDocument
             <AppUserForUpdateDto> patchDoc)
@@ -73,6 +85,73 @@ namespace EntrioX.Presentation.Controllers
             await _service.AppUserService.SaveChangesForPatchAsync(userToPatch, userId, trackChanges: true);
 
             return NoContent();
+        }
+
+        [HttpGet("{userId}/reservations")]
+        [Authorize] 
+        public async Task<IActionResult> GetUserReservations(Guid userId)
+        {
+            var currentUserId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (userId != currentUserId && !isAdmin)
+                return Forbid();
+            
+            var reservations = await _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
+            return Ok(reservations);
+        }
+        
+        [HttpGet("{userId}/tickets")]
+        [Authorize]
+        public async Task<IActionResult> GetUserTickets(Guid userId)
+        {
+            var currentUserId = GetCurrentUserId();
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (userId != currentUserId && !isAdmin)
+                return Forbid();
+            
+            var tickets = await _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
+            return Ok(tickets);
+        }
+        
+        [HttpGet("{userId}/dashboard")]
+            [Authorize]
+            public async Task<IActionResult> GetUserDashboard(Guid userId)
+            {
+                var currentUserId = GetCurrentUserId();
+                var isAdmin = User.IsInRole("Administrator");
+                
+                if (userId != currentUserId && !isAdmin)
+                    return Forbid();
+
+                var user = await _service.AppUserService.GetUserAsync(userId, trackChanges: false);
+                var reservations = await _service.ReservationService.GetReservationsByUserIdAsync(userId, trackChanges: false);
+                var tickets = await _service.TicketService.GetTicketsByUserIdAsync(userId, trackChanges: false);
+                
+                var dashboardData = new
+                {
+                    User = user,
+                    Reservations = reservations,
+                    Tickets = tickets,
+                    Stats = new
+                    {
+                        TotalReservations = reservations.Count(),
+                        ActiveTickets = tickets.Count(t => t.EventDate > DateTime.UtcNow),
+                        TotalSpent = reservations.Sum(r => r.TotalPrice)
+                    }
+                };
+                
+                return Ok(dashboardData);
+            }
+        
+        private Guid GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            
+            return userId;
         }
 
     }

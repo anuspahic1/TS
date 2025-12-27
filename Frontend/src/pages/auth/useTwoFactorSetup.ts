@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import Swal from 'sweetalert2';
+
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
@@ -13,8 +15,8 @@ export const useTwoFactorSetup = () => {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [copied, setCopied] = useState(false);
-
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const loadSetup = async () => {
@@ -60,7 +62,14 @@ export const useTwoFactorSetup = () => {
       localStorage.setItem('refreshToken', result.refreshToken);
       localStorage.removeItem('preAuthToken');
 
-      navigate('/rewards');
+        text: 'Two-Factor Authentication has been successfully enabled. Please login again to finalize.',
+        icon: 'success',
+        confirmButtonColor: '#EAB308',
+        confirmButtonText: 'Back to Login'
+      });
+
+      navigate('/login', { state: location.state });
+
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
     } finally {

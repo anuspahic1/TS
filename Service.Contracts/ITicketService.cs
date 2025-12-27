@@ -11,5 +11,8 @@ namespace Service.Contracts
         Task UpdateTicketForEventAsync(Guid locationId, Guid eventId, Guid id, TicketForUpdateDto ticket, bool locationTrackChanges, bool eventTrackChanges, bool ticketTrackChanges);
         Task<(TicketForUpdateDto ticketToPatch, Guid ticketId)> GetTicketForPatchAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges);
         Task SaveChangesForPatchAsync(TicketForUpdateDto ticketToPatch, Guid locationId, Guid eventId, Guid id, bool trackChanges);
+
+        Task<IEnumerable<TicketDto>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<TicketDto>> GetAllTicketsAsync(bool trackChanges);
     }
 }

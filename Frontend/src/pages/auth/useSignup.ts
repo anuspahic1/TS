@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import Swal from 'sweetalert2'; 
 
 
 type SignupFormState = {
@@ -8,6 +9,7 @@ type SignupFormState = {
   email: string;
   password: string;
   confirmPassword: string;
+  role: string; 
 };
 
 export const useSignup = () => {
@@ -16,6 +18,7 @@ export const useSignup = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    role: 'Customer', 
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -23,19 +26,24 @@ export const useSignup = () => {
 
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
+        ...prev,
+        [e.target.name]: e.target.value,
     }));
     setError(null);
-  };
+};
 
 const submit = async () => {
     setError(null);
 
     if (!formData.fullName || !formData.email || !formData.password) {
       setError('All fields are required.');
+      return;
+    }
+
+    if (!formData.email.includes('@') || formData.email.length < 5) {
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -68,11 +76,24 @@ const submit = async () => {
       password: formData.password,
       firstName: firstName,
       lastName: lastName,
+      roles: [formData.role === 'Customer' ? 'User' : 'Organizer']
     };
 
     try {
       await authService.signup(payload);
-      navigate('/login');
+      
+      Swal.fire({
+        title: 'Success!',
+        text: 'Successfully signed up. Please login and complete the verification process.',
+        icon: 'success',
+        confirmButtonColor: '#EAB308', 
+        confirmButtonText: 'Go to Login',
+        allowOutsideClick: false 
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/login');
+        }
+      });
     } catch (err: any) {
       setError(err.message || 'Signup failed.');
     } finally {

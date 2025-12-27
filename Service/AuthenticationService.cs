@@ -26,16 +26,18 @@ namespace Service
         private User? _user;
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
         private readonly UrlEncoder _urlEncoder;
+        private readonly IRepositoryManager _repository;
 
-
-        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder)
+        public AuthenticationService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IOptionsSnapshot<JwtConfiguration> configuration, UrlEncoder urlEncoder, IRepositoryManager repository)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
-            _jwtConfiguration = _configuration.Value;
+            //_jwtConfiguration = _configuration.Get("JwtSettings");
+            _jwtConfiguration = _configuration.Value; //ilma
             _urlEncoder = urlEncoder;
+            _repository = repository;
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -44,7 +46,26 @@ namespace Service
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
             if (result.Succeeded)
-                await _userManager.AddToRoleAsync(user, "User"); // hardcoded for now
+            {
+                if (userForRegistration.Roles != null && userForRegistration.Roles.Any())
+                {
+                    await _userManager.AddToRoleAsync(user, userForRegistration.Roles.First());
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, "User");
+                }
+
+                var appUser = new AppUser
+                {
+                    Id = Guid.Parse(user.Id),
+                    FullName = $"{userForRegistration.FirstName} {userForRegistration.LastName}",
+                    Email = user.Email
+                };
+
+                _repository.AppUser.CreateUser(appUser);
+                await _repository.SaveAsync();
+            }
 
             return result;
         }
@@ -212,6 +233,7 @@ namespace Service
             {
                 new(ClaimTypes.Name, _user.UserName),
                 new(ClaimTypes.Email, _user.Email),
+                new Claim(ClaimTypes.NameIdentifier, _user.Id)
             };
 
             var roles = await _userManager.GetRolesAsync(_user);

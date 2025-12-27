@@ -19,4 +19,6 @@ public class AppUser
     public string? BankAccountNumber { get; set; }
 
     public ICollection<Reservation>? Reservations { get; set; }
+
+    public int LoyaltyPoints { get; set; } = 0;
 }

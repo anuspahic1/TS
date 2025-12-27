@@ -19,6 +19,7 @@ export interface IAuthResponse {
   refreshToken: string;
   twoFactorEnabled: boolean;
   hasAuthenticatorKey: boolean;
+  roles?: string[];
   requiresTwoFactor: boolean;
   preAuthToken?: string;
 }

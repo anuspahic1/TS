@@ -37,5 +37,39 @@ namespace Repository
         {
             Delete(ticket);
         }
-    }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdAsync(Guid userId, bool trackChanges)
+        {
+            return await FindByCondition(t => 
+                t.Reservation != null && t.Reservation.UserId == userId, 
+                trackChanges)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsByUserIdWithDetailsAsync(Guid userId, bool trackChanges)
+        {
+            return await FindByCondition(t => 
+                t.Reservation != null && t.Reservation.UserId == userId, 
+                trackChanges)
+                .Include(t => t.Event) 
+                .Include(t => t.Reservation) 
+                .OrderByDescending(t => t.Event.EventDate) 
+                .ToListAsync();
+        }
+      public async Task<IEnumerable<Ticket>> GetAllTicketsAsync(bool trackChanges)
+                {
+                    return await FindAll(trackChanges)
+                        .Include(t => t.Event) 
+                        .Include(t => t.Reservation) 
+                        .OrderByDescending(t => t.Event.EventDate) 
+                        .ThenByDescending(t => t.Price)           
+                        .ToListAsync();
+                }
+
+        public async Task<IEnumerable<Ticket>> GetTicketsByIdsAsync(IEnumerable<Guid> ids, bool trackChanges)
+                {
+                    return await FindByCondition(t => ids.Contains(t.Id), trackChanges)
+                        .ToListAsync();
+                }
+}
 }

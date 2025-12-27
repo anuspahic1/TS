@@ -3,28 +3,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-    public class ReservationRepository : RepositoryBase<Reservation>, IReservationRepository
+    public class ReservationRepository
+        : RepositoryBase<Reservation>, IReservationRepository
     {
-        public ReservationRepository(RepositoryContext repositoryContext) : base(repositoryContext)
+        public ReservationRepository(RepositoryContext repositoryContext)
+            : base(repositoryContext)
         {
         }
 
-        public async Task<IEnumerable<Reservation>> GetReservationsAsync(Guid locationId, Guid eventId, bool trackChanges)
+        public async Task<IEnumerable<Reservation>> GetReservationsAsync(
+            Guid locationId, Guid eventId, bool trackChanges)
         {
-            return await FindByCondition(r => r.EventId.Equals(eventId) &&
-                                   r.Event.LocationId.Equals(locationId), trackChanges)
-                    .OrderBy(r => r.CreatedAt)
-                    .ToListAsync();
+            return await FindByCondition(
+                    r => r.EventId == eventId &&
+                         r.Event.LocationId == locationId,
+                    trackChanges)
+                .OrderBy(r => r.CreatedAt)
+                .ToListAsync();
         }
 
-        public async Task<Reservation> GetReservationAsync(Guid locationId, Guid eventId, Guid id, bool trackChanges)
+        public async Task<Reservation?> GetReservationAsync(
+            Guid locationId, Guid eventId, Guid id, bool trackChanges)
         {
-            return await FindByCondition(r => r.EventId.Equals(eventId) &&
-                                    r.Event.LocationId.Equals(locationId) &&
-                                    r.Id.Equals(id), trackChanges)
-                   .SingleOrDefaultAsync();
+            return await FindByCondition(
+                    r => r.EventId == eventId &&
+                         r.Event.LocationId == locationId &&
+                         r.Id == id,
+                    trackChanges)
+                    .Include(r => r.Tickets) 
+                .SingleOrDefaultAsync();
         }
-
 
         public void CreateReservationForEvent(Guid eventId, Reservation reservation)
         {
@@ -36,9 +44,50 @@ namespace Repository
         {
             Delete(reservation);
         }
+
         public async Task<int> GetTotalBookingsCountAsync(bool trackChanges)
         {
             return await FindAll(trackChanges).CountAsync();
         }
+
+        public async Task<IEnumerable<Reservation>> GetReservationsByUserIdAsync(
+            Guid userId, bool trackChanges)
+        {
+            return await FindByCondition(r => r.UserId == userId, trackChanges)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Reservation>> GetReservationsByUserIdWithDetailsAsync(
+            Guid userId, bool trackChanges)
+        {
+            return await FindByCondition(r => r.UserId == userId, trackChanges)
+                .Include(r => r.Event)
+                .Include(r => r.Tickets)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }public async Task<IEnumerable<EventVisitorDto>> GetEventVisitorsAsync(
+    Guid locationId, Guid eventId, bool trackChanges)
+{
+    return await FindByCondition(
+            r => r.EventId == eventId &&
+                 r.Event.LocationId == locationId,
+            trackChanges)
+        .Include(r => r.User)
+        .Include(r => r.Tickets)
+        .Select(r => new EventVisitorDto
+        {
+            ReservationId = r.Id, 
+            UserId = r.UserId,
+            Email = r.User.Email!,
+            FullName = r.User.FullName!,
+            TicketsCount = r.Tickets.Count 
+        })
+        .ToListAsync();
+}
+
+
+
+
     }
 }

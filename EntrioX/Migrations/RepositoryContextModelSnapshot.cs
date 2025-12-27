@@ -43,24 +43,12 @@ namespace EntrioX.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<int>("LoyaltyPoints")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            BankAccountNumber = "BA392004000012345678",
-                            Email = "emin@example.com",
-                            FullName = "Emin Džanko"
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Email = "john.smith@example.com",
-                            FullName = "John Smith"
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.Reward", b =>
@@ -90,24 +78,6 @@ namespace EntrioX.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Rewards");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Description = "Early supporter reward",
-                            GrantedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/rewards/supporter.png",
-                            UserId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Description = "Top buyer of the month",
-                            GrantedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ImageUrl = "/images/rewards/topbuyer.png",
-                            UserId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>
@@ -187,6 +157,27 @@ namespace EntrioX.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "b74ddd14-6340-4840-95c2-db12554843e5",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "e27118e1-765c-4269-bd6b-ea127b35782e",
+                            Email = "admin@entriox.com",
+                            EmailConfirmed = true,
+                            FirstName = "System",
+                            LastName = "Administrator",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@ENTRIOX.COM",
+                            NormalizedUserName = "ADMIN@ENTRIOX.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEH09GB2YaB1ZANBk0K+u0BY6ainzc6Mx/M1WlswWRZsUKbi9zNXFhl+gcQnAcazD6Q==",
+                            PhoneNumberConfirmed = false,
+                            RefreshTokenExpiryTime = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            SecurityStamp = "f254c7be-2508-46ca-a1d9-833909eafd53",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@entriox.com"
+                        });
                 });
 
             modelBuilder.Entity("Event", b =>
@@ -196,8 +187,14 @@ namespace EntrioX.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("EventId");
 
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -227,22 +224,38 @@ namespace EntrioX.Migrations
                         new
                         {
                             Id = new Guid("e1000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Najveći rock koncert godine!",
-                            EventDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 30,
+                            CreatedAt = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatorId = new Guid("c1000000-0000-0000-0000-000000000001"),
+                            Description = "A night of indie rock excellence in the heart of Sarajevo.",
+                            EventDate = new DateTime(2026, 6, 15, 20, 0, 0, 0, DateTimeKind.Unspecified),
                             LocationId = new Guid("f1000000-0000-0000-0000-000000000001"),
-                            MinTicketPrice = 0m,
-                            Name = "Rok Koncert"
+                            MinTicketPrice = 55.00m,
+                            Name = "Arctic Monkeys World Tour"
                         },
                         new
                         {
                             Id = new Guid("e2000000-0000-0000-0000-000000000002"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Description = "Specijalna komedija večer.",
-                            EventDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Capacity = 30,
+                            CreatedAt = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatorId = new Guid("c2000000-0000-0000-0000-000000000002"),
+                            Description = "Join the biggest regional gathering of IT experts and innovators.",
+                            EventDate = new DateTime(2026, 9, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             LocationId = new Guid("f2000000-0000-0000-0000-000000000002"),
-                            MinTicketPrice = 0m,
-                            Name = "Stand-up Večer"
+                            MinTicketPrice = 25.50m,
+                            Name = "Tech Conference 2026"
+                        },
+                        new
+                        {
+                            Id = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            Capacity = 30,
+                            CreatedAt = new DateTime(2025, 12, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatorId = new Guid("c3000000-0000-0000-0000-000000000003"),
+                            Description = "A classic festive performance by the Sarajevo Philharmonic Orchestra.",
+                            EventDate = new DateTime(2026, 12, 24, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            LocationId = new Guid("f3000000-0000-0000-0000-000000000003"),
+                            MinTicketPrice = 30.00m,
+                            Name = "The Nutcracker Ballet"
                         });
                 });
 
@@ -276,18 +289,26 @@ namespace EntrioX.Migrations
                         new
                         {
                             Id = new Guid("f1000000-0000-0000-0000-000000000001"),
-                            Address = "Alipašina bb",
+                            Address = "Alipašina bb, Sarajevo",
                             GeoLatitude = 43.866199999999999,
                             GeoLongitude = 18.4131,
-                            Name = "Zetra Sarajevo"
+                            Name = "Zetra Olympic Hall"
                         },
                         new
                         {
                             Id = new Guid("f2000000-0000-0000-0000-000000000002"),
-                            Address = "Terezija bb",
+                            Address = "Terezija bb, Sarajevo",
                             GeoLatitude = 43.856400000000001,
                             GeoLongitude = 18.413,
-                            Name = "Skenderija Arena"
+                            Name = "Skenderija Plateau"
+                        },
+                        new
+                        {
+                            Id = new Guid("f3000000-0000-0000-0000-000000000003"),
+                            Address = "Obala Kulina bana 9",
+                            GeoLatitude = 43.857500000000002,
+                            GeoLongitude = 18.4206,
+                            Name = "National Theater Sarajevo"
                         });
                 });
 
@@ -320,19 +341,19 @@ namespace EntrioX.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "59d40630-9625-40b7-8d36-d66c81a430a9",
+                            Id = "11363362-56e9-438f-85a4-dc5483dcfe30",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         },
                         new
                         {
-                            Id = "b4f2258d-9a86-4fa8-acea-7c11fa5e2de5",
+                            Id = "720daf31-ee16-4555-ab3c-dda08c8c5fb9",
                             Name = "Organizer",
                             NormalizedName = "ORGANIZER"
                         },
                         new
                         {
-                            Id = "3f0d3500-1148-4cd2-84de-e5b721b7d544",
+                            Id = "9ee7f699-298b-4614-9783-addcbff01e6b",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -423,6 +444,13 @@ namespace EntrioX.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "b74ddd14-6340-4840-95c2-db12554843e5",
+                            RoleId = "11363362-56e9-438f-85a4-dc5483dcfe30"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -471,16 +499,6 @@ namespace EntrioX.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reservations");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("d1000000-0000-0000-0000-000000000001"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
-                            TotalPrice = 50.00m,
-                            UserId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        });
                 });
 
             modelBuilder.Entity("Ticket", b =>
@@ -522,23 +540,723 @@ namespace EntrioX.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d1000000-0000-0000-0000-000000000001"),
+                            Id = new Guid("18a7d95e-5550-45d0-ad57-ba0c777ee54e"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
-                            IsReserved = true,
-                            Price = 25.00m,
-                            QRCode = "QR_ABC123",
-                            ReservationId = new Guid("d1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
                             SeatNumber = "A1"
                         },
                         new
                         {
-                            Id = new Guid("d2000000-0000-0000-0000-000000000002"),
+                            Id = new Guid("4d5f58b9-c475-48a7-9d6e-d2e2a9f076a5"),
                             EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
-                            IsReserved = true,
-                            Price = 25.00m,
-                            QRCode = "QR_DEF456",
-                            ReservationId = new Guid("d1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
                             SeatNumber = "A2"
+                        },
+                        new
+                        {
+                            Id = new Guid("4557f98b-bfff-4c05-a615-1cdda572a826"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A3"
+                        },
+                        new
+                        {
+                            Id = new Guid("21dbab20-4bdc-41f1-8fbf-6d4bdf38a373"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A4"
+                        },
+                        new
+                        {
+                            Id = new Guid("166e5a89-7e9c-4eb0-9994-84c0032d0237"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A5"
+                        },
+                        new
+                        {
+                            Id = new Guid("744a0b67-6758-4304-bdfa-1d12064c912b"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A6"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f526b33-2f96-4d60-98ab-4b58fc5a0bd9"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A7"
+                        },
+                        new
+                        {
+                            Id = new Guid("f5613363-2a69-4199-b1c7-724570ed9cb0"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A8"
+                        },
+                        new
+                        {
+                            Id = new Guid("cf1fe741-1c1b-4a7e-95cd-21f140531e71"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A9"
+                        },
+                        new
+                        {
+                            Id = new Guid("5da07b29-7f74-408d-baf8-cb10a986352f"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "A10"
+                        },
+                        new
+                        {
+                            Id = new Guid("fb9cd31e-0ac2-4daf-af3b-d6fc3ba90da5"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B1"
+                        },
+                        new
+                        {
+                            Id = new Guid("f629d4e2-45e1-46bf-985a-fa354e5917f0"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B2"
+                        },
+                        new
+                        {
+                            Id = new Guid("4f455fff-4356-43f9-850a-1e0250a607e5"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B3"
+                        },
+                        new
+                        {
+                            Id = new Guid("8c3abb74-0dad-4e98-ac3b-d5f4a3190cba"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B4"
+                        },
+                        new
+                        {
+                            Id = new Guid("606d2738-6310-4aae-9509-55c028185de9"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B5"
+                        },
+                        new
+                        {
+                            Id = new Guid("ac53419e-2859-463a-b4b3-f61a299e11ac"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B6"
+                        },
+                        new
+                        {
+                            Id = new Guid("cb915b5e-757d-40e5-9290-1a2883c39295"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B7"
+                        },
+                        new
+                        {
+                            Id = new Guid("e415f9cf-f975-4e92-b0b4-f16773b4da45"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B8"
+                        },
+                        new
+                        {
+                            Id = new Guid("f32a43a2-7e31-489a-a9d8-385411510990"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B9"
+                        },
+                        new
+                        {
+                            Id = new Guid("78379d5d-97cd-40f4-ab09-82a8d502eee3"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "B10"
+                        },
+                        new
+                        {
+                            Id = new Guid("18b5da32-c458-4362-9be2-6172a8ebf366"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C1"
+                        },
+                        new
+                        {
+                            Id = new Guid("96480f65-5088-4a6d-81c0-ca5e0346a4d5"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C2"
+                        },
+                        new
+                        {
+                            Id = new Guid("4f6d3303-e61a-4a7e-8d87-8a328349d48c"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C3"
+                        },
+                        new
+                        {
+                            Id = new Guid("00e8e08a-9623-4eb0-95f6-fa484750012e"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C4"
+                        },
+                        new
+                        {
+                            Id = new Guid("5063b7bb-fea2-48f8-bf00-137059fcfcbb"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C5"
+                        },
+                        new
+                        {
+                            Id = new Guid("84a15444-49bc-491d-a8d1-b8a62e5a866d"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C6"
+                        },
+                        new
+                        {
+                            Id = new Guid("2fa19f28-5318-443c-860c-f6297984a4da"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C7"
+                        },
+                        new
+                        {
+                            Id = new Guid("c70873d3-9aef-4573-a2d8-87978dac00c7"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C8"
+                        },
+                        new
+                        {
+                            Id = new Guid("917e8698-df74-4483-bb2e-3951e6227bb5"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C9"
+                        },
+                        new
+                        {
+                            Id = new Guid("b7604de0-352d-4acc-bdf7-5fe8b4e76aa5"),
+                            EventId = new Guid("e1000000-0000-0000-0000-000000000001"),
+                            IsReserved = false,
+                            Price = 55.00m,
+                            SeatNumber = "C10"
+                        },
+                        new
+                        {
+                            Id = new Guid("bef04b06-b753-4cca-9d68-5621fa736a49"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A1"
+                        },
+                        new
+                        {
+                            Id = new Guid("70f61111-5678-4b47-8ed6-32d5bf0b340c"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A2"
+                        },
+                        new
+                        {
+                            Id = new Guid("f9fe31c4-2e0e-4d2e-b09f-7b906c68f63c"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A3"
+                        },
+                        new
+                        {
+                            Id = new Guid("1824a012-e9b0-41b9-a3a2-82bff269151c"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A4"
+                        },
+                        new
+                        {
+                            Id = new Guid("f6006d93-46dc-4ecd-8ec5-334f964bf557"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A5"
+                        },
+                        new
+                        {
+                            Id = new Guid("33ae1734-bc0c-4396-8ddc-5d8b3a4d5b50"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A6"
+                        },
+                        new
+                        {
+                            Id = new Guid("9f68a567-e231-47ba-9ad1-3c3129c6d902"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A7"
+                        },
+                        new
+                        {
+                            Id = new Guid("df753d3c-45bf-41be-a8a7-44bdb9f86252"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A8"
+                        },
+                        new
+                        {
+                            Id = new Guid("c1e2af5e-4c0f-4384-91dc-123563f03b07"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A9"
+                        },
+                        new
+                        {
+                            Id = new Guid("a4180c27-c414-4169-b1d7-5db162e36880"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A10"
+                        },
+                        new
+                        {
+                            Id = new Guid("b912c930-7c11-4e5f-b58e-b5ed91dc01bc"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B1"
+                        },
+                        new
+                        {
+                            Id = new Guid("83191890-eca4-44b0-bde9-7061dabc4ca1"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B2"
+                        },
+                        new
+                        {
+                            Id = new Guid("4d477f13-cd31-4706-a74d-7165e455d64f"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B3"
+                        },
+                        new
+                        {
+                            Id = new Guid("d3c9316d-7375-4e98-90c9-7febb56836f2"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B4"
+                        },
+                        new
+                        {
+                            Id = new Guid("6a2e4f53-968b-4187-bd4d-bd1488fb714f"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B5"
+                        },
+                        new
+                        {
+                            Id = new Guid("c7913078-824e-441a-be4c-0067c8b52c4f"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B6"
+                        },
+                        new
+                        {
+                            Id = new Guid("30f97ff6-84d8-43bc-a56b-e4c817403765"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B7"
+                        },
+                        new
+                        {
+                            Id = new Guid("58e999c2-9ef9-46b9-8157-65172a28e528"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B8"
+                        },
+                        new
+                        {
+                            Id = new Guid("79442718-9c60-4aa2-b413-0bd9a5df6dd1"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B9"
+                        },
+                        new
+                        {
+                            Id = new Guid("35bc11dc-444b-43d6-8f8a-2f4a269449f5"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B10"
+                        },
+                        new
+                        {
+                            Id = new Guid("ea5ccbaf-3e90-4f9e-8e80-2e9e0014a6ff"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C1"
+                        },
+                        new
+                        {
+                            Id = new Guid("06d5a0bf-c879-453e-beed-ae462e5285b1"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C2"
+                        },
+                        new
+                        {
+                            Id = new Guid("d9026d57-edcc-4e3e-8f25-383618a28ed2"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C3"
+                        },
+                        new
+                        {
+                            Id = new Guid("23d39b8c-ca18-41ce-a157-eb6c3b976912"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C4"
+                        },
+                        new
+                        {
+                            Id = new Guid("ab971224-abf4-4dd5-ad9d-62eedbc6df7a"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C5"
+                        },
+                        new
+                        {
+                            Id = new Guid("13d06c0a-de7e-4ccf-9203-fe12c4cf09ee"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C6"
+                        },
+                        new
+                        {
+                            Id = new Guid("fa159d0f-e54d-4ba4-9695-2fe824b4e504"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C7"
+                        },
+                        new
+                        {
+                            Id = new Guid("f95f9e23-143a-438c-943a-737dc3e34c4d"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C8"
+                        },
+                        new
+                        {
+                            Id = new Guid("a4145ee1-786d-4773-9e5f-cb5aade6977b"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C9"
+                        },
+                        new
+                        {
+                            Id = new Guid("30645aeb-c5c1-47b7-a8ed-ab24b32accd1"),
+                            EventId = new Guid("e2000000-0000-0000-0000-000000000002"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C10"
+                        },
+                        new
+                        {
+                            Id = new Guid("7ed60860-6672-4825-967c-e17daa5ce4f9"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A1"
+                        },
+                        new
+                        {
+                            Id = new Guid("7f619ab1-7ff9-4820-a014-933abd186918"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A2"
+                        },
+                        new
+                        {
+                            Id = new Guid("ef735365-c72c-4e98-a484-9da08ea9c630"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A3"
+                        },
+                        new
+                        {
+                            Id = new Guid("29e817ac-49d3-4993-9c7d-976ddcc27d98"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A4"
+                        },
+                        new
+                        {
+                            Id = new Guid("116aaf3f-7672-430a-83b8-e98c6ee0f0cf"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A5"
+                        },
+                        new
+                        {
+                            Id = new Guid("28174b3c-2d99-4d42-be42-2e21ad98761a"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A6"
+                        },
+                        new
+                        {
+                            Id = new Guid("fc265ebc-a298-4b03-80b9-ed36aa12d695"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A7"
+                        },
+                        new
+                        {
+                            Id = new Guid("86a98ecf-6e49-4014-a76c-4f4e5da95186"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A8"
+                        },
+                        new
+                        {
+                            Id = new Guid("d8844587-4e1b-4610-9673-846158609dc0"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A9"
+                        },
+                        new
+                        {
+                            Id = new Guid("347ae97e-4588-48d3-a909-c097829c5094"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "A10"
+                        },
+                        new
+                        {
+                            Id = new Guid("9c5124a9-0e92-40fb-9504-943f8ca164f5"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B1"
+                        },
+                        new
+                        {
+                            Id = new Guid("ee0f1f16-5315-4483-babe-d82e1db0df0d"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B2"
+                        },
+                        new
+                        {
+                            Id = new Guid("e493deed-17a5-49d1-af2c-d63a25923472"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B3"
+                        },
+                        new
+                        {
+                            Id = new Guid("88d09c05-441b-4240-a7ed-b39ad09f0eff"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B4"
+                        },
+                        new
+                        {
+                            Id = new Guid("882e0988-cee3-4ccc-b49b-4c1f1567681d"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B5"
+                        },
+                        new
+                        {
+                            Id = new Guid("8ad2a9b7-8b93-44a4-bc4b-564efd08d542"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B6"
+                        },
+                        new
+                        {
+                            Id = new Guid("cfb87997-2937-4d1f-b64c-18a2aa514553"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B7"
+                        },
+                        new
+                        {
+                            Id = new Guid("f31c5734-5563-4d58-abb7-fe0650ad08b8"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B8"
+                        },
+                        new
+                        {
+                            Id = new Guid("ecc46021-dd7c-41b8-a3b5-1d377be76f91"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B9"
+                        },
+                        new
+                        {
+                            Id = new Guid("ca83b7e0-d4c7-4a02-a137-fd5cf08c3277"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "B10"
+                        },
+                        new
+                        {
+                            Id = new Guid("b053cdd1-e6b1-4b40-aa00-3c1f1e99f407"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C1"
+                        },
+                        new
+                        {
+                            Id = new Guid("4dca17ff-c687-4278-8eb4-9a059ffcc0fc"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C2"
+                        },
+                        new
+                        {
+                            Id = new Guid("1436aecd-64b9-48e1-b626-b0573d930782"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C3"
+                        },
+                        new
+                        {
+                            Id = new Guid("ba19fd7d-c740-4c17-acbd-3593a3c4301a"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C4"
+                        },
+                        new
+                        {
+                            Id = new Guid("fe04eab6-af5a-49bc-8980-66d7b308646d"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C5"
+                        },
+                        new
+                        {
+                            Id = new Guid("81ef8297-dc74-4402-afe2-affd448ec5a0"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C6"
+                        },
+                        new
+                        {
+                            Id = new Guid("9fd77d16-c0f6-42a0-bb6b-2b57527145a3"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C7"
+                        },
+                        new
+                        {
+                            Id = new Guid("393c4681-604a-4177-b128-42efabd9eb4f"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C8"
+                        },
+                        new
+                        {
+                            Id = new Guid("88be923a-79b1-4f5f-866d-68739e87c0a8"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C9"
+                        },
+                        new
+                        {
+                            Id = new Guid("79589fea-5d3c-4495-84a6-b18675984d27"),
+                            EventId = new Guid("e3000000-0000-0000-0000-000000000003"),
+                            IsReserved = false,
+                            Price = 25.50m,
+                            SeatNumber = "C10"
                         });
                 });
 

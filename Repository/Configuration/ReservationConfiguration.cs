@@ -9,7 +9,7 @@ namespace Repository.Configuration
         {
             builder.Property(t => t.TotalPrice).HasPrecision(18, 2);
 
-            builder.HasData(
+           /* builder.HasData(
                 new Reservation
                 {
                     Id = Guid.Parse("d1000000-0000-0000-0000-000000000001"),
@@ -18,7 +18,7 @@ namespace Repository.Configuration
                     UserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                     EventId = Guid.Parse("e1000000-0000-0000-0000-000000000001")
                 }
-            );
+            );*/
         }
     }
 }

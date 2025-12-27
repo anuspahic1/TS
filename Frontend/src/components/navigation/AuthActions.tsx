@@ -2,33 +2,32 @@ import { Link } from 'react-router-dom';
 
 type Props = {
   isAuthenticated: boolean;
-  userName?: string;
   onLogout?: () => void;
 };
 
-const AuthActions = ({ isAuthenticated, userName, onLogout }: Props) => {
+const AuthActions = ({ isAuthenticated, onLogout }: Props) => {
   if (isAuthenticated) {
     return (
-      <div className="flex items-center gap-4">
-        <span className="text-gray-600">Welcome, {userName ?? 'User'}</span>
-        <button
-          onClick={onLogout}
-          className="px-3 py-2 border rounded-lg hover:bg-gray-100"
-        >
-          Logout
-        </button>
-      </div>
+      <button
+        onClick={onLogout}
+        className="px-5 py-2 text-xs font-black uppercase tracking-widest border-2 border-neutral-900 rounded-full hover:bg-neutral-900 hover:text-white transition-all active:scale-95"
+      >
+        Logout
+      </button>
     );
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <Link to="/signup" className="text-gray-600 hover:text-gray-800">
+    <div className="flex items-center gap-6">
+      <Link 
+        to="/signup" 
+        className="text-xs font-black uppercase tracking-widest text-neutral-500 hover:text-black transition-colors"
+      >
         Sign Up
       </Link>
       <Link
         to="/login"
-        className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+        className="px-6 py-2.5 bg-yellow-500 text-black text-xs font-black uppercase tracking-widest rounded-full hover:bg-yellow-400 shadow-lg shadow-yellow-500/20 transition-all active:scale-95"
       >
         Log In
       </Link>

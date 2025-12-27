@@ -10,6 +10,8 @@ namespace Shared.DataTransferObjects
         [Range(0, 100000, ErrorMessage = "Total price must be a positive value.")]
         public decimal TotalPrice { get; init; }
 
+        public bool UseLoyaltyPoints { get; init; }
+
         public IEnumerable<TicketForCreationDto>? Tickets { get; init; }
 
     }

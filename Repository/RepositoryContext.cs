@@ -22,6 +22,8 @@ namespace Repository
             modelBuilder.ApplyConfiguration(new RewardConfiguration());
             modelBuilder.ApplyConfiguration(new TicketConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.ApplyConfiguration(new AdminUserConfiguration());
+            modelBuilder.ApplyConfiguration(new AdminRoleConfiguration());
         }
 
         public DbSet<AppUser>? AppUsers { get; set; }

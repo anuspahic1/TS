@@ -12,6 +12,7 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
 
+
         public EventService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper)
         {
             _repository = repository;
@@ -42,18 +43,44 @@ namespace Service
         }
 
         public async Task<EventDto> CreateEventForLocationAsync(Guid locationId, EventForCreationDto eventForCreation, bool trackChanges)
+{
+    const int MAX_CAPACITY = 100;
+
+    await CheckIfLocationExists(locationId, trackChanges);
+
+    if (eventForCreation.EventDate < DateTime.Now)
+        throw new Exception("Event date cannot be in the past.");
+
+    if (eventForCreation.Capacity > MAX_CAPACITY)
+        throw new Exception($"Capacity exceeds maximum limit of {MAX_CAPACITY}.");
+
+    var eventEntity = _mapper.Map<Event>(eventForCreation);
+
+    _repository.Event.CreateEventForLocation(locationId, eventEntity);
+    await _repository.SaveAsync();
+
+    int seatsPerRow = eventEntity.Capacity <= 100 ? 10 : 20;
+    
+    for (int i = 0; i < eventEntity.Capacity; i++)
+    {
+        char rowLetter = (char)('A' + (i / seatsPerRow));
+        int seatNumInRow = (i % seatsPerRow) + 1;
+
+        var ticket = new Ticket
         {
-            await CheckIfLocationExists(locationId, trackChanges);
+            EventId = eventEntity.Id,
+            SeatNumber = $"{rowLetter}{seatNumInRow}",
+            Price = eventEntity.MinTicketPrice, 
+            IsReserved = false
+        };
 
-            var eventEntity = _mapper.Map<Event>(eventForCreation);
+        _repository.Ticket.CreateTicketForEvent(eventEntity.Id, ticket);
+    }
 
-            _repository.Event.CreateEventForLocation(locationId, eventEntity);
-            await _repository.SaveAsync();
+    await _repository.SaveAsync();
 
-            var eventToReturn = _mapper.Map<EventDto>(eventEntity);
-
-            return eventToReturn;
-        }
+    return _mapper.Map<EventDto>(eventEntity);
+}
 
         public async Task DeleteEventForLocationAsync(Guid locationId, Guid id, bool trackChanges)
         {
@@ -113,5 +140,21 @@ namespace Service
 
             await _repository.SaveAsync();
         }
+        public async Task<IEnumerable<EventDto>> GetEventsForUserAsync(Guid userId, bool trackChanges)
+        {
+            var eventsFromDb = await _repository.Event.GetEventsForUserAsync(userId, trackChanges);
+
+            var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsFromDb);
+
+            return eventsDto;
+        }
+        public async Task<IEnumerable<EventDto>> GetAllEventsAsync(EventParameters eventParameters, bool trackChanges)
+            {
+                var eventsWithMetaData = await _repository.Event.GetAllEventsAsync(eventParameters, trackChanges);
+
+                var eventsDto = _mapper.Map<IEnumerable<EventDto>>(eventsWithMetaData);
+
+                return eventsDto;
+            }
     }
 }

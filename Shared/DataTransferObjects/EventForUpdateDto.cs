@@ -12,5 +12,11 @@ namespace Shared.DataTransferObjects
         public string? Description { get; init; }
 
         public Guid? LocationId { get; init; }
+
+        public int Capacity { get; init; }
+        [Range(0, double.MaxValue, ErrorMessage = "Min ticket price must be >= 0.")]
+        public decimal MinTicketPrice { get; init; }
+        [Required(ErrorMessage = "Event date is required.")]
+        public DateTime EventDate { get; init; }
     }
 }
