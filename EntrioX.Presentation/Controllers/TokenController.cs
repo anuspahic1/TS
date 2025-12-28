@@ -1,7 +1,6 @@
-﻿using EntrioX.Presentation.ActionFilters;
+﻿using Entities.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared.DataTransferObjects;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -16,11 +15,25 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost("refresh")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
+        public async Task<IActionResult> Refresh()
         {
-            var tokenDtoToReturn = await _service.AuthenticationService.RefreshToken(tokenDto);
-            return Ok(tokenDtoToReturn);
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized();
+
+            try
+            {
+                var token = await _service.AuthenticationService.RefreshToken(refreshToken);
+
+                return Ok(new
+                {
+                    accessToken = token.AccessToken
+                });
+            }
+            catch (RefreshTokenBadRequest)
+            {
+                return Unauthorized();
+            }
         }
     }
 }

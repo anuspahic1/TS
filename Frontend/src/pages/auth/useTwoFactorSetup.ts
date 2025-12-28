@@ -57,7 +57,6 @@ export const useTwoFactorSetup = () => {
       const result = await authService.postTfaSetup(verificationCode);
 
       localStorage.setItem('accessToken', result.accessToken);
-      localStorage.setItem('refreshToken', result.refreshToken);
       localStorage.removeItem('preAuthToken');
 
       navigate('/login', { state: location.state });

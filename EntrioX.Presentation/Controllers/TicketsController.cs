@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -18,6 +19,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetTickets(Guid locationId, Guid eventId)
         {
             var tickets = await _service.TicketService.GetTicketsAsync(locationId, eventId, trackChanges: false);

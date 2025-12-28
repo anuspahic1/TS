@@ -1,5 +1,6 @@
 ﻿using EntrioX.Presentation.ActionFilters;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -42,7 +43,13 @@ namespace EntrioX.Presentation.Controllers
                 return Unauthorized();
 
             var result = await _service.AuthenticationService.Authenticate(user);
-            return Ok(result);
+
+            if (result.RequiresTwoFactor)
+                return Ok(result);
+
+            AppendRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(result with { RefreshToken = null });
         }
 
         [HttpGet("tfa-setup")]
@@ -75,7 +82,22 @@ namespace EntrioX.Presentation.Controllers
             var token = await _service.AuthenticationService
                 .VerifyTfaByUserId(dto, userId, stage);
 
-            return Ok(token);
+            AppendRefreshTokenCookie(token.RefreshToken);
+
+            return Ok(token with { RefreshToken = null });
+        }
+
+        private void AppendRefreshTokenCookie(string refreshToken)
+        {
+            Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // true in production
+                SameSite = SameSiteMode.Lax,
+                IsEssential = true,
+                Expires = DateTime.UtcNow.AddDays(7),
+                Path = "/"
+            });
         }
     }
 }

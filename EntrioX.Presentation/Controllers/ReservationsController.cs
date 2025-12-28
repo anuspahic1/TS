@@ -1,4 +1,5 @@
 ﻿using EntrioX.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -17,6 +18,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetReservations(Guid locationId, Guid eventId)
         {
             var reservations = await _service.ReservationService.GetReservationsAsync(locationId, eventId, trackChanges: false);

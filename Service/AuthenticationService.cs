@@ -4,6 +4,7 @@ using Entities.ConfigurationModels;
 using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
@@ -109,37 +110,34 @@ namespace Service
 
             var refreshToken = GenerateRefreshToken();
             _user.RefreshToken = refreshToken;
-
-            if (populateExp)
-                _user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            _user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userManager.UpdateAsync(_user);
+
+            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
 
             var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
             var hasAuthenticatorKey = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
 
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-
             return new TokenDto(
-                accessToken,
-                refreshToken,
-                twoFactorEnabled,
-                hasAuthenticatorKey,
-                false,
-                null
+                AccessToken: accessToken,
+                RefreshToken: refreshToken,
+                TwoFactorEnabled: twoFactorEnabled,
+                HasAuthenticatorKey: hasAuthenticatorKey,
+                RequiresTwoFactor: false,
+                PreAuthToken: null
             );
         }
 
-        public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
+        public async Task<TokenDto> RefreshToken(string refreshToken)
         {
-            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
-            var user = await _userManager.FindByNameAsync(principal.Identity.Name);
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
-            if (user is null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
                 throw new RefreshTokenBadRequest();
 
             _user = user;
-
             return await CreateToken(populateExp: false);
         }
 

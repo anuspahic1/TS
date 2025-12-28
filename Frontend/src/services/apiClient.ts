@@ -12,7 +12,7 @@ export const apiClient = {
   async put<T>(url: string, body?: unknown): Promise<T> {
     return request<T>(url, 'PUT', body);
   },
-  
+
   async delete<T>(url: string): Promise<T> {
     return request<T>(url, 'DELETE');
   },
@@ -46,18 +46,17 @@ async function request<T>(
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  if (response.status === 401 && !isRefreshing && !url.includes('/authentication/login') && !headers.Authorization) {
+  if (
+    response.status === 401 &&
+    !isRefreshing &&
+    !url.includes('/authentication/login') &&
+    !url.includes('/token/refresh')
+  ) {
     isRefreshing = true;
 
     const refreshResponse = await fetch(`${API_BASE_URL}/token/refresh`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        accessToken: localStorage.getItem('accessToken'),
-        refreshToken: localStorage.getItem('refreshToken'),
-      }),
+      credentials: 'include',
     });
 
     isRefreshing = false;

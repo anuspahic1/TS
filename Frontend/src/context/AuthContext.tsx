@@ -4,7 +4,6 @@ import { jwtDecode } from 'jwt-decode';
 
 type LoginResult = {
   accessToken: string;
-  refreshToken: string;
   twoFactorEnabled: boolean;
   hasAuthenticatorKey: boolean;
   requiresTwoFactor: boolean;

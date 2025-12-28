@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -25,6 +26,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}", Name = "GetRewardForUser")]
+        [Authorize]
         public async Task<IActionResult> GetReward(Guid userId, Guid id)
         {
             var reward = await _service.RewardService.GetRewardAsync(userId, id, trackChanges: false);

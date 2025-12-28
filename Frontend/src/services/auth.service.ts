@@ -16,7 +16,6 @@ export interface ISignupRequest {
 
 export interface IAuthResponse {
   accessToken: string;
-  refreshToken: string;
   twoFactorEnabled: boolean;
   hasAuthenticatorKey: boolean;
   roles?: string[];
@@ -35,7 +34,6 @@ export const authService = {
   getTfaSetup,
   postTfaSetup,
   verifyTfa,
-  refresh,
 };
 
 async function login(data: ILoginRequest): Promise<IAuthResponse> {
@@ -75,8 +73,4 @@ async function verifyTfa(code: string): Promise<IAuthResponse> {
       Authorization: `Bearer ${preAuthToken}`,
     }
   );
-}
-
-async function refresh(): Promise<IAuthResponse> {
-  return apiClient.post('/authentication/refresh');
 }
