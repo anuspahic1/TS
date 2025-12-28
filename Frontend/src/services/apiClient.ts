@@ -46,6 +46,8 @@ async function request<T>(
     body: body ? JSON.stringify(body) : undefined,
   });
 
+  console.log('API Response:', response);
+
   if (
     response.status === 401 &&
     !isRefreshing &&
@@ -58,6 +60,8 @@ async function request<T>(
       method: 'POST',
       credentials: 'include',
     });
+
+    console.log('Token refresh response:', refreshResponse);
 
     isRefreshing = false;
 
