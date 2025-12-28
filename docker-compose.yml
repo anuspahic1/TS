@@ -34,19 +34,24 @@ services:
       SA_PASSWORD: "YourStrong_Password123"
     depends_on:
       - sqlserver
+    volumes:
+      # Map the script from your actual subfolder to the internal container path
+      - ./EntrioX/entrypoint.sh:/app/entrypoint.sh
+    # Tell the container to execute it from the internal path
+    entrypoint: /app/entrypoint.sh
     networks:
       - entriox-net
     # Backend ne expose-amo vani, pristup ide samo kroz Nginx!
 
-  # 3. FRONTEND & PROXY (NGINX)
+    # 3. FRONTEND & PROXY (NGINX)
   web:
     build:
-      context: ./Frontend 
+      context: ./Frontend
       dockerfile: Dockerfile
     container_name: entriox-web
     restart: always
     ports:
-      - "80:80"   # HTTP
+      - "80:80" # HTTP
       - "443:443" # HTTPS
     volumes:
       # Mountamo certifikate sa hosta u container
@@ -58,6 +63,7 @@ services:
 
 networks:
   entriox-net:
+
 
 volumes:
   entriox_data:
