@@ -30,7 +30,8 @@ services:
       # Connection string koristi ime servisa 'sqlserver'
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EntrioX;User Id=sa;Password=YourStrong_Password123;TrustServerCertificate=True"
       # Ovdje stavi svoj pravi JWT secret
-      JwtSettings__secret: "EntrioXSecretKey113211162023!!!!"
+      SECRET: "EntrioXSecretKey113211162023!!!!"
+      SA_PASSWORD: "YourStrong_Password123"
     depends_on:
       - sqlserver
     networks:
