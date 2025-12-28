@@ -65,7 +65,6 @@ const CheckoutPage: React.FC = () => {
     try {
       setIsSubmitting(true);
       setError(null);
-      console.log("Event ID:", eventId)
       await apiClient.post(`/locations/${locationId}/events/${eventId}/reservations`, reservationData);
       
       Swal.fire({

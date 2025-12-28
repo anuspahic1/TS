@@ -75,8 +75,6 @@ const processUpdate: SubmitHandler<EventFormData> = async (formData) => {
     const eventId = event.id || event.eventId;
     const originalLocationId = event.locationId || event.location?.id || event.location?.locationId;
 
-    console.log("URL Params -> Location:", originalLocationId, "Event:", eventId);
-
     if (!eventId || !originalLocationId) {
         console.error("❌ Missing IDs. Check the 'event' object structure.");
         return;

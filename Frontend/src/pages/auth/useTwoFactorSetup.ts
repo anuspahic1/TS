@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import { useAuth } from '../../context/AuthContext';
 
 export const useTwoFactorSetup = () => {
   const [setupInfo, setSetupInfo] = useState<{
@@ -14,7 +15,7 @@ export const useTwoFactorSetup = () => {
   const [pageLoading, setPageLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
+  const { completeLogin } = useAuth();
 
   useEffect(() => {
     const loadSetup = async () => {
@@ -56,11 +57,9 @@ export const useTwoFactorSetup = () => {
       setLoading(true);
       const result = await authService.postTfaSetup(verificationCode);
 
-      localStorage.setItem('accessToken', result.accessToken);
+      completeLogin(result.accessToken);
       localStorage.removeItem('preAuthToken');
-
-      navigate('/login', { state: location.state });
-
+      navigate('/');
     } catch (err: any) {
       setError(err.message || '2FA verification failed.');
     } finally {

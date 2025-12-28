@@ -11,9 +11,7 @@ export function useEvents() {
 
     const getUserEvents = async (userId: string) => {
         try {
-            console.log("Fetching events for user ID:", userId);
             const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/${userId}/events`);
-            console.log("Fetched events:", response.data);
             // setEvents(response.data);
             return response.data;
         } catch (error) {
@@ -26,8 +24,6 @@ export function useEvents() {
 const createEvent = async (creatorId: string, data: any) => {
 
     const locId = data.locationId || data.location; 
-
-    console.log("Location ID in useEvents:", locId);
     
     const newEvent = {
         name: data.name,
@@ -40,8 +36,6 @@ const createEvent = async (creatorId: string, data: any) => {
         reservations: null,
         tickets: null
     };
-
-    console.log("Creating event object for API:", newEvent);
 
     try {
         if (!locId) {
