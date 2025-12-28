@@ -22,7 +22,7 @@ services:
       dockerfile: ./EntrioX/Dockerfile
     container_name: entriox-api
     environment:
-      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_ENVIRONMENT: "Production"
       MSSQL_MEMORY_LIMIT_MB: "4096"
 
       # override connection string

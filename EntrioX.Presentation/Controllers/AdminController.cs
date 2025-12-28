@@ -5,7 +5,7 @@ using Service.Contracts;
 
 namespace EntrioX.Presentation.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
     [Route("api/admin")]
     [ApiController]
     public class AdminController : ControllerBase

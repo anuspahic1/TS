@@ -35,8 +35,7 @@ namespace Service
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
-            //_jwtConfiguration = _configuration.Get("JwtSettings");
-            _jwtConfiguration = _configuration.Value; //ilma
+            _jwtConfiguration = _configuration.Value;
             _urlEncoder = urlEncoder;
             _repository = repository;
         }
@@ -134,7 +133,7 @@ namespace Service
             var user = await _userManager.Users
                 .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
-            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                 throw new RefreshTokenBadRequest();
 
             _user = user;
@@ -220,7 +219,7 @@ namespace Service
 
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
+            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable(GetSecret()));
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }
@@ -252,7 +251,7 @@ namespace Service
                 issuer: _jwtConfiguration.ValidIssuer,
                 audience: _jwtConfiguration.ValidAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
                 signingCredentials: signingCredentials
             );
             return tokenOptions;
@@ -275,7 +274,7 @@ namespace Service
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetSecret())),
                 ValidateLifetime = false, //
                 ValidIssuer = _jwtConfiguration.ValidIssuer,
                 ValidAudience = _jwtConfiguration.ValidAudience
@@ -316,6 +315,14 @@ namespace Service
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private static string GetSecret()
+        {
+            var secret = Environment.GetEnvironmentVariable("SECRET");
+            if (string.IsNullOrWhiteSpace(secret))
+                throw new Exception("JWT SECRET is not configured");
+            return secret;
         }
 
     }

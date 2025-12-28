@@ -24,7 +24,8 @@ namespace EntrioX.Extensions
                 options.AddPolicy("CorsPolicy", builder =>
                     builder.WithOrigins(
                             "http://localhost:5173",
-                            "https://entriox.com"
+                            "https://entriox.com",
+                            "https://www.entriox.com"
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -89,6 +90,9 @@ namespace EntrioX.Extensions
 
             var secretKey = Environment.GetEnvironmentVariable("SECRET");
 
+            if (string.IsNullOrEmpty(secretKey))
+                throw new Exception("JWT SECRET is not configured");
+
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -102,6 +106,7 @@ namespace EntrioX.Extensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero,
                     ValidIssuer = jwtConfiguration.ValidIssuer,
                     ValidAudience = jwtConfiguration.ValidAudience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
@@ -115,10 +120,8 @@ namespace EntrioX.Extensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ClockSkew = TimeSpan.Zero, // 
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))
-                    ),
+                    ClockSkew = TimeSpan.Zero,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     ValidIssuer = jwtConfiguration.ValidIssuer,
                     ValidAudience = jwtConfiguration.ValidAudience
                 };

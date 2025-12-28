@@ -92,11 +92,11 @@ namespace EntrioX.Presentation.Controllers
             Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = false, // true in production
-                SameSite = SameSiteMode.Lax,
+                Secure = true,
+                SameSite = SameSiteMode.None,
                 IsEssential = true,
-                Expires = DateTime.UtcNow.AddDays(7),
-                Path = "/"
+                MaxAge = TimeSpan.FromDays(7),
+                Path = "/api/token"
             });
         }
     }

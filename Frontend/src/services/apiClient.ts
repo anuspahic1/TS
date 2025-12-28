@@ -46,22 +46,26 @@ async function request<T>(
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  console.log('API Response:', response);
-
   if (
     response.status === 401 &&
     !isRefreshing &&
     !url.includes('/authentication/login') &&
     !url.includes('/token/refresh')
   ) {
+    while (isRefreshing) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const newToken = localStorage.getItem('accessToken');
+    if (newToken && newToken !== accessToken) {
+      return request<T>(url, method, body);
+    }
     isRefreshing = true;
 
     const refreshResponse = await fetch(`${API_BASE_URL}/token/refresh`, {
       method: 'POST',
       credentials: 'include',
     });
-
-    console.log('Token refresh response:', refreshResponse);
 
     isRefreshing = false;
 
