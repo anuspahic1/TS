@@ -1,6 +1,6 @@
 "use client"
 import  { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Badge } from '../ui/badge';
 import type{ TicketDto } from '../../types/TicketDto';
@@ -23,6 +23,10 @@ const AdminTicketsPage = () => {
     };
     fetchTickets();
   }, []);
+
+  if (loading) {
+    return <div className="p-6 font-sans">Loading tickets...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6 font-sans">

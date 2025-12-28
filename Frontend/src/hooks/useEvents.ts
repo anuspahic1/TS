@@ -8,6 +8,10 @@ export function useEvents() {
 
     const [events, setEvents] = useState<Event[]>([]);
 
+    if (events === undefined) {
+        setEvents([]);
+    }
+
 
     const getUserEvents = async (userId: string) => {
         try {

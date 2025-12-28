@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "../services/apiClient";
 import type { EventDto } from "../types/IEvent";
 import type { ILocation } from "../types/ILocation";
 import Header from "../components/layout/Header";

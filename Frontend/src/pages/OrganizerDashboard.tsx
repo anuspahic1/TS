@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CardContent } from '../components/ui/card';
 
 import Footer from '../components/layout/Footer';

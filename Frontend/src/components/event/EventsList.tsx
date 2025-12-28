@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import { Calendar, MapPin, Users, DollarSign, Edit, Trash2, Eye } from "lucide-react"
 import { format } from "date-fns"
 import {

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
 
 interface DashboardSidebarProps {
   activeTab: 'reservations' | 'tickets' | 'profile';
