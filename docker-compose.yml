@@ -1,10 +1,11 @@
 version: "3.9"
 
 services:
-
+  # 1. BAZA
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: entriox-sql
+    restart: always
     environment:
       SA_PASSWORD: "YourStrong_Password123"
       ACCEPT_EULA: "Y"
@@ -12,36 +13,50 @@ services:
       - "1433:1433"
     volumes:
       - entriox_data:/var/opt/mssql
-
     networks:
       - entriox-net
 
+  # 2. BACKEND API
   api:
     build:
       context: .
       dockerfile: ./EntrioX/Dockerfile
     container_name: entriox-api
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
-      MSSQL_MEMORY_LIMIT_MB: "4096"
-
-      # override connection string
+      ASPNETCORE_URLS: "http://+:8080"
+      MSSQL_MEMORY_LIMIT_MB: "2048"
+      # Connection string koristi ime servisa 'sqlserver'
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EntrioX;User Id=sa;Password=YourStrong_Password123;TrustServerCertificate=True"
-
-      SA_PASSWORD: "YourStrong_Password123"
-
+      # Ovdje stavi svoj pravi JWT secret
+      JwtSettings__secret: "EntrioXSecretKey113211162023!!!!"
     depends_on:
       - sqlserver
+    networks:
+      - entriox-net
+    # Backend ne expose-amo vani, pristup ide samo kroz Nginx!
 
+  # 3. FRONTEND & PROXY (NGINX)
+  web:
+    build:
+      context: ./Frontend 
+      dockerfile: Dockerfile
+    container_name: entriox-web
+    restart: always
     ports:
-      - "5001:8080"
-
+      - "80:80"   # HTTP
+      - "443:443" # HTTPS
+    volumes:
+      # Mountamo certifikate sa hosta u container
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - api
     networks:
       - entriox-net
 
 networks:
   entriox-net:
-
 
 volumes:
   entriox_data:
