@@ -13,7 +13,7 @@ done
 echo "SQL Server is up. Running migrations..."
 
 # run EF migrations
-dotnet EntrioX.API.dll --migrate
+dotnet EntrioX.dll --migrate
 
 echo "Starting application..."
-exec dotnet EntrioX.API.dll
+exec dotnet EntrioX.dll
