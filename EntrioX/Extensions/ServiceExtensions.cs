@@ -71,9 +71,9 @@ namespace EntrioX.Extensions
             var builder = services.AddIdentity<User, IdentityRole>(o =>
             {
                 o.Password.RequireDigit = true;
-                o.Password.RequireLowercase = false;
-                o.Password.RequireUppercase = false;
-                o.Password.RequireNonAlphanumeric = false;
+                o.Password.RequireLowercase = true;
+                o.Password.RequireUppercase = true;
+                o.Password.RequireNonAlphanumeric = true;
                 o.Password.RequiredLength = 10;
                 o.User.RequireUniqueEmail = true;
             })
