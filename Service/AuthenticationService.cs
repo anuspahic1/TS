@@ -239,6 +239,7 @@ namespace Service
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
+                //new Claim(ClaimTypes.Role, AppRoles.User)
             }
 
             return claims;

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EntrioX.Presentation.Controllers
 {
@@ -33,6 +34,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "OrganizerAccess")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateEventForLocation(Guid locationId, [FromBody] EventForCreationDto ev)
         {
@@ -42,6 +44,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> DeleteEvent(Guid locationId, Guid id)
         {
             await _service.EventService.DeleteEventForLocationAsync(locationId, id, trackChanges: false);
@@ -49,6 +52,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateEventForLocation(Guid locationId, Guid id, [
             FromBody] EventForUpdateDto eventForUpdate)
@@ -56,7 +60,9 @@ namespace EntrioX.Presentation.Controllers
             await _service.EventService.UpdateEventForLocationAsync(locationId, id, eventForUpdate, trackChanges: true);
             return NoContent();
         }
+
         [HttpPatch("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> PartiallyUpdateEventForLocation(Guid locationId, Guid id
             , [FromBody] JsonPatchDocument<EventForUpdateDto> patchDoc)
         {

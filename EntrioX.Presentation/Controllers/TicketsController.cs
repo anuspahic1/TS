@@ -19,7 +19,6 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> GetTickets(Guid locationId, Guid eventId)
         {
             var tickets = await _service.TicketService.GetTicketsAsync(locationId, eventId, trackChanges: false);
@@ -34,6 +33,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "OrganizerAccess")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateTicket(Guid locationId, Guid eventId, [FromBody] TicketForCreationDto ticket)
         {
@@ -43,19 +43,24 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> DeleteTicket(Guid locationId, Guid eventId, Guid id)
         {
             await _service.TicketService.DeleteTicketForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
+
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateTicket(Guid locationId, Guid eventId, Guid id, [FromBody] TicketForUpdateDto ticket)
         {
             await _service.TicketService.UpdateTicketForEventAsync(locationId, eventId, id, ticket, locationTrackChanges: false, eventTrackChanges: false, ticketTrackChanges: true);
             return NoContent();
         }
+
         [HttpPatch("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> PartiallyUpdateTicket(Guid locationId, Guid eventId,
             Guid id, [FromBody] JsonPatchDocument<TicketForUpdateDto> patchDoc)
         {

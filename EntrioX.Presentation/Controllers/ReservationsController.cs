@@ -18,7 +18,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> GetReservations(Guid locationId, Guid eventId)
         {
             var reservations = await _service.ReservationService.GetReservationsAsync(locationId, eventId, trackChanges: false);
@@ -26,6 +26,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}", Name = "GetReservationForEvent")]
+        [Authorize]
         public async Task<IActionResult> GetReservation(Guid locationId, Guid eventId, Guid id)
         {
             var reservation = await _service.ReservationService.GetReservationAsync(locationId, eventId, id, trackChanges: false);
@@ -34,6 +35,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateReservation(Guid locationId, Guid eventId, [FromBody] ReservationForCreationDto reservation)
         {
@@ -43,12 +45,15 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> DeleteReservation(Guid locationId, Guid eventId, Guid id)
         {
             await _service.ReservationService.DeleteReservationForEventAsync(locationId, eventId, id, trackChanges: false);
             return NoContent();
         }
+
         [HttpGet("visitors")]
+        [Authorize(Policy = "OrganizerAccess")]
         public async Task<IActionResult> GetEventVisitors(
             Guid locationId,
             Guid eventId)

@@ -19,6 +19,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetRewards(Guid userId)
         {
             var rewards = await _service.RewardService.GetRewardsAsync(userId, trackChanges: false);
@@ -34,6 +35,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateRewardForUser(Guid userId, [FromBody] RewardForCreationDto reward)
         {
@@ -43,12 +45,15 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteReward(Guid userId, Guid id)
         {
             await _service.RewardService.DeleteRewardForUserAsync(userId, id, trackChanges: false);
             return NoContent();
         }
+
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateRewardForUser(Guid userId, Guid id, [
             FromBody] RewardForUpdateDto reward)
@@ -56,7 +61,9 @@ namespace EntrioX.Presentation.Controllers
             await _service.RewardService.UpdateRewardForUserAsync(userId, id, reward, trackChanges: true);
             return NoContent();
         }
+
         [HttpPatch("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> PartiallyUpdateRewardForUser(Guid userId, Guid id
 
             , [FromBody] JsonPatchDocument<RewardForUpdateDto> patchDoc)

@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Entities.ConfigurationModels;
 using Microsoft.OpenApi.Models;
+using Shared;
 
 namespace EntrioX.Extensions
 {
@@ -171,6 +172,20 @@ namespace EntrioX.Extensions
             }
         });
 
+            });
+        }
+
+        public static void ConfigureAuthorizationPolicies(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                    policy.RequireRole(AppRoles.Administrator));
+
+                options.AddPolicy("OrganizerAccess", policy =>
+                    policy.RequireRole(
+                        AppRoles.Administrator,
+                        AppRoles.Organizer));
             });
         }
     }

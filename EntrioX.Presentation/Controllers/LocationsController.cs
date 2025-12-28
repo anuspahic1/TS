@@ -19,7 +19,6 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetLocations()
         {
             var locations = await _service.LocationService.GetAllLocationsAsync(trackChanges: false);
@@ -34,6 +33,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateLocation([FromBody] LocationForCreationDto location)
         {
@@ -43,6 +43,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteLocation(Guid id)
         {
             await _service.LocationService.DeleteLocationAsync(id, trackChanges: false);
@@ -50,6 +51,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateLocation(Guid id, [FromBody] LocationForUpdateDto location)
         {
@@ -60,6 +62,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPatch("{id:guid}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> PartiallyUpdateLocation(Guid id, [FromBody] JsonPatchDocument
             <LocationForUpdateDto> patchDoc)
         {

@@ -1,10 +1,5 @@
-using EntrioX.Presentation.ActionFilters;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared.DataTransferObjects;
-using System.Security.Claims;
 
 namespace EntrioX.Presentation.Controllers
 {
