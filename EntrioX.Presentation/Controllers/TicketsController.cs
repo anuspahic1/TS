@@ -61,6 +61,7 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpPatch("{id:guid}")]
         [Authorize(Policy = "OrganizerAccess")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> PartiallyUpdateTicket(Guid locationId, Guid eventId,
             Guid id, [FromBody] JsonPatchDocument<TicketForUpdateDto> patchDoc)
         {

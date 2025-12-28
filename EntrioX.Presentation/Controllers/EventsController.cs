@@ -63,6 +63,7 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpPatch("{id:guid}")]
         [Authorize(Policy = "OrganizerAccess")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> PartiallyUpdateEventForLocation(Guid locationId, Guid id
             , [FromBody] JsonPatchDocument<EventForUpdateDto> patchDoc)
         {

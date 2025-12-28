@@ -64,6 +64,7 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpPatch("{id:guid}")]
         [Authorize(Policy = "AdminOnly")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> PartiallyUpdateRewardForUser(Guid userId, Guid id
 
             , [FromBody] JsonPatchDocument<RewardForUpdateDto> patchDoc)

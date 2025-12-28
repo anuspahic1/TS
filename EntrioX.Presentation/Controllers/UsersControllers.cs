@@ -62,6 +62,7 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpPost("{id:guid}/roles")]
         [Authorize(Roles = "Administrator")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] string roleName)
         {
             await _service.AppUserService.UpdateUserRoleAsync(id, roleName);
@@ -71,6 +72,7 @@ namespace EntrioX.Presentation.Controllers
 
 
         [HttpPatch("{id:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> PartiallyUpdateUser(Guid id, [FromBody] JsonPatchDocument
             <AppUserForUpdateDto> patchDoc)
         {
