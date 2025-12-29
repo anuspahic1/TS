@@ -371,3 +371,6 @@ obj/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+certs/entriox.key
+certs/entriox.crt
+

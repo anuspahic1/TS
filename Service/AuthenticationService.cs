@@ -219,10 +219,11 @@ namespace Service
 
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable(GetSecret()));
-            var secret = new SymmetricSecurityKey(key);
-            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
-        }
+            var secret = GetSecret();
+            Console.WriteLine(secret);
+            var key = Encoding.UTF8.GetBytes(secret);
+            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+  }
 
         private async Task<List<Claim>> GetClaims()
         {
@@ -318,8 +319,10 @@ namespace Service
         }
 
         private static string GetSecret()
-        {
+        {  
+            Console.WriteLine("TUUUUUUU SAAAAAM");
             var secret = Environment.GetEnvironmentVariable("SECRET");
+            Console.WriteLine(secret);
             if (string.IsNullOrWhiteSpace(secret))
                 throw new Exception("JWT SECRET is not configured");
             return secret;
