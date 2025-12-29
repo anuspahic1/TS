@@ -74,7 +74,19 @@ namespace Service
         {
             _user = await _userManager.FindByNameAsync(dto.UserName);
 
-            var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
+            var roles = await _userManager.GetRolesAsync(_user);
+            var isAdmin = roles.Contains("Administrator");
+
+            if (isAdmin)
+            {
+                var tokenDto = await CreateToken(populateExp: true);
+
+                return tokenDto with
+                {
+                    RequiresTwoFactor = false
+                };
+            }
+
             var hasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
             
             var preAuthToken = CreatePreAuthToken(_user);
@@ -319,10 +331,8 @@ namespace Service
         }
 
         private static string GetSecret()
-        {  
-            Console.WriteLine("TUUUUUUU SAAAAAM");
+        {              
             var secret = Environment.GetEnvironmentVariable("SECRET");
-            Console.WriteLine(secret);
             if (string.IsNullOrWhiteSpace(secret))
                 throw new Exception("JWT SECRET is not configured");
             return secret;
