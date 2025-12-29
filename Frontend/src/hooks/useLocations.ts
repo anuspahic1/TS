@@ -1,12 +1,10 @@
-import axios from "axios";
+import { apiClient } from "../services/apiClient";
 
 export default function useLocations() {
-    const API_URL = import.meta.env.VITE_API_URL;
 
     const getLocations = async () => {
         try {
-            const response = await axios.get(`${API_URL}/locations`);
-            return response.data;
+            return await apiClient.get<any[]>("/locations");
         } catch (error) {
             console.error("Error fetching locations:", error);
             return [];
@@ -15,8 +13,7 @@ export default function useLocations() {
 
     const createLocation = async (locationData: { name: string; address: string }) => {
         try {
-            const response = await axios.post(`${API_URL}/locations`, locationData);
-            return response.data;
+            return await apiClient.post("/locations", locationData);
         } catch (error) {
             console.error("Error creating location:", error);
             throw error;
@@ -25,8 +22,7 @@ export default function useLocations() {
 
     const updateLocation = async (id: string, locationData: { name: string; address: string }) => {
         try {
-            const response = await axios.put(`${API_URL}/locations/${id}`, locationData);
-            return response.data;
+            return await apiClient.put(`/locations/${id}`, locationData);
         } catch (error) {
             console.error("Error updating location:", error);
             throw error;
@@ -35,7 +31,7 @@ export default function useLocations() {
 
     const deleteLocation = async (id: string) => {
         try {
-            await axios.delete(`${API_URL}/locations/${id}`);
+            await apiClient.delete(`/locations/${id}`);
             return true;
         } catch (error) {
             console.error("Error deleting location:", error);
