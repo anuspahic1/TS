@@ -231,11 +231,10 @@ namespace Service
 
         private SigningCredentials GetSigningCredentials()
         {
-            var secret = GetSecret();
-            Console.WriteLine(secret);
-            var key = Encoding.UTF8.GetBytes(secret);
-            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-  }
+            var key = Encoding.UTF8.GetBytes(GetSecret());
+            var secret = new SymmetricSecurityKey(key);
+            return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
+        }
 
         private async Task<List<Claim>> GetClaims()
         {
