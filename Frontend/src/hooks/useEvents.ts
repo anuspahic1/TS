@@ -1,16 +1,13 @@
 "use client"
 import { useState } from "react";
 import type { Event } from "../types/IEvent"
-// Import your custom apiClient instead of axios
 import { apiClient } from "../services/apiClient"; 
 
 export function useEvents() {
     const [events, setEvents] = useState<Event[]>([]);
 
-    // Helper to get relative paths (Vite proxy handles the /api prefix)
     const getUserEvents = async (userId: string) => {
         try {
-            // apiClient already prepends '/api', so just provide the rest
             const data = await apiClient.get<Event[]>(`/users/${userId}/events`);
             return data;
         } catch (error) {
@@ -37,7 +34,6 @@ export function useEvents() {
         try {
             if (!locId) throw new Error("Location ID is missing.");
 
-            // This now includes your Bearer token automatically!
             const responseData = await apiClient.post<Event>(
                 `/locations/${locId}/events`, 
                 newEvent
@@ -86,6 +82,17 @@ export function useEvents() {
         }
     };
 
+    const getEventVisitors = async (locationId: string, eventId: string) => {
+        try {
+            return await apiClient.get<any[]>(
+                `/locations/${locationId}/events/${eventId}/reservations/visitors`
+            );
+        } catch (error) {
+            console.error("Error fetching event visitors:", error);
+            return [];
+        }
+    }
+
     return {
         events,
         getAllEvents,
@@ -93,5 +100,6 @@ export function useEvents() {
         createEvent,
         updateEvent,
         deleteEvent,
+        getEventVisitors,
     }
 }
