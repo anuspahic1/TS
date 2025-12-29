@@ -51,11 +51,19 @@ var app = builder.Build();
 
 //app.ConfigureExceptionHandler(logger);
 
-if (args.Contains("--migrate"))
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<RepositoryContext>();
-    db.Database.Migrate();
+    try 
+    {
+        Console.WriteLine("--- POKRECEM MIGRACIJE ---");
+        db.Database.Migrate();
+        Console.WriteLine("--- MIGRACIJE GOTOVE ---");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"--- GRESKA KOD MIGRACIJE: {ex.Message} ---");
+    }
 }
 
 app.UseExceptionHandler(opt => { });

@@ -3,7 +3,6 @@ set -e
 
 echo "Waiting for SQL Server on port 1433..."
 
-# This uses a simple TCP check that doesn't need passwords or tools
 until timeout 1s bash -c 'cat < /dev/null > /dev/tcp/sqlserver/1433' 2>/dev/null; do
   echo "SQL Server is not reachable yet - waiting..."
   sleep 2
