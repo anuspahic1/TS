@@ -61,7 +61,7 @@ namespace EntrioX.Presentation.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        [Authorize]
+       // [Authorize]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] AppUserForUpdateDto user)
         {
@@ -79,7 +79,7 @@ namespace EntrioX.Presentation.Controllers
 
         [HttpPost("{id:guid}/roles")]
         [Authorize(Policy = "AdminOnly")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
+       // [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateUserRole(Guid id, [FromBody] string roleName)
         {
             await _service.AppUserService.UpdateUserRoleAsync(id, roleName);

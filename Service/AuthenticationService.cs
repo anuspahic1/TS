@@ -217,13 +217,13 @@ namespace Service
             return await CreateToken(populateExp: true);
         }
 
-        private SigningCredentials GetSigningCredentials()
-        {
-            var secret = GetSecret();
-            Console.WriteLine(secret);
-            var key = Encoding.UTF8.GetBytes(secret);
-            return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-  }
+       private SigningCredentials GetSigningCredentials()
+{
+    var secret = GetSecret();
+    Console.WriteLine(secret);
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)); // Dodano 'new SymmetricSecurityKey'
+    return new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+}
 
         private async Task<List<Claim>> GetClaims()
         {

@@ -49,6 +49,8 @@ services:
     build:
       context: ./Frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://44.198.185.25/api
     container_name: entriox-web
     restart: always
     ports:
