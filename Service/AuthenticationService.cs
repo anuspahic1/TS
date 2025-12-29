@@ -74,7 +74,19 @@ namespace Service
         {
             _user = await _userManager.FindByNameAsync(dto.UserName);
 
-            var twoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(_user);
+            var roles = await _userManager.GetRolesAsync(_user);
+            var isAdmin = roles.Contains("Administrator");
+
+            if (isAdmin)
+            {
+                var tokenDto = await CreateToken(populateExp: true);
+
+                return tokenDto with
+                {
+                    RequiresTwoFactor = false
+                };
+            }
+
             var hasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(_user) != null;
             
             var preAuthToken = CreatePreAuthToken(_user);
@@ -219,7 +231,7 @@ namespace Service
 
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable(GetSecret()));
+            var key = Encoding.UTF8.GetBytes(GetSecret());
             var secret = new SymmetricSecurityKey(key);
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
         }

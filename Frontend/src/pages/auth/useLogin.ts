@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 
 export const useLogin = () => {
   const [formData, setFormData] = useState({
@@ -11,7 +11,7 @@ export const useLogin = () => {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, completeLogin } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,41 +35,42 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
-      const result = await login(formData); 
+      const result = await login(formData);
 
-      if (!result.hasAuthenticatorKey) {
-        localStorage.setItem('preAuthToken', result.preAuthToken || '');
-        navigate('/2fa-setup');
-        return; 
-      }
+      if (result.accessToken && result.requiresTwoFactor === false) {
+        completeLogin(result.accessToken);
+        localStorage.removeItem('preAuthToken');
 
-      if (result.twoFactorEnabled) {
-        localStorage.setItem('preAuthToken', result.preAuthToken || '');
-        navigate('/two-step-verification', { state: location.state });
-        return; 
-      } 
+        const decoded: any = jwtDecode(result.accessToken);
+        const rolesClaim = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+        const roles: string[] = Array.isArray(decoded[rolesClaim]) ? decoded[rolesClaim] : [decoded[rolesClaim]];
 
-      const decoded: any = jwtDecode(result.accessToken);
-      const rolesClaim = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-      const roles: string[] = Array.isArray(decoded[rolesClaim]) 
-                              ? decoded[rolesClaim] 
-                              : [decoded[rolesClaim]];
+        const from = location.state?.from;
 
-      const from = location.state?.from;
-
-      if (from) {
-        navigate(from, { replace: true });
-      } else {
-        if (roles.includes('Administrator')) {
-        navigate('/admin-dashboard', { replace: true });
-        }
-          else if (roles.includes('Organizer')) {
+        if (from) {
+          navigate(from, { replace: true });
+        } else if (roles.includes('Administrator')) {
+          navigate('/admin-dashboard', { replace: true });
+        } else if (roles.includes('Organizer')) {
           navigate('/organizer-dashboard', { replace: true });
         } else {
           navigate('/user-dashboard', { replace: true });
         }
+
+        return;
       }
-      
+
+      if (!result.hasAuthenticatorKey) {
+        localStorage.setItem('preAuthToken', result.preAuthToken || '');
+        navigate('/2fa-setup');
+        return;
+      }
+
+      if (result.requiresTwoFactor) {
+        localStorage.setItem('preAuthToken', result.preAuthToken || '');
+        navigate('/two-step-verification', { state: location.state });
+        return;
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed.');
     } finally {
