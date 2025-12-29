@@ -23,6 +23,8 @@ services:
       dockerfile: ./EntrioX/Dockerfile
     container_name: entriox-api
     restart: always
+    env_file:
+      - .env
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
       ASPNETCORE_URLS: "http://+:8080"
@@ -30,7 +32,6 @@ services:
       # Connection string koristi ime servisa 'sqlserver'
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=EntrioX;User Id=sa;Password=YourStrong_Password123;TrustServerCertificate=True"
       # Ovdje stavi svoj pravi JWT secret
-      SECRET: "EntrioXSecretKey113211162023!!!!"
       SA_PASSWORD: "YourStrong_Password123"
     depends_on:
       - sqlserver

@@ -60,7 +60,7 @@ namespace EntrioX.Extensions
 
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<RepositoryContext>(opts => opts.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<RepositoryContext>(opts => opts.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),b => b.MigrationsAssembly("EntrioX")));
         }
 
         public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder)
